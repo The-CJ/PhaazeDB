@@ -1,0 +1,10 @@
+{
+	"adress": "localhost",
+	"port": 6969,
+
+	"auth":
+	[
+		{"login": "example", "password":"example"},
+		{"login": "example2", "password":"example2"}
+	]
+}
