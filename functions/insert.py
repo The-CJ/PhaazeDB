@@ -2,11 +2,11 @@ from utils.load import load
 from utils.store import store
 
 def insert(content, DUMP):
-	table_name = content.get("name", None)
+	table_name = content.get("from", None)
 	if table_name == None:
 		class r():
 			response = 400
-			content = b'{"error":"field: `name` missing"}'
+			content = b'{"error":"field: `from` missing"}'
 		return r
 
 	content_to_add = content.get("content", None)

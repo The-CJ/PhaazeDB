@@ -94,7 +94,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.flush()
 
 		elif action.lower() == "select":
-			rsp = select(content)
+			rsp = select(content, DUMP)
 
 			self.send_response(rsp.response)
 			self.end_headers()
