@@ -8,6 +8,7 @@ from functions.update import update as update
 from functions.insert import insert as insert
 from functions.select import select as select
 
+DUMP = {}
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
 
@@ -85,7 +86,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.flush()
 
 		elif action.lower() == "insert":
-			rsp = insert(content)
+			rsp = insert(content, DUMP)
 
 			self.send_response(rsp.response)
 			self.end_headers()

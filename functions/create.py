@@ -5,7 +5,7 @@ def create(content):
 	table_name = content.get('name', None)
 	if table_name == None:
 		class r():
-			response = 406
+			response = 400
 			content = b'{"error":"field: `name` missing"}'
 		return r
 
