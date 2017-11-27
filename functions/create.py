@@ -1,4 +1,4 @@
-import os, pickle
+import os, pickle, json
 from datetime import datetime
 
 def create(content):
@@ -6,13 +6,25 @@ def create(content):
 	if table_name == None:
 		class r():
 			response = 400
-			content = b'{"error":"field: `name` missing"}'
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `name` missing",
+					name=table_name
+				)
+			).encode("UTF-8")
 		return r
 
 	if os.path.isfile("DATABASE/{}.phaazedb".format(table_name)):
 		class r():
 			response = 405
-			content = '{"error":"container `{tbn}` already exists"}'.replace('{tbn}', table_name).encode("UTF-8")
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="container already exist",
+					name=table_name
+				)
+			).encode("UTF-8")
 		return r
 
 	#everything ok, make db
@@ -27,5 +39,11 @@ def create(content):
 
 	class r():
 		response = 201
-		content = b'{"msg":"successfull created"}'
+		content = json.dumps(
+			dict(
+				status="created",
+				msg="container created",
+				name=table_name
+			)
+		).encode("UTF-8")
 	return r
