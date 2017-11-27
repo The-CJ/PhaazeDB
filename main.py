@@ -107,8 +107,8 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.write(b'{"error":"method not supported"}')
 			self.wfile.flush()
 
-	#def log_message(self, format, *args):
-		#return
+	def log_message(self, _format, *args):
+		return
 
 def webserver(perms):
 	server = http.server.HTTPServer(( perms.get("adress", "0.0.0.0"), perms.get("port", 1001) ), RequestHandler)
@@ -119,5 +119,8 @@ try:
 	perms = json.loads(perms)
 except:
 	print("Error reading config.json")
+
+print(open("logo.txt", "r").read())
+print("Service ready to serve.")
 
 webserver(perms)
