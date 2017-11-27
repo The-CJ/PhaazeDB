@@ -1,25 +1,43 @@
 from utils.load import load
 from utils.store import store
 
+import json
+
 def insert(content, DUMP):
 	table_name = content.get("into", None)
 	if table_name == None:
 		class r():
 			response = 400
-			content = b'{"error":"field: `into` missing"}'
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `into` missing"
+				)
+			).encode("UTF-8")
+
 		return r
 
 	content_to_add = content.get("content", None)
 	if content_to_add == None:
 		class r():
 			response = 400
-			content = b'{"error":"field: `content` missing"}'
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `content` missing"
+				)
+			).encode("UTF-8")
 		return r
 
 	if content_to_add in [{}, [], "", 0] or not type(content_to_add) is dict:
 		class r():
 			response = 400
-			content = b'{"error":"field: `content` is missing a usable value", "msg":"please send at least a simple JSON: {key: value} as `content`"}'
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `content` is missing a usable JSON {key: value} value"
+				)
+			).encode("UTF-8")
 		return r
 
 	already_loaded = DUMP.get(table_name, None)
@@ -29,6 +47,18 @@ def insert(content, DUMP):
 
 	else:
 		active_container = already_loaded
+
+	if active_container == None:
+		class r():
+			response = 400
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `container dont\' exist",
+					name=table_name
+				)
+			).encode("UTF-8")
+		return r
 
 	#add id value
 	content_to_add["id"] = active_container['current_id']
@@ -41,10 +71,22 @@ def insert(content, DUMP):
 	if s:
 		class r():
 			response = 201
-			content = '{"msg":"successfull added", "content":{con}}'.replace('{con}', str(content_to_add)).encode("UTF-8")
+			content = json.dumps(
+				dict(
+					status="inserted",
+					msg="data successfull added",
+					container=table_name,
+					content=content_to_add
+				)
+			).encode("UTF-8")
 		return r
 	else:
 		class r():
 			response = 500
-			content = b'{"error":"entry could not be entered"}'
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="unknown server error"
+				)
+			).encode("UTF-8")
 		return r
