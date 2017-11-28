@@ -54,7 +54,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
-					msg="field: `container dont\' exist",
+					msg="container dont\' exist",
 					name=table_name
 				)
 			).encode("UTF-8")
