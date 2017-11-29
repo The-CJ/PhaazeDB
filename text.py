@@ -31,6 +31,19 @@ def insert_test():
     )
 )
 
+def select_test():
+    return dict (
+
+    action="select",
+    login="example",
+    password="example",
+
+    #of="test"+str(random.randint(0,100)),
+    of="twitch_msg"
+    )
+
+
+
 
 if __name__ == '__main__':
     print("-----")
@@ -76,7 +89,7 @@ if __name__ == '__main__':
             futures.append(pool.apply_async(requests.post, ["http://localhost:6969/"], kwds = dict(json = insert_test())))
 
         if int(type_) == 5:
-            futures.append(pool.apply_async(requests.post, ["http://localhost:6969/"], kwds = dict(json = insert_test())))
+            futures.append(pool.apply_async(requests.post, ["http://localhost:6969/"], kwds = dict(json = select_test())))
 
         if int(type_) == 6:
             futures.append(pool.apply_async(requests.post, ["http://localhost:6969/"], kwds = dict(json = insert_test())))

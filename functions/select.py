@@ -60,7 +60,7 @@ def select(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
-					msg="container dont\' exist",
+					msg="container don\'t exist",
 					name=table_name
 				)
 			).encode("UTF-8")
