@@ -21,6 +21,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		self.process()
 
 	def process(self):
+		print("d")
 		try: length = int(self.headers["Content-Length"])
 		except: length = 0
 
@@ -29,7 +30,14 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		try:
 			content=json.loads(content.decode("UTF-8"))
 		except:
-			content = {}
+			content = None
+
+		if content == None:
+			self.send_response(400)
+			self.end_headers()
+			self.wfile.write(b'{"error":"could not read content"}')
+			self.wfile.flush()
+			return
 
 		db_user = content.get('login', None)
 		db_password = content.get('password', None)
@@ -64,7 +72,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.flush()
 
 		elif action.lower() == "delete":
-			rsp = delete(content)
+			rsp = delete(content, DUMP)
 
 			self.send_response(rsp.response)
 			self.end_headers()

@@ -1,5 +1,5 @@
 {
-	"adress": "localhost",
+	"adress": "0.0.0.0",
 	"port": 6969,
 
 	"auth":
