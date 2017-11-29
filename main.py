@@ -1,5 +1,5 @@
 import http.server
-import json
+import json, datetime
 
 from functions.create import create as create
 from functions.delete import delete as delete
@@ -9,6 +9,8 @@ from functions.insert import insert as insert
 from functions.select import select as select
 
 DUMP = {}
+ENTRY = 0
+
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
 
@@ -25,7 +27,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		content = self.rfile.read(length)
 
 		try:
-			content=json.loads(content)
+			content=json.loads(content.decode("UTF-8"))
 		except:
 			content = {}
 
@@ -108,7 +110,10 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.flush()
 
 	def log_message(self, _format, *args):
-		return
+		global ENTRY
+		print("New Action: "+str(datetime.datetime.now())+" - Entry Nr.: "+str(ENTRY), end='\r')
+		ENTRY += 1
+
 
 def webserver(perms):
 	server = http.server.HTTPServer(( perms.get("adress", "0.0.0.0"), perms.get("port", 1001) ), RequestHandler)
@@ -116,11 +121,11 @@ def webserver(perms):
 
 perms = open("config.json", "rb").read()
 try:
-	perms = json.loads(perms)
+	perms = json.loads(perms.decode("UTF-8"))
 except:
 	print("Error reading config.json")
 
 print(open("logo.txt", "r").read())
-print("Service ready to serve.")
+print("Service ready to serve. Running on port: "+str(perms.get("port", 1001)))
 
 webserver(perms)
