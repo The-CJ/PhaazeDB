@@ -6,47 +6,13 @@ class not_found():
 	"Dummy class"
 
 def check_data_if_needed(data, where):
-	if where == []:
+	if where == "":
 		return True
 
-	valid = True
-	for statement in where:
-		if len(statement) == 0:
-			valid = False
-			continue
+	if eval(where):
+		return True
 
-		if statement[0] in [1, True]:
-			continue
-
-		if len(statement) == 1:
-			check = data.get(statement[0], not_found)
-			if check == not_found:
-				valid = False
-				continue
-			else: continue
-
-		key = statement[0]
-		compare = statement[1]
-		value = statement[2]
-
-		if not compare in ["==", "!=", "in", "not in", ">", "<", ">=" ,"<=", "<>"]:
-			valid = False
-
-		key_in_db = data.get(key, None)
-
-		check_str = '{0} {1} {2}'.format(key_in_db, compare, value)
-		try:
-			state = eval(check_str)
-		except:
-			state = False
-
-		if state:
-			pass
-		else:
-			valid = False
-
-
-	return valid
+	return False
 
 def requested_data(data, requested_fields):
 	if requested_fields == []:
@@ -60,9 +26,9 @@ def requested_data(data, requested_fields):
 	return d
 
 def select(content, DUMP):
-	table_name = content.get("from", None)
+	table_name = content.get("of", None)
 	requested_fields = content.get("fields", [])
-	where = content.get("where", [])
+	where = content.get("where", "")
 
 	#error handling
 
@@ -70,7 +36,12 @@ def select(content, DUMP):
 	if table_name == None:
 		class r():
 			response = 400
-			content = b'{"error":"field: `from` missing"}'
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `of` missing",
+				)
+			).encode("UTF-8")
 		return r
 
 	already_loaded = DUMP.get(table_name, None)
@@ -80,6 +51,20 @@ def select(content, DUMP):
 
 	else:
 		active_container = already_loaded
+
+
+	#no container found
+	if active_container == None:
+		class r():
+			response = 400
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="container dont\' exist",
+					name=table_name
+				)
+			).encode("UTF-8")
+		return r
 
 	return_data = []
 
