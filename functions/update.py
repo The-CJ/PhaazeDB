@@ -108,7 +108,7 @@ def update(content, DUMP):
 	class r():
 		response = 200
 		content = str(dict(
-		hits=len(hits),
+		hits=hits,
 		status="updated",
 		msg="successfull updated/added values"
 		)).encode("UTF-8")

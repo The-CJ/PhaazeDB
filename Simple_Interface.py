@@ -1,4 +1,4 @@
-import requests
+import requests, json
 
 class dump:
 	pass
@@ -30,8 +30,8 @@ def create_call():
 		print(str(call)+'\n')
 
 		while True:
-			y = input("Enter 'y' to send command or 'q' to cancel\n>>> ")
-			if y == 'y':
+			y = input("Enter to send command or 'q' to cancel\n>>> ")
+			if y == '':
 				try:
 					r = requests.post(dump.adress+dump.port, json=call)
 					print(r.text)
@@ -56,8 +56,8 @@ def drop_call():
 		print(str(call)+'\n')
 
 		while True:
-			y = input("Enter 'y' to send command or 'q' to cancel\n>>> ")
-			if y == 'y':
+			y = input("Enter to send command or 'q' to cancel\n>>> ")
+			if y == '':
 				try:
 					r = requests.post(dump.adress+dump.port, json=call)
 					print(r.text)
@@ -69,21 +69,28 @@ def drop_call():
 			elif y == "q":
 				return
 
-def insert_call(): #
+def insert_call():
 	while True:
 		clear()
-		print("This will remove a container.\n")
-		print("Enter Container name to delete, or 'q' to return")
+		print("This will insert data in a container.\n")
+		print("Enter Container name, or 'q' to return")
 		name = input(">>>: ")
 		if name == "q":break
 		if name == "":continue
 
-		call = dict(action="delete",login=dump.username,password=dump.password,name=name)
+		while True:
+			try:
+				content_ = json.loads(input("Enter JSON Content\n>>> "))
+				break
+			except:
+				pass
+
+		call = dict(action="insert",login=dump.username,password=dump.password,into=name, content=content_)
 		print(str(call)+'\n')
 
 		while True:
-			y = input("Enter 'y' to send command or 'q' to cancel\n>>> ")
-			if y == 'y':
+			y = input("Enter to send command or 'q' to cancel\n>>> ")
+			if y == '':
 				try:
 					r = requests.post(dump.adress+dump.port, json=call)
 					print(r.text)
@@ -122,8 +129,8 @@ def delete_call(): #
 		print(str(call)+'\n')
 
 		while True:
-			y = input("Enter 'y' to send command or 'q' to cancel\n>>> ")
-			if y == 'y':
+			y = input("Enter to send command or 'q' to cancel\n>>> ")
+			if y == '':
 				try:
 					r = requests.post(dump.adress+dump.port, json=call)
 					print(r.text)
@@ -138,18 +145,39 @@ def delete_call(): #
 def update_call(): #
 	while True:
 		clear()
-		print("This will remove a container.\n")
-		print("Enter Container name to delete, or 'q' to return")
+		print("This will update a container.\n")
+		print("Enter Container name to update, or 'q' to return")
 		name = input(">>>: ")
 		if name == "q":break
 		if name == "":continue
 
-		call = dict(action="delete",login=dump.username,password=dump.password,name=name)
+		while True:
+			print("Enter WHERE statement or hit enter to select all:")
+			where = input("Remember eval compare form:\nFALSE: a_test_value = 'hello'\nRIGHT: data['a_test_value'] == 'hello'\n\n>>> ")
+			if where == "":
+				break
+			print("Use this where? enter: 'y'")
+			y = input(">>> ")
+			if y == "y":
+				break
+			else:
+				continue
+
+		while True:
+			try:
+				content_ = json.loads(input("Enter JSON Content\n>>> "))
+				break
+			except:
+				pass
+
+
+
+		call = dict(action="update",login=dump.username,password=dump.password,of=name, content=content_, where=where)
 		print(str(call)+'\n')
 
 		while True:
-			y = input("Enter 'y' to send command or 'q' to cancel\n>>> ")
-			if y == 'y':
+			y = input("Enter to send command or 'q' to cancel\n>>> ")
+			if y == '':
 				try:
 					r = requests.post(dump.adress+dump.port, json=call)
 					print(r.text)
@@ -177,7 +205,8 @@ def select_call(): #
 				break
 			fields = fields.split(",")
 			print("Use this fields? enter: 'y'")
-			y = input(fields)
+			print(fields)
+			y = input(">>> ")
 			if y == "y":
 				break
 			else:
@@ -199,8 +228,8 @@ def select_call(): #
 		print(str(call)+'\n')
 
 		while True:
-			y = input("Enter 'y' to send command or 'q' to cancel\n>>> ")
-			if y == 'y':
+			y = input("Enter to send command or 'q' to cancel\n>>> ")
+			if y == '':
 				try:
 					r = requests.post(dump.adress+dump.port, json=call)
 					print(r.text)
