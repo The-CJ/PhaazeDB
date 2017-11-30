@@ -35,7 +35,12 @@ def create(content):
 		creation_date = str(datetime.now())
 	)
 
-	pickle.dump(container, open("DATABASE/{}.phaazedb".format(table_name), "wb") )
+	g = "DATABASE/{}.phaazedb".format(table_name)
+	g = g.replace("../", "")
+
+	os.makedirs(os.path.dirname(g),exist_ok=True)
+
+	pickle.dump(container, open(g, "wb") )
 
 	class r():
 		response = 201

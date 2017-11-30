@@ -52,7 +52,7 @@ def drop_call():
 		if name == "q":break
 		if name == "":continue
 
-		call = dict(action="delete",login=dump.username,password=dump.password,name=name)
+		call = dict(action="drop",login=dump.username,password=dump.password,name=name)
 		print(str(call)+'\n')
 
 		while True:

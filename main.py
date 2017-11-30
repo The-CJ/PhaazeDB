@@ -21,7 +21,6 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		self.process()
 
 	def process(self):
-		print("d")
 		try: length = int(self.headers["Content-Length"])
 		except: length = 0
 

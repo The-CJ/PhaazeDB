@@ -22,5 +22,6 @@ def drop(content):
 
 	class r():
 		response = 202
+		name= table_name,
 		content = b'{"msg":"successfull deleted"}'
 	return r
