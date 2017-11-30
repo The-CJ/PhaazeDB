@@ -27,7 +27,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		content = self.rfile.read(length)
 
 		try:
-			content=json.loads(content.decode("UTF-8"))
+			content = json.loads(content.decode("UTF-8"))
 		except:
 			content = None
 
@@ -87,7 +87,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.flush()
 
 		elif action.lower() == "update":
-			rsp = update(content)
+			rsp = update(content, DUMP)
 
 			self.send_response(rsp.response)
 			self.end_headers()
