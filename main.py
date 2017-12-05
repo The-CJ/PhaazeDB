@@ -9,10 +9,10 @@ from functions.insert import insert as insert
 from functions.select import select as select
 
 DUMP = {}
-ENTRY = 0
-
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
+
+	log = []
 
 	def do_GET(self):
 		self.process()
@@ -117,10 +117,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.flush()
 
 	def log_message(self, _format, *args):
-		global ENTRY
-		print("New Action: "+str(datetime.datetime.now())+" - Entry Nr.: "+str(ENTRY), end='\r')
-		ENTRY += 1
-
+		return
 
 def webserver(perms):
 	server = http.server.HTTPServer(( perms.get("adress", "0.0.0.0"), perms.get("port", 1001) ), RequestHandler)
@@ -133,6 +130,6 @@ except:
 	print("Error reading config.json")
 
 print(open("logo.txt", "r").read())
-print("Service ready to serve. Running on port: "+str(perms.get("port", 1001)))
+print("Running on port: "+str(perms.get("port", 1001)) + "\n")
 
 webserver(perms)
