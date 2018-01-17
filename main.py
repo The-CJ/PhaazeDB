@@ -34,7 +34,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		if content == None:
 			self.send_response(400)
 			self.end_headers()
-			self.wfile.write(b'{"error":"could not read content"}')
+			self.wfile.write(json.dumps(status="error", msg="missing or corrupted content body").encode("UTF-8"))
 			self.wfile.flush()
 			return
 
@@ -50,7 +50,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		if allow == False:
 			self.send_response(401)
 			self.end_headers()
-			self.wfile.write(b'{"error":"missing or wrong login data"}')
+			self.wfile.write(json.dumps(status="error", msg="unauthorised").encode("UTF-8"))
 			self.wfile.flush()
 			return
 
@@ -59,7 +59,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		if action == None:
 			self.send_response(400)
 			self.end_headers()
-			self.wfile.write(b'{"error": "missing body"}')
+			self.wfile.write(json.dumps(status="error", msg="missing 'action'").encode("UTF-8"))
 			self.wfile.flush()
 			return
 
@@ -114,7 +114,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		else:
 			self.send_response(406)
 			self.end_headers()
-			self.wfile.write(b'{"error":"method not supported"}')
+			self.wfile.write(json.dumps(status="error", msg="method '{}' not supported".format(action)).encode("UTF-8"))
 			self.wfile.flush()
 
 	def log_message(self, _format, *args):
