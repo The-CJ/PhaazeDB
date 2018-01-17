@@ -86,6 +86,7 @@ def select(content, DUMP):
 		content = str(
 			json.dumps(
 				dict(
+					status="selected",
 					hits=len(return_data),
 					data=return_data
 					)

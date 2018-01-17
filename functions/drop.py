@@ -1,20 +1,31 @@
-import os
+import os, json
 
 def drop(content):
 	table_name = content.get('name', None)
 	if table_name == None:
 		class r():
-			response = 406
-			content = b'{"error":"field: `name` missing"}'
+			response = 400
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `name` missing"
+				)
+			).encode("UTF-8")
+
 		return r
 
 	if not os.path.isfile("DATABASE/{}.phaazedb".format(table_name)):
 		class r():
 			response = 405
-			content = '{"error":"container `{tbn}` does not exists"}'.replace('{tbn}', table_name).encode("UTF-8")
-		return r
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="container does not exists",
+					name=table_name
+				)
+			).encode("UTF-8")
 
-	#everything ok, del db
+		return r
 
 	path = "DATABASE/{}.phaazedb".format(table_name)
 
@@ -22,6 +33,12 @@ def drop(content):
 
 	class r():
 		response = 202
-		name= table_name,
-		content = b'{"msg":"successfull deleted"}'
+		content = json.dumps(
+			dict(
+				status="droped",
+				msg="container successfull droped",
+				name=table_name
+			)
+		).encode("UTF-8")
+
 	return r
