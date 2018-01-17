@@ -83,8 +83,12 @@ def select(content, DUMP):
 
 	class r():
 		response = 200
-		content = str(dict(
-		hits=len(return_data),
-		data=return_data
-		)).encode("UTF-8")
+		content = str(
+			json.dumps(
+				dict(
+					hits=len(return_data),
+					data=return_data
+					)
+				)
+			).encode("UTF-8")
 	return r

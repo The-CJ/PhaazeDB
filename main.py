@@ -45,6 +45,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		for user in perms.get('auth', []):
 			if db_user == user.get('login', None) and db_password == user.get('password', None):
 				allow = True
+				break
 
 		if allow == False:
 			self.send_response(401)
