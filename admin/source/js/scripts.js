@@ -5,24 +5,22 @@ $('document').ready(
 )
 
 function format_container(folder, name=null) {
-  console.log(folder);
-  let d = $('#sc_phantom').clone().removeAttr('hidden');
+  //let d = $('#sc_phantom > div').clone();
 
-  //must work with id
-  d.find('.name_space').text(name);
-
+  var d = $('#sc_phantom > div').clone();
+  d.children('div').children('button').children('.name_space').text(name);
 
   for (var thing in folder.supercontainer) {
     obj = folder.supercontainer[thing];
     let n = format_container(obj, name=thing);
-    d.find('.sc_inner').append(n);
+    d.children('div').children('.sc_inner').append(n);
   }
 
   for (var thing in folder.container) {
     name = folder.container[thing];
-    let a =  $('#c_phantom').clone().removeAttr('hidden');
-    a.find('button').text(name);
-    d.find('.sc_inner').append(a)
+    let a =  $('#c_phantom > div').clone();
+    a.children('div').children('button').text(name);
+    d.children('div').children('.sc_inner').append(a);
   }
 
   return d;

@@ -20,39 +20,38 @@
 		<div hidden id="sc_phantom">
 			<div class="row" style="margin:0.5em 0 0.5em 0;">
 				<div class="col" style="padding-left:0;padding-right:0;">
-					<button type="button" class="btn-block btn" onclick="javascript:$(this).parent().find('.sc_inner').collapse('toggle')" style="text-transform:none;background:#AA4444;">
+					<button type="button" class="btn-block btn" onclick="javascript:$(this).parent().children('.sc_inner').collapse('toggle')" style="text-transform:none;background:#AA4444;">
 						<span>▼&nbsp;</span>
 						<span class="name_space"></span>
 					</button>
-					<div class="sc_inner collapse"></div>
+					<div class="sc_inner collapse" style="padding-left:0.75em;"></div>
 				</div>
 			</div>
 		</div>
 
 		<div class="container-fluid white-text position-fixed">
-			<div class="row stylish-color-dark" style="padding-left:15%;padding-right:15%;">
-				<h1>PhaazeDB - Administration</h1>
-				<hr>
-				<input type="password" class="white-text" value="" placeholder="DB Token" id="db_token">
-				<p>Please insert DB-Token AND leave it there all time</p>
+			<div class="row stylish-color-dark">
+				<div class="col-2 text-center" style="margin:auto;">
+					<button type="button" class="btn btn-primary" style="padding:5px;"><h3 style="margin:0px;" onclick="load_container()">Login</h3></button>
+				</div>
+				<div class="col">
+					<h1>PhaazeDB - Administration</h1>
+					<hr>
+					<input type="password" class="white-text" value="" placeholder="DB Token" id="db_token">
+					<p>Please insert DB-Token AND leave it there all time</p>
+				</div>
 			</div>
 		</div>
 
 		<div class="container-fluid white-text">
 			<div class="row">
-				<div class="col-2 grey" style="padding-left:0;padding-right:0;">
-
-					<div class="row">
-						<div class="col text-center">
-							<button type="button" class="btn btn-primary" style="padding:5px;"><h3 style="margin:0px;" onclick="load_container()">Load Container</h3></button>
-						</div>
-					</div>
+				<div class="col-2" style="padding-left:0;padding-right:0;border-right:3px solid black;">
 
 					<div class="" id="container_list"></div>
 
 				</div>
 
-				<div class="col-10 white" style="padding-left:0">
+				<div class="col-10" style="padding-left:0">
 					<div class="row">
 						<div class="col text-center">
 							<h3>Results</h3>
@@ -65,8 +64,6 @@
     <script src="/admin/source/js/jquery.js"></script>
 		<script src="/admin/source/js/bootstrap.js"></script>
     <script src="/admin/source/js/mdb.js"></script>
-
     <script src="/admin/source/js/scripts.js"></script>
-
 	</body>
 </html>
