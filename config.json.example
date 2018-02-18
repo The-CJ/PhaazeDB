@@ -2,9 +2,6 @@
 	"adress": "0.0.0.0",
 	"port": 2000,
 
-	"auth":
-	[
-		{"login": "example", "password":"example"},
-		{"login": "example2", "password":"example2"}
-	]
+	"auth_token": "example!!!_..,"
+
 }

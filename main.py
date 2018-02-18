@@ -7,6 +7,9 @@ from functions.drop import drop as drop
 from functions.update import update as update
 from functions.insert import insert as insert
 from functions.select import select as select
+from functions.show import show as show
+
+from admin.website import website as website
 
 DUMP = {}
 
@@ -21,6 +24,15 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		self.process()
 
 	def process(self):
+		if self.path.startswith('/admin'):
+			r = website(self.path)
+			self.send_response(200)
+			self.end_headers()
+			self.wfile.write(r.encode("UTF-8"))
+			self.wfile.flush()
+			return
+
+
 		try: length = int(self.headers["Content-Length"])
 		except: length = 0
 
@@ -33,24 +45,23 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 
 		if content == None:
 			self.send_response(400)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
-			self.wfile.write(json.dumps(status="error", msg="missing or corrupted content body").encode("UTF-8"))
+			self.wfile.write(json.dumps(dict(status="error", msg="missing or corrupted content body")).encode("UTF-8"))
 			self.wfile.flush()
 			return
 
-		db_user = content.get('login', None)
-		db_password = content.get('password', None)
+		token = content.get('token', None)
 
 		allow = False
-		for user in perms.get('auth', []):
-			if db_user == user.get('login', None) and db_password == user.get('password', None):
-				allow = True
-				break
+		if token == perms.get('auth_token', None):
+			allow = True
 
 		if allow == False:
 			self.send_response(401)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
-			self.wfile.write(json.dumps(status="error", msg="unauthorised").encode("UTF-8"))
+			self.wfile.write(json.dumps(dict(status="error", msg="unauthorised")).encode("UTF-8"))
 			self.wfile.flush()
 			return
 
@@ -58,8 +69,9 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		#get method
 		if action == None:
 			self.send_response(400)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
-			self.wfile.write(json.dumps(status="error", msg="missing 'action'").encode("UTF-8"))
+			self.wfile.write(json.dumps(dict(status="error", msg="missing 'action'")).encode("UTF-8"))
 			self.wfile.flush()
 			return
 
@@ -67,6 +79,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			rsp = create(content)
 
 			self.send_response(rsp.response)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
 			self.wfile.write(rsp.content)
 			self.wfile.flush()
@@ -75,6 +88,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			rsp = delete(content, DUMP)
 
 			self.send_response(rsp.response)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
 			self.wfile.write(rsp.content)
 			self.wfile.flush()
@@ -83,6 +97,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			rsp = drop(content)
 
 			self.send_response(rsp.response)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
 			self.wfile.write(rsp.content)
 			self.wfile.flush()
@@ -91,6 +106,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			rsp = update(content, DUMP)
 
 			self.send_response(rsp.response)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
 			self.wfile.write(rsp.content)
 			self.wfile.flush()
@@ -99,6 +115,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			rsp = insert(content, DUMP)
 
 			self.send_response(rsp.response)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
 			self.wfile.write(rsp.content)
 			self.wfile.flush()
@@ -107,14 +124,25 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			rsp = select(content, DUMP)
 
 			self.send_response(rsp.response)
+			self.send_header('Content-Type', 'application/json')
+			self.end_headers()
+			self.wfile.write(rsp.content)
+			self.wfile.flush()
+
+		elif action.lower() == "show":
+			rsp = show(content, DUMP)
+
+			self.send_response(rsp.response)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
 			self.wfile.write(rsp.content)
 			self.wfile.flush()
 
 		else:
 			self.send_response(406)
+			self.send_header('Content-Type', 'application/json')
 			self.end_headers()
-			self.wfile.write(json.dumps(status="error", msg="method '{}' not supported".format(action)).encode("UTF-8"))
+			self.wfile.write(json.dumps(dict(status="error", msg="method '{}' not supported".format(action))).encode("UTF-8"))
 			self.wfile.flush()
 
 	def log_message(self, _format, *args):
