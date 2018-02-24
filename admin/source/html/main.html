@@ -5,9 +5,10 @@
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="/admin/source/css/bootstrap.css">
 		<link rel="stylesheet" href="/admin/source/css/mdb.css">
+		<link rel="stylesheet" href="/admin/source/css/basic.css">
   </head>
 
-	<body class="stylish-color">
+	<body class="stylish-color" style="height:100vh;">
 
 		<div hidden id="error_phantom" class="navbar">
 
@@ -55,9 +56,18 @@
 
 		<div hidden id="result_col_phantom">
 
-			<div class="green" style="margin:0.1em;padding:0.4em;min-width:200px;max-width:500px;overflow:hidden;">
+			<div class="green" style="margin:0.1em;padding:0.4em;">
 
-				<span class="_a" style="margin:auto;"></span><input type="text" class="_b white" style="margin:auto;" value="">
+				<div class="row">
+					<div class="col">
+						<span class="_a" style="margin:auto;"></span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						<input type="text" class="_b white entry_input" style="margin:auto;" value="">
+					</div>
+				</div>
 
 			</div>
 
@@ -65,10 +75,18 @@
 
 		<div hidden id="result_col_obj_phantom">
 
-			<div class="orange" style="margin:0.1em;padding:0.4em;min-width:200px;max-width:500px;overflow:hidden;">
+			<div class="orange" style="margin:0.1em;padding:0.4em;">
 
-				<span class="_a" style="margin:auto;"></span>
-				<textarea name="name" class="_b white"></textarea>
+				<div class="row">
+					<div class="col">
+						<span class="_a" style="margin:auto;"></span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						<textarea name="name" class="_b white entry_input"></textarea>
+					</div>
+				</div>
 
 			</div>
 
@@ -78,17 +96,16 @@
 
 			<div class="blue" style="margin:0.1em;padding:0.4em;width:100px;overflow:hidden;">
 
-				<span class="_a" style="margin:auto;"></span><input type="text" class="_b" style="margin:auto;cursor: not-allowed;" value="" disabled>
+				<span class="_a" style="margin:auto;"></span><input type="text" class="_b white" style="margin:auto;cursor: not-allowed;" value="" disabled>
 
 			</div>
 
 		</div>
 
-		<div id="msg_display" class="float-right" style="top:0px;right:0px;z-index:5;position:fixed;"></div>
-
-		<!-- Header -->
-		<div class="container-fluid white-text" style="position:sticky;">
-			<div class="row stylish-color-dark">
+		<!-- Window -->
+		<div class="container-fluid white-text"  style="height:100vh;">
+			<!-- Header -->
+			<div class="row stylish-color-dark" style="height:20%;">
 				<div class="col-2 text-center" style="margin:auto;">
 					<div class="row">
 						<div class="col">
@@ -109,25 +126,86 @@
 							<p>Please insert DB-Token AND leave it there all time</p>
 						</div>
 					</div>
+					<div class="row">
+
+						<div class="text-right" style="position:relative;margin-left:1em;">
+							<span style="vertical-align: -webkit-baseline-middle;">View:</span>
+						</div>
+						<div class="col">
+							<input type="text" class="white-text" value="None" id="current_view_container" disabled>
+						</div>
+
+					</div>
 				</div>
+			</div>
+
+			<!-- Body -->
+			<div class="row" style="height:75%;">
+				<!-- Container -->
+				<div class="col-2" style="padding-left:0;padding-right:0;border-right:3px solid black;height:100%;">
+					<div class="" id="container_list"></div>
+				</div>
+
+				<!-- Results -->
+				<div class="col-10" style="padding-left:0;overflow-y:scroll;" id="result_place"></div>
+			</div>
+
+		</div>
+
+		<!-- Search Settings Field -->
+		<div class="stylish-color-dark white-text setting-footer">
+			<div class="collapse" id="setting_footer">
+				<div class="row">
+					<div class="col text-center">
+						<span>FOOTER</span>
+					</div>
+				</div>
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
+				<input type="text" name="" value="">
 			</div>
 		</div>
 
-		<!-- Content Body -->
-		<div class="container-fluid white-text">
-			<div class="row">
-				<div class="col-2" style="padding-left:0;padding-right:0;border-right:3px solid black;height:100%;">
-
-					<div class="" id="container_list"></div>
-
-				</div>
-
-				<div class="col-10" style="padding-left:0"  id="result_place">
-
-					<!--  -->
-
-				</div>
-			</div>
+		<!-- fix elemtens  -->
+		<div id="footer_button_place" class="stylish-color-dark" style="bottom:0px;right:0px;z-index:2;position:fixed;width:100%;height:5%;"></div>
+		<div id="msg_display" class="float-right" style="top:0px;right:0px;z-index:3;position:fixed;"></div>
+		<div id="settings_button" class="float-right" style="bottom:0px;right:0px;z-index:4;position:fixed;">
+			<button type="button" class="btn btn-danger" onclick="$('#setting_footer').collapse('toggle');">Search Settings</button>
 		</div>
 
     <script src="/admin/source/js/jquery.js"></script>

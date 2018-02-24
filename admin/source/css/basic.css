@@ -1,0 +1,17 @@
+.setting-footer {
+  bottom:0px;
+  right:0px;
+  z-index:1;
+  position:fixed;
+  width:100%;
+  transition-duration: 0.5s;
+}
+
+.entry_input {
+  width: 150px!important;
+  transition-duration: 0.5;
+}
+
+.entry_input:focus {
+  width: 500px!important;
+}

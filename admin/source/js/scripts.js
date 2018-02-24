@@ -35,6 +35,8 @@ function show_message(message) {
 }
 
 function get_result(container, limit=null, offset=null) {
+  $("#current_view_container").val(container);
+
   var r = {};
   r['token'] = $('#db_token').val();
   r['action'] = 'select';
@@ -63,8 +65,8 @@ function get_result(container, limit=null, offset=null) {
           rrp_c = rrp.clone();
 
           rip_c = rip.clone();
-          rip_c.children('._a').text('id');
-          rip_c.children('._b').attr('value',entry['id']);
+          rip_c.find('._a').text('id');
+          rip_c.find('._b').attr('value',entry['id']);
 
           rrp_c.children('.inner').append(rip_c);
           delete entry['id'];
@@ -74,15 +76,15 @@ function get_result(container, limit=null, offset=null) {
 
             if (typeof data_content === 'object') {
               rcop_c = rcop.clone();
-              rcop_c.children('._a').text(data_number);
-              rcop_c.children('._b').text(JSON.stringify(data_content));
+              rcop_c.find('._a').text(data_number);
+              rcop_c.find('._b').text(JSON.stringify(data_content));
 
               rrp_c.children('.inner').append(rcop_c);
 
             } else {
               rcp_c = rcp.clone();
-              rcp_c.children('._a').text(data_number);
-              rcp_c.children('._b').attr('value',data_content);
+              rcp_c.find('._a').text(data_number);
+              rcp_c.find('._b').attr('value',data_content);
 
               rrp_c.children('.inner').append(rcp_c);
             }
