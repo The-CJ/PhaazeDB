@@ -28,7 +28,10 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			r = website(self.path)
 			self.send_response(200)
 			self.end_headers()
-			self.wfile.write(r.encode("UTF-8"))
+			if type(r) is not bytes:
+				r = r.encode('UTF-8')
+
+			self.wfile.write(r)
 			self.wfile.flush()
 			return
 

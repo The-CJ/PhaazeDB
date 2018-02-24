@@ -1,6 +1,6 @@
 def website(path):
     if path == '/admin':
-        r = open("admin/source/html/main.html","r",encoding='utf-8').read()
+        r = open("admin/source/html/main.html","rb",).read()
         return r
 
     else:
@@ -8,7 +8,7 @@ def website(path):
         path = path.strip('/')
 
         try:
-            r = open(path, "r", encoding='utf-8').read()
+            r = open(path, "rb").read()
             return r
 
         except:

@@ -6,6 +6,7 @@ def get_folder_content(p):
 	r = {'supercontainer': {},'container': []}
 	for thing in os.listdir('DATABASE/'+p):
 		if thing.endswith('.phaazedb'):
+			thing = thing.split('.phaazedb')[0]
 			r['container'].append(thing)
 
 		else:
@@ -19,6 +20,7 @@ def show(content, DUMP):
 
 	for thing in os.listdir('DATABASE'):
 		if thing.endswith('.phaazedb'):
+			thing = thing.split('.phaazedb')[0]
 			all_container['container'].append(thing)
 
 		else:

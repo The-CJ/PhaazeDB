@@ -9,10 +9,26 @@
 
 	<body class="stylish-color">
 
+		<div hidden id="error_phantom" class="navbar">
+
+			<div id="{id}" class="red black-text animated fadeOut" style="margin:0.75em;padding:0.75em;border:2px solid black;border-radius:5px;animation-delay: 5s">
+				<span><b>{msg}</b></span>
+			</div>
+
+		</div>
+
+		<div hidden id="message_phantom">
+
+			<div id="{id}" class="white black-text animated fadeOut" style="margin:0.75em;padding:0.75em;border:2px solid black;border-radius:5px;animation-delay: 5s">
+				<span><b>{msg}</b></span>
+			</div>
+
+		</div>
+
 		<div hidden id="c_phantom">
 			<div class="row" style="margin:0.5em 0 0.5em 0;">
 				<div class="col" style="padding-left:0;padding-right:0;">
-					<button type="button" class="btn btn-block" style="text-transform:none;background:#881111;"></button>
+					<button type="button" class="btn btn-block" style="text-transform:none;background:#881111;" onclick="get_result($(this).text())"></button>
 				</div>
 			</div>
 		</div>
@@ -29,34 +45,87 @@
 			</div>
 		</div>
 
-		<div class="container-fluid white-text position-fixed">
+		<div hidden id="result_row_phantom">
+
+			<div class="inner" style="margin:0.5em;display:-webkit-box;">
+
+			</div>
+
+		</div>
+
+		<div hidden id="result_col_phantom">
+
+			<div class="green" style="margin:0.1em;padding:0.4em;min-width:200px;max-width:500px;overflow:hidden;">
+
+				<span class="_a" style="margin:auto;"></span><input type="text" class="_b white" style="margin:auto;" value="">
+
+			</div>
+
+		</div>
+
+		<div hidden id="result_col_obj_phantom">
+
+			<div class="orange" style="margin:0.1em;padding:0.4em;min-width:200px;max-width:500px;overflow:hidden;">
+
+				<span class="_a" style="margin:auto;"></span>
+				<textarea name="name" class="_b white"></textarea>
+
+			</div>
+
+		</div>
+
+		<div hidden id="result_id_phantom">
+
+			<div class="blue" style="margin:0.1em;padding:0.4em;width:100px;overflow:hidden;">
+
+				<span class="_a" style="margin:auto;"></span><input type="text" class="_b" style="margin:auto;cursor: not-allowed;" value="" disabled>
+
+			</div>
+
+		</div>
+
+		<div id="msg_display" class="float-right" style="top:0px;right:0px;z-index:5;position:fixed;"></div>
+
+		<!-- Header -->
+		<div class="container-fluid white-text" style="position:sticky;">
 			<div class="row stylish-color-dark">
 				<div class="col-2 text-center" style="margin:auto;">
+					<div class="row">
+						<div class="col">
+							<img src="admin/source/PhaazeDB.png" alt="d" class="img-fluid">
+						</div>
+						<div class="col text-left" style="margin:auto;">
+							<span>PhaazeDB</span>
+						</div>
+					</div>
 					<button type="button" class="btn btn-primary" style="padding:5px;"><h3 style="margin:0px;" onclick="load_container()">Login</h3></button>
 				</div>
 				<div class="col">
 					<h1>PhaazeDB - Administration</h1>
 					<hr>
-					<input type="password" class="white-text" value="" placeholder="DB Token" id="db_token">
-					<p>Please insert DB-Token AND leave it there all time</p>
+					<div class="row">
+						<div class="col-3">
+							<input type="password" class="white-text" value="" placeholder="DB Token" id="db_token">
+							<p>Please insert DB-Token AND leave it there all time</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 
+		<!-- Content Body -->
 		<div class="container-fluid white-text">
 			<div class="row">
-				<div class="col-2" style="padding-left:0;padding-right:0;border-right:3px solid black;">
+				<div class="col-2" style="padding-left:0;padding-right:0;border-right:3px solid black;height:100%;">
 
 					<div class="" id="container_list"></div>
 
 				</div>
 
-				<div class="col-10" style="padding-left:0">
-					<div class="row">
-						<div class="col text-center">
-							<h3>Results</h3>
-						</div>
-					</div>
+				<div class="col-10" style="padding-left:0"  id="result_place">
+
+					<!--  -->
+
 				</div>
 			</div>
 		</div>
