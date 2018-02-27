@@ -54,9 +54,9 @@
 
 		</div>
 
-		<div hidden id="result_col_phantom">
+		<div hidden id="result_col_input_phantom">
 
-			<div class="green" style="margin:0.1em;padding:0.4em;">
+			<div class="" style="margin:0.1em;padding:0.4em;">
 
 				<div class="row">
 					<div class="col">
@@ -73,9 +73,9 @@
 
 		</div>
 
-		<div hidden id="result_col_obj_phantom">
+		<div hidden id="result_col_textarea_phantom">
 
-			<div class="orange" style="margin:0.1em;padding:0.4em;">
+			<div class="" style="margin:0.1em;padding:0.4em;">
 
 				<div class="row">
 					<div class="col">
@@ -84,19 +84,9 @@
 				</div>
 				<div class="row">
 					<div class="col">
-						<textarea name="name" class="_b white entry_input"></textarea>
+						<textarea class="_b white entry_input" style="margin:auto;"></textarea>
 					</div>
 				</div>
-
-			</div>
-
-		</div>
-
-		<div hidden id="result_id_phantom">
-
-			<div class="blue" style="margin:0.1em;padding:0.4em;width:100px;overflow:hidden;">
-
-				<span class="_a" style="margin:auto;"></span><input type="text" class="_b white" style="margin:auto;cursor: not-allowed;" value="" disabled>
 
 			</div>
 
@@ -132,7 +122,7 @@
 							<span style="vertical-align: -webkit-baseline-middle;">View:</span>
 						</div>
 						<div class="col">
-							<input type="text" class="white-text" value="None" id="current_view_container" disabled>
+							<input type="text" class="white-text last_selected_container" value="None" id="current_view_container" disabled>
 						</div>
 
 					</div>
@@ -152,60 +142,129 @@
 
 		</div>
 
-		<!-- Search Settings Field -->
-		<div class="stylish-color-dark white-text setting-footer">
-			<div class="collapse" id="setting_footer">
+		<!-- collapseable toggle Fields -->
+		<div class="multi_use_footer">
+			<div class="collapse white-text" id="new_footer" style="background:#205612;">
+				<div class="row"><div class="col text-center">
+					<hr>
+					<h1>Insert</h1>
+					<hr>
+				</div></div>
+
+				<div class="row">
+
+					<div class="container">
+
+						<div class="row">
+							<div class="col-2 text-right">
+								<span style="vertical-align: -webkit-baseline-middle;">Insert Into:</span>
+							</div>
+							<div class="col-3 text-left">
+								<input type="text" class="white black-text text-center last_selected_container" id="insert_field">
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+
+
+				<div style="padding-bottom:5em;"></div>
+			</div>
+
+			<div class="collapse white-text" id="update_footer" style="background:#875d00;">
 				<div class="row">
 					<div class="col text-center">
-						<span>FOOTER</span>
+						<hr>
+						<h1>Update</h1>
+						<hr>
 					</div>
 				</div>
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
-				<input type="text" name="" value="">
+				<div class="row">
+
+					<div class="container">
+
+						<div class="row">
+							<div class="col-2 text-right">
+								<span style="vertical-align: -webkit-baseline-middle;">Update in:</span>
+							</div>
+							<div class="col-3 text-left">
+								<input type="text" class="white black-text text-center last_selected_container" id="update_field">
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+
+				<div style="padding-bottom:5em;"></div>
+			</div>
+
+			<div class="collapse white-text" id="delete_footer" style="background:#870000;">
+				<div class="row">
+					<div class="col text-center">
+						<hr>
+						<h1>Delete</h1>
+						<hr>
+					</div>
+				</div>
+				<div class="row">
+
+					<div class="container">
+
+						<div class="row">
+							<div class="col-2 text-right">
+								<span style="vertical-align: -webkit-baseline-middle;">Delete from:</span>
+							</div>
+							<div class="col-3 text-left">
+								<input type="text" class="white black-text text-center last_selected_container" id="delete_field">
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+
+				<div style="padding-bottom:5em;"></div>
+			</div>
+
+			<div class="collapse white-text" id="setting_footer" style="background:#0e3284;">
+				<div class="row">
+					<div class="col text-center">
+						<hr>
+						<h1>Select</h1>
+						<hr>
+					</div>
+				</div>
+				<div class="row">
+
+					<div class="container">
+
+						<div class="row">
+							<div class="col-2 text-right">
+								<span style="vertical-align: -webkit-baseline-middle;">Select from:</span>
+							</div>
+							<div class="col-3 text-left">
+								<input type="text" class="white black-text text-center last_selected_container" id="select_field">
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+
+				<div style="padding-bottom:5em;"></div>
 			</div>
 		</div>
 
 		<!-- fix elemtens  -->
 		<div id="footer_button_place" class="stylish-color-dark" style="bottom:0px;right:0px;z-index:2;position:fixed;width:100%;height:5%;"></div>
 		<div id="msg_display" class="float-right" style="top:0px;right:0px;z-index:3;position:fixed;"></div>
-		<div id="settings_button" class="float-right" style="bottom:0px;right:0px;z-index:4;position:fixed;">
-			<button type="button" class="btn btn-danger" onclick="$('#setting_footer').collapse('toggle');">Search Settings</button>
+		<div id="settings_button" class="text-right" style="bottom:0px;right:0px;z-index:4;position:fixed;">
+			<button type="button" class="btn btn-success" onclick="show_footer('new_footer');">Insert</button>
+			<button type="button" class="btn btn-warning" onclick="show_footer('update_footer')">Update</button>
+			<button type="button" class="btn btn-danger" onclick="show_footer('delete_footer');">Delete</button>
+			<button type="button" class="btn btn-primary" onclick="show_footer('setting_footer');">Select</button>
 		</div>
 
     <script src="/admin/source/js/jquery.js"></script>
