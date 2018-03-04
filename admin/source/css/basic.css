@@ -18,3 +18,23 @@
 .entry_input:focus {
   width: 500px!important;
 }
+
+.add_new_button {
+  background: #007e00;
+  height: 20px;
+  width: 20px;
+  border: 1px #07d000 solid;
+  border-radius: 3px;
+  padding: 0em;
+  padding-top: 1px;
+}
+.rem_button {
+  background: #690000;
+  height: 20px;
+  width: 20px;
+  border: 1px #f70000 solid;
+  border-radius: 3px;
+  padding: 0em;
+  padding-top: 1px;
+  margin-left: 3px;,
+}

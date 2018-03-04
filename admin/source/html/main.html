@@ -29,17 +29,23 @@
 		<div hidden id="c_phantom">
 			<div class="row" style="margin:0.5em 0 0.5em 0;">
 				<div class="col" style="padding-left:0;padding-right:0;">
-					<button type="button" class="btn btn-block" style="text-transform:none;background:#881111;" onclick="get_result($(this).text())"></button>
+					<button type="button" class="btn btn-block container_button" style="text-transform:none;background:#043689;">
+						<span onclick="get_result(this)" class="name_space"></span>
+						<span onclick="remove_container(this)" class="float-right rem_button">x</span>
+					</button>
 				</div>
 			</div>
 		</div>
 
 		<div hidden id="sc_phantom">
 			<div class="row" style="margin:0.5em 0 0.5em 0;">
-				<div class="col" style="padding-left:0;padding-right:0;">
-					<button type="button" class="btn-block btn" onclick="javascript:$(this).parent().children('.sc_inner').collapse('toggle')" style="text-transform:none;background:#AA4444;">
-						<span>▼&nbsp;</span>
+				<div class="col sc_button_top" style="padding-left:0;padding-right:0;">
+					<button type="button" class="btn-block btn supercontainer_button"style="text-transform:none;background:#3b5cc9;">
+						<span onclick="javascript:$(this).parent().parent().children('.sc_inner').collapse('toggle')" style="margin-right:0.25em;" class="arrow">▼</span>
 						<span class="name_space"></span>
+						<span style="word-break: keep-all;">
+							<span onclick="add_container(this)" class="float-right add_new_button">+</span>
+						</span>
 					</button>
 					<div class="sc_inner collapse" style="padding-left:0.75em;"></div>
 				</div>
@@ -257,12 +263,11 @@
 			</div>
 		</div>
 
-		<!-- fix elemtens  -->
-		<div id="footer_button_place" class="stylish-color-dark" style="bottom:0px;right:0px;z-index:2;position:fixed;width:100%;height:5%;"></div>
+		<!-- fix elemtens -->
 		<div id="msg_display" class="float-right" style="top:0px;right:0px;z-index:3;position:fixed;"></div>
-		<div id="settings_button" class="text-right" style="bottom:0px;right:0px;z-index:4;position:fixed;">
+		<div id="footer_button_place" class="stylish-color-dark text-right" style="bottom:0px;right:0px;z-index:2;position:fixed;width:100%;height:5%;">
 			<button type="button" class="btn btn-success" onclick="show_footer('new_footer');">Insert</button>
-			<button type="button" class="btn btn-warning" onclick="show_footer('update_footer')">Update</button>
+			<button type="button" class="btn btn-warning" onclick="show_footer('update_footer');">Update</button>
 			<button type="button" class="btn btn-danger" onclick="show_footer('delete_footer');">Delete</button>
 			<button type="button" class="btn btn-primary" onclick="show_footer('setting_footer');">Select</button>
 		</div>
@@ -270,6 +275,7 @@
     <script src="/admin/source/js/jquery.js"></script>
 		<script src="/admin/source/js/bootstrap.js"></script>
     <script src="/admin/source/js/mdb.js"></script>
-    <script src="/admin/source/js/scripts.js"></script>
+		<script src="/admin/source/js/scripts.js"></script>
+    <script src="/admin/source/js/utils.js"></script>
 	</body>
 </html>

@@ -1,5 +1,5 @@
 import http.server
-import json, datetime
+import json, datetime, time, os
 
 from functions.create import create as create
 from functions.delete import delete as delete
@@ -155,11 +155,19 @@ def webserver(perms):
 	server = http.server.HTTPServer(( perms.get("adress", "0.0.0.0"), perms.get("port", 1001) ), RequestHandler)
 	server.serve_forever()
 
-perms = open("config.json", "rb").read()
 try:
+	perms = open("config.json", "rb").read()
 	perms = json.loads(perms.decode("UTF-8"))
 except:
-	print("Error reading config.json")
+	print("`config.json` could not be found, or not read -> Using defaults WARNING: No PassToken.")
+	time.sleep(3)
+	perms = {"auth_token": ""}
+
+#check for DATABASE
+try:
+	f = os.listdir('DATABASE/')
+except:
+	os.mkdir('DATABASE')
 
 print(open("logo.txt", "r").read())
 print("Running on port: "+str(perms.get("port", 1001)) + "\n")

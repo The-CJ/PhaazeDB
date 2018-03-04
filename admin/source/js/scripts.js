@@ -54,12 +54,13 @@ function show_message(message) {
 }
 
 function get_result(container, limit=null, offset=null) {
-  $(".last_selected_container").val(container);
+  var name = get_origen(container).replace("DATABASE/", "");
+  $(".last_selected_container").val(name);
 
   var r = {};
   r['token'] = $('#db_token').val();
   r['action'] = 'select';
-  r['of'] = container;
+  r['of'] = name;
 
 
   $.post('/', JSON.stringify(r))
@@ -153,7 +154,7 @@ function format_container(folder, name=null, folder_before="") {
   for (var thing in folder.container) {
     name = folder.container[thing];
     let a =  $('#c_phantom > div').clone();
-    a.children('div').children('button').text(folder_before+name);
+    a.children('div').children('button').children('.name_space').text(name);
     d.children('div').children('.sc_inner').append(a);
   }
 
@@ -161,7 +162,7 @@ function format_container(folder, name=null, folder_before="") {
 
 }
 
-function load_container() {
+function load_container(no_msg=false) {
   var r = {};
   r['token'] = $('#db_token').val();
   r['action'] = 'show';
@@ -171,11 +172,14 @@ function load_container() {
     .done(
       function (data) {
         $('#container_list').html('');
-        var cont = format_container(data.data, name="DB");
+        var cont = format_container(data.data, name="DATABASE");
 
         $('#container_list').append(cont.html());
 
-        show_message('Successfull login');
+        if (!no_msg) {
+          show_message('Successfull login');
+        }
+
         }
       )
 
@@ -189,6 +193,44 @@ function load_container() {
     })
 
 
+}
+
+async function add_container(button_obj) {
+
+  var upper_container = await get_origen(button_obj);
+  var new_name = prompt("Please enter the container name\n\n"+upper_container+"[Container]", "");
+  if (new_name == null) {return ;}
+
+  var r = {};
+  r['token'] = $('#db_token').val();
+  r['action'] = 'create';
+  r['name'] = upper_container.replace('DATABASE/', "")+new_name;
+
+
+  $.post('/', JSON.stringify(r), function () {
+    load_container(no_msg=true);
+    show_message('Successfull created: '+upper_container.replace('DATABASE/', "")+new_name);
+  })
+
+}
+
+async function remove_container(button_obj) {
+  var e = await get_origen(button_obj);
+
+  var a = confirm("Sure you want to drop the container: `"+e+"` ?" );
+  if (!a) {
+    return ;
+  }
+
+  var r = {};
+  r['token'] = $('#db_token').val();
+  r['action'] = 'drop';
+  r['name'] = e.replace('DATABASE/', "");
+
+  $.post('/', JSON.stringify(r), function () {
+    load_container(no_msg=true);
+    show_message('Successfull dropped: '+e.replace('DATABASE/', ""));
+  })
 }
 
 async function show_footer(id) {
