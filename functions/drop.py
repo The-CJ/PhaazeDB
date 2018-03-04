@@ -1,5 +1,22 @@
 import os, json
 
+def drop_upper_empty_folder(table_name):
+
+	t = [r for r in table_name.split('/')]
+	t.pop()
+	t = "/".join(f for f in t)
+	c = os.listdir("DATABASE/{}".format(t))
+
+	#folder is now empty -> remove
+	if len(c) == 0:
+		if t == "": return
+
+		os.rmdir("DATABASE/{}".format(t))
+
+		#check if this is now empty as well
+		drop_upper_empty_folder(t)
+
+
 def drop(content):
 	table_name = content.get('name', None)
 	if table_name == None:
@@ -30,6 +47,11 @@ def drop(content):
 	path = "DATABASE/{}.phaazedb".format(table_name)
 
 	os.remove(path)
+
+	try:
+		drop_upper_empty_folder(table_name)
+	except:
+		pass
 
 	class r():
 		response = 202
