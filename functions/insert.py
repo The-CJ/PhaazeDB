@@ -29,6 +29,8 @@ def insert(content, DUMP):
 			).encode("UTF-8")
 		return r
 
+	content_to_add.pop('id', None)
+
 	if content_to_add in [{}, [], "", 0] or not type(content_to_add) is dict:
 		class r():
 			response = 400
@@ -36,6 +38,17 @@ def insert(content, DUMP):
 				dict(
 					status="error",
 					msg="field: `content` is missing a usable JSON {key: value} value"
+				)
+			).encode("UTF-8")
+		return r
+
+	if content_to_add.get('', None) != None:
+		class r():
+			response = 400
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `content` has a unnamed JSON key"
 				)
 			).encode("UTF-8")
 		return r

@@ -29,8 +29,8 @@
 		<div hidden id="c_phantom">
 			<div class="row" style="margin:0.5em 0 0.5em 0;">
 				<div class="col" style="padding-left:0;padding-right:0;">
-					<button type="button" class="btn btn-block container_button" style="text-transform:none;background:#043689;">
-						<span onclick="get_result(this)" class="name_space"></span>
+					<button type="button" class="btn btn-block container_button" style="text-transform:none;background:#043689;" onclick="get_result(this)">
+						<span class="name_space"></span>
 						<span onclick="remove_container(this)" class="float-right rem_button">x</span>
 					</button>
 				</div>
@@ -91,6 +91,27 @@
 				<div class="row">
 					<div class="col">
 						<textarea class="_b white entry_input" style="margin:auto;"></textarea>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+
+		<!-- Input Fields -->
+		<div hidden>
+
+			<div hidden id="new_field_phantom">
+
+				<div class="row entry" style="margin:0.5em;">
+					<div class="col-4">
+						<input type="text" class="key white" value="" placeholder="Key">
+					</div>
+					<div class="col">
+						<input type="text" class="value white" value="" placeholder="Value">
+					</div>
+					<div class="col-1">
+						<button type="button" class="btn btn-warning" onclick="$(this).closest('.entry').remove()" style="margin:0;padding:11px;">x</button>
 					</div>
 				</div>
 
@@ -160,20 +181,31 @@
 				<div class="row">
 
 					<div class="container">
-
 						<div class="row">
-							<div class="col-2 text-right">
+							<div class="col-2 text-right" style="margin:auto;">
 								<span style="vertical-align: -webkit-baseline-middle;">Insert Into:</span>
 							</div>
-							<div class="col-3 text-left">
+							<div class="col-3 text-left" style="margin:auto;">
 								<input type="text" class="white black-text text-center last_selected_container" id="insert_field">
 							</div>
+							<div class="col"></div>
+							<div class="col-3">
+								<button type="button" class="btn btn-success" style="margin:0;" onclick="submit_insert()">Submit insert</button>
+							</div>
 						</div>
-
+						<hr>
+						<div class="row">
+							<div class="col" id="insert_fields"></div>
+						</div>
+						<div class="row">
+							<span class="col"></span>
+							<div class="col-2">
+								<button type="button" class="btn btn-success" onclick="$('#insert_fields').append( $('#new_field_phantom').clone().html() )">Add field</button>
+							</div>
+						</div>
 					</div>
 
 				</div>
-
 
 				<div style="padding-bottom:5em;"></div>
 			</div>
@@ -191,14 +223,18 @@
 					<div class="container">
 
 						<div class="row">
-							<div class="col-2 text-right">
+							<div class="col-2 text-right" style="margin:auto;">
 								<span style="vertical-align: -webkit-baseline-middle;">Update in:</span>
 							</div>
-							<div class="col-3 text-left">
+							<div class="col-3 text-left" style="margin:auto;">
 								<input type="text" class="white black-text text-center last_selected_container" id="update_field">
 							</div>
+							<span class="col"></span>
+							<div class="col-3">
+								<button type="button" class="btn btn-warning">Submit Update</button>
+							</div>
 						</div>
-
+						<hr>
 					</div>
 
 				</div>
@@ -219,11 +255,25 @@
 					<div class="container">
 
 						<div class="row">
-							<div class="col-2 text-right">
+							<div class="col-2 text-right" style="margin: auto;">
 								<span style="vertical-align: -webkit-baseline-middle;">Delete from:</span>
 							</div>
-							<div class="col-3 text-left">
+							<div class="col-3 text-left" style="margin: auto;">
 								<input type="text" class="white black-text text-center last_selected_container" id="delete_field">
+							</div>
+							<span class="col"></span>
+							<div class="col-3">
+								<button type="button" class="btn btn-danger" onclick="submit_delete()">Submit Delete</button>
+							</div>
+
+						</div>
+						<hr>
+						<div class="row">
+							<div class="col-2">
+								<span>Where statement</span>
+							</div>
+							<div class="col">
+								<input type="text" placeholder="data['id'] == 1337 and 'cool_user_na' in data['name']" id="delete_where" class="white" value="">
 							</div>
 						</div>
 
@@ -247,13 +297,19 @@
 					<div class="container">
 
 						<div class="row">
-							<div class="col-2 text-right">
+							<div class="col-2 text-right" style="margin:auto;">
 								<span style="vertical-align: -webkit-baseline-middle;">Select from:</span>
 							</div>
-							<div class="col-3 text-left">
+							<div class="col-3 text-left" style="margin:auto;">
 								<input type="text" class="white black-text text-center last_selected_container" id="select_field">
 							</div>
+							<span class="col"></span>
+							<div class="col-3">
+								<button type="button" class="btn btn-primary">Submit Select</button>
+							</div>
+
 						</div>
+						<hr>
 
 					</div>
 
