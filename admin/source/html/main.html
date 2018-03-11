@@ -111,7 +111,7 @@
 						<input type="text" class="value white" value="" placeholder="Value">
 					</div>
 					<div class="col-1">
-						<button type="button" class="btn btn-warning" onclick="$(this).closest('.entry').remove()" style="margin:0;padding:11px;">x</button>
+						<button type="button" class="btn white" onclick="$(this).closest('.entry').remove()" style="margin:0;padding:11px;color:black!important;">x</button>
 					</div>
 				</div>
 
@@ -159,7 +159,7 @@
 			<!-- Body -->
 			<div class="row" style="height:75%;">
 				<!-- Container -->
-				<div class="col-2" style="padding-left:0;padding-right:0;border-right:3px solid black;height:100%;">
+				<div class="col-2" style="padding-left:0;padding-right:0;border-right:3px solid black;height:100%;overflow-y: auto">
 					<div class="" id="container_list"></div>
 				</div>
 
@@ -231,10 +231,28 @@
 							</div>
 							<span class="col"></span>
 							<div class="col-3">
-								<button type="button" class="btn btn-warning">Submit Update</button>
+								<button type="button" class="btn btn-warning" onclick="submit_update()">Submit Update</button>
 							</div>
 						</div>
 						<hr>
+						<div class="row">
+							<div class="col" id="update_fields"></div>
+						</div>
+						<div class="row">
+							<span class="col"></span>
+							<div class="col-2">
+								<button type="button" class="btn btn-warning" onclick="$('#update_fields').append( $('#new_field_phantom').clone().html() )">Add field</button>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-2">
+								<span>Where statement</span>
+							</div>
+							<div class="col">
+								<input type="text" placeholder="data['id'] == 1337 and 'cool_user_na' in data['name']" id="update_where" class="white" value="">
+							</div>
+						</div>
+
 					</div>
 
 				</div>

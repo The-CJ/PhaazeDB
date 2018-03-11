@@ -302,7 +302,7 @@ function submit_insert() {
 
   for (var field of new_fields) {
 
-    content[$(field).find('.key').val()] = $(field).find('.value').val();
+    content[$(field).find('.key').val().trim()] = $(field).find('.value').val().trim();
 
   }
 
@@ -346,6 +346,49 @@ function submit_delete() {
     $('#delete_where').val('');
   })
   .fail(function (data) {
+    show_error(JSON.stringify(data.responseJSON))
+  })
+
+}
+
+function submit_update() {
+
+  var where = $('#update_where').val();
+  if (where == "") {
+    var c = confirm('WARNING: Update where statement is empty.\nThis will update all entrys in the seleted container.\n\nAre you sure?');
+    if (!c) {
+      return ;
+    }
+  }
+
+  var update = $('#update_fields > .entry');
+  var content = {};
+
+  for (var field of update) {
+
+    content[$(field).find('.key').val().trim()] = $(field).find('.value').val().trim();
+
+  }
+
+  var r = {};
+
+  r['token'] = $('#db_token').val();
+  r['action'] = 'update';
+  r['of'] = $('#update_field').val();
+  r['content'] = content;
+  r['where'] = where;
+
+  $.post('/', JSON.stringify(r))
+  .done(function (data) {
+    console.log('success');
+    console.log(data);
+    show_message('Successfull updated '+data['hits']+' entrys');
+    show_reload( $('#update_field').val() );
+    $('#update_where').val('');
+  })
+  .fail(function (data) {
+    console.log('fail');
+    console.log(data);
     show_error(JSON.stringify(data.responseJSON))
   })
 

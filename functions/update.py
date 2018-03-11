@@ -43,6 +43,8 @@ def update(content, DUMP):
 			).encode("UTF-8")
 		return r
 
+	content_to_update.pop('id', None)
+
 	if content_to_update in [{}, [], "", 0] or not type(content_to_update) is dict:
 		class r():
 			response = 400
@@ -62,6 +64,17 @@ def update(content, DUMP):
 				dict(
 					status="error",
 					msg="field: `of` missing",
+				)
+			).encode("UTF-8")
+		return r
+
+	if content_to_update.get('', None) != None:
+		class r():
+			response = 400
+			content = json.dumps(
+				dict(
+					status="error",
+					msg="field: `content` has a unnamed JSON key"
 				)
 			).encode("UTF-8")
 		return r
@@ -107,7 +120,7 @@ def update(content, DUMP):
 
 	class r():
 		response = 200
-		content = str(dict(
+		content = json.dumps(dict(
 		hits=hits,
 		status="updated",
 		msg="successfull updated/added values"
