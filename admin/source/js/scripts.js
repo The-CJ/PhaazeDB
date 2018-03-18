@@ -211,6 +211,16 @@ function shutdown() {
       return ;
     }
   })
+  .done(
+    function (data) {
+      console.log(data);
+    if (data.status == 'success') {
+      show_message("PhaazeDB is shutting down.");
+      setTimeout(function () {
+        $('html').html('<head></head><body style="background:#212529;"><h1 style="color:white;font-size: 5em;text-align: center;margin-top: 30vh;">PhaazeDB Offline</h1></body>')
+      }, 5000);
+    }
+  })
 
 }
 

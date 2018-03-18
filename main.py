@@ -1,5 +1,5 @@
 import http.server
-import json, time, os
+import json, time, os, threading
 
 from functions.create import create as create
 from functions.delete import delete as delete
@@ -148,8 +148,14 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 
 		elif action.lower() == "shutdown":
 			CLOSE = True
-			time.sleep(5)
-			exit(1)
+			self.send_response(200)
+			self.send_header('Content-Type', 'application/json')
+			self.end_headers()
+			self.wfile.write(json.dumps(dict(status="success", msg="shutdown")).encode("UTF-8"))
+			self.wfile.flush()
+
+			t = shutdown()
+			t.start()
 
 		else:
 			self.send_response(406)
@@ -164,6 +170,14 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 def webserver(perms):
 	server = http.server.HTTPServer(( perms.get("adress", "0.0.0.0"), perms.get("port", 1001) ), RequestHandler)
 	server.serve_forever()
+
+class shutdown(threading.Thread):
+	def __init__(self):
+		super(shutdown, self).__init__()
+
+	def run(self):
+		time.sleep(5)
+		os._exit(1)
 
 try:
 	perms = open("config.json", "rb").read()
