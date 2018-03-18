@@ -260,7 +260,7 @@ async function show_footer(id) {
 
 /* DB functions */
 
-function load_container(no_msg=false) {
+function load_container() {
   var r = {};
   r['token'] = $('#db_token').val();
   r['action'] = 'show';
@@ -273,10 +273,6 @@ function load_container(no_msg=false) {
         var cont = format_container(data.data, name="DATABASE");
 
         $('#container_list').append(cont.html());
-
-        if (!no_msg) {
-          show_message('Successfull login');
-        }
 
         }
       )

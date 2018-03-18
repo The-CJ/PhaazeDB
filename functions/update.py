@@ -112,7 +112,7 @@ def update(content, DUMP):
 			v = False
 
 		if v:
-			hits += 1
+			hits += 1			
 			for key in content_to_update:
 				data[key] = content_to_update[key]
 
