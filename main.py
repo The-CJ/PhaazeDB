@@ -97,7 +97,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.flush()
 
 		elif action.lower() == "drop":
-			rsp = drop(content)
+			rsp = drop(content, DUMP)
 
 			self.send_response(rsp.response)
 			self.send_header('Content-Type', 'application/json')

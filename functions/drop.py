@@ -17,7 +17,7 @@ def drop_upper_empty_folder(table_name):
 		drop_upper_empty_folder(t)
 
 
-def drop(content):
+def drop(content, DUMP):
 	table_name = content.get('name', None)
 	if table_name == None:
 		class r():
@@ -47,6 +47,7 @@ def drop(content):
 	path = "DATABASE/{}.phaazedb".format(table_name)
 
 	os.remove(path)
+	DUMP.pop(table_name, None)
 
 	try:
 		drop_upper_empty_folder(table_name)
