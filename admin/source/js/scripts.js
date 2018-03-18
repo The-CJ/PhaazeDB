@@ -124,9 +124,15 @@ function get_result(container, limit=null, offset=null) {
   var name = get_origen(container).replace("DATABASE/", "");
   $(".last_selected_container").val(name);
 
+  if (limit == null) {
+    limit = 50;
+  }
+
   var r = {};
   r['token'] = $('#db_token').val();
   r['action'] = 'select';
+  r['limit'] = limit;
+  r['offset'] = 0;
   r['of'] = name;
 
 
@@ -191,6 +197,22 @@ function format_container(folder, name=null, folder_before="") {
 }
 
 /* DB utils */
+
+function shutdown() {
+  var r = {};
+  r['token'] = $('#db_token').val();
+  r['action'] = 'shutdown';
+
+  $.post('/', JSON.stringify(r))
+  .fail(
+    function (data) {
+    if (data.responseJSON.status == 'error') {
+      show_error(data.responseJSON)
+      return ;
+    }
+  })
+
+}
 
 async function add_container(button_obj) {
 
@@ -387,5 +409,30 @@ function submit_update() {
     console.log(data);
     show_error(JSON.stringify(data.responseJSON))
   })
+
+}
+
+function submit_select() {
+  var where = $('#select_where').val();
+
+  var r = {};
+
+  r['token'] = $('#db_token').val();
+  r['action'] = 'select';
+  r['of'] = $('#select_field').val();
+  r['where'] = where;
+  r['limit'] = $('#select_limit').val();
+  r['offset'] = $('#select_offset').val();
+
+  $.post('/', JSON.stringify(r))
+  .done(function (data) {
+    show_message('Show: '+data['hits']+' entry(s) out of '+data['total']);
+    show_result(data);
+    $(".last_selected_container").val($('#select_field').val());
+  })
+  .fail(function (data) {
+    show_error(JSON.stringify(data.responseJSON))
+  })
+
 
 }

@@ -90,7 +90,7 @@
 				</div>
 				<div class="row">
 					<div class="col">
-						<textarea class="_b white entry_input" style="margin:auto;"></textarea>
+						<textarea class="_b white entry_input" style="margin:auto;height: 2.3em;"></textarea>
 					</div>
 				</div>
 
@@ -141,6 +141,9 @@
 						<div class="col-3">
 							<input type="password" class="white-text" value="" placeholder="DB Token" id="db_token">
 							<p>Please insert DB-Token AND leave it there all time</p>
+						</div>
+						<div class="col">
+							<button type="button" class="btn btn-danger float-right" onclick="shutdown()">Shutdown DB</button>
 						</div>
 					</div>
 					<div class="row">
@@ -246,7 +249,7 @@
 						</div>
 						<div class="row">
 							<div class="col-2">
-								<span>Where statement</span>
+								<span style="vertical-align: -webkit-baseline-middle;">Where statement</span>
 							</div>
 							<div class="col">
 								<input type="text" placeholder="data['id'] == 1337 and 'cool_user_na' in data['name']" id="update_where" class="white" value="">
@@ -288,7 +291,7 @@
 						<hr>
 						<div class="row">
 							<div class="col-2">
-								<span>Where statement</span>
+								<span style="vertical-align: -webkit-baseline-middle;">Where statement</span>
 							</div>
 							<div class="col">
 								<input type="text" placeholder="data['id'] == 1337 and 'cool_user_na' in data['name']" id="delete_where" class="white" value="">
@@ -323,11 +326,35 @@
 							</div>
 							<span class="col"></span>
 							<div class="col-3">
-								<button type="button" class="btn btn-primary">Submit Select</button>
+								<button type="button" class="btn btn-primary" onclick="submit_select()">Submit Select</button>
 							</div>
 
 						</div>
 						<hr>
+						<div class="row">
+							<div class="col-2">
+								<span style="vertical-align: -webkit-baseline-middle;">Where statement</span>
+							</div>
+							<div class="col">
+								<input type="text" placeholder="data['id'] == 1337 and 'cool_user_na' in data['name']" id="select_where" class="white" value="">
+							</div>
+						</div>
+						<div class="row" style="margin-top: 1em">
+
+							<div class="col-2">
+								<span style="vertical-align: -webkit-baseline-middle;">Limit</span>
+							</div>
+							<div class="col">
+								<input type="text" placeholder="50" id="select_limit" class="white" value="">
+							</div>
+							<div class="col-2">
+								<span style="vertical-align: -webkit-baseline-middle;">Offset</span>
+							</div>
+							<div class="col">
+								<input type="text" placeholder="10" id="select_offset" class="white" value="">
+							</div>
+
+						</div>
 
 					</div>
 

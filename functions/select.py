@@ -1,4 +1,4 @@
-import json
+import json, math
 
 from utils.load import load as load
 
@@ -52,7 +52,6 @@ def select(content, DUMP):
 	else:
 		active_container = already_loaded
 
-
 	#no container found
 	if active_container == None:
 		class r():
@@ -68,6 +67,23 @@ def select(content, DUMP):
 
 	return_data = []
 
+	#get request limit and offset
+	offset = content.get("offset", 0)
+	if type(offset) is not int:
+		try:
+			offset = int(offset)
+		except:
+			offset = 0
+	limit = content.get("limit", math.inf)
+	if type(limit) is not int:
+		try:
+			limit = int(limit)
+		except:
+			limit = math.inf
+
+	hits = 0
+	cur_offset = 0
+
 	for data in active_container.get("data", []):
 		#check if data is needed -> check where
 		try:
@@ -78,8 +94,15 @@ def select(content, DUMP):
 		if not v:
 			continue
 
+		cur_offset += 1
+
+		if offset >= cur_offset: continue
+		hits += 1
 		actuall_requested_data = requested_data(data, requested_fields)
 		return_data.append(actuall_requested_data)
+
+		if hits >= limit:
+			break
 
 	class r():
 		response = 200
@@ -87,7 +110,8 @@ def select(content, DUMP):
 			json.dumps(
 				dict(
 					status="selected",
-					hits=len(return_data),
+					hits=hits,
+					total=len(active_container.get("data", [])),
 					data=return_data
 					)
 				)
