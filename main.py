@@ -1,5 +1,5 @@
 import http.server
-import json, datetime, time, os
+import json, time, os
 
 from functions.create import create as create
 from functions.delete import delete as delete
@@ -12,6 +12,7 @@ from functions.show import show as show
 from admin.website import website as website
 
 DUMP = {}
+CLOSE = False
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
 
@@ -24,6 +25,10 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 		self.process()
 
 	def process(self):
+		global CLOSE
+		if CLOSE:
+			return
+
 		if self.path.startswith('/admin'):
 			r = website(self.path)
 			self.send_response(200)
@@ -140,6 +145,11 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 			self.end_headers()
 			self.wfile.write(rsp.content)
 			self.wfile.flush()
+
+		elif action.lower() == "shutdown":
+			CLOSE = True
+			time.sleep(5)
+			exit(1)
 
 		else:
 			self.send_response(406)
