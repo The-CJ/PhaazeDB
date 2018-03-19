@@ -57,6 +57,8 @@ function show_result(data) {
   rrp = $('#result_row_phantom');
 
   rcip = $('#result_col_input_phantom > div');
+  rcbp = $('#result_col_bool_phantom > div');
+  rcnp = $('#result_col_none_phantom > div');
   rctp = $('#result_col_textarea_phantom > div');
 
   $('#result_place').html("");
@@ -75,6 +77,7 @@ function show_result(data) {
     rcip_c.addClass('primary-color');
     rcip_c.find('._a').text('id');
     rcip_c.find('._b').attr('value',entry['id']);
+    rcip_c.find('._b').attr('disabled', true);
 
     rrp_c.children('.inner').append(rcip_c);
     delete entry['id'];
@@ -83,40 +86,70 @@ function show_result(data) {
     for (var data_number in entry) {
       data_content = entry[data_number];
 
-      if (typeof data_content === 'object') {
-        rctp_c = rctp.clone();
-        rctp_c.addClass('orange');
-        rctp_c.find('._a').text(data_number);
-        rctp_c.find('._b').text(JSON.stringify(data_content));
+      var color = 'black';
+      var field = 'none';
 
-        rrp_c.children('.inner').append(rctp_c);
+      if (data_content === null) {
+        color = 'grey';
+        field = 'none';
+      }
+
+      else if (typeof data_content === 'boolean') {
+        color = 'unique-color';
+        field = 'bool';
       }
 
       else if (typeof data_content === 'number') {
-        var div_color = "pink";
+        color = 'red';
+        field = 'input';
       }
 
       else if (typeof data_content === 'string') {
-        var div_color = "green";
+        color = 'green';
+        field = 'input';
       }
 
-      else {
-        var div_color = "grey";
+      else if (typeof data_content === 'object') {
+        color = 'orange';
+        field = 'textarea';
       }
 
-      if (typeof data_content !== 'object') {
-        rcip_c = rcip.clone();
-        rcip_c.addClass(div_color);
-        rcip_c.find('._a').text(data_number);
-        rcip_c.find('._b').attr('value',data_content);
+      // Need color, field
 
-        rrp_c.children('.inner').append(rcip_c);
+      if (field == "textarea") {
+        field = rctp.clone();
+        field.addClass(color);
+        field.find('._a').text(data_number);
+        field.find('._b').text(JSON.stringify(data_content));
       }
+
+      else if (field == "none") {
+        field = rcnp.clone();
+        field.addClass(color);
+        field.find('._a').text(data_number);
+      }
+
+      else if (field == "input") {
+        field = rcip.clone();
+        field.addClass(color);
+        field.find('._a').text(data_number);
+        field.find('._b').attr('value',data_content);
+      }
+
+      else if (field == "bool") {
+        field = rcbp.clone();
+        field.addClass(color);
+        field.find('._a').text(data_number);
+        if (data_content) {
+          field.find('._b').attr('checked',true);
+        }
+      }
+
+      rrp_c.children('.inner').append(field);
 
     }
     $('#result_place').append(rrp_c.html());
   }
-
 
 }
 
@@ -257,8 +290,8 @@ async function remove_container(button_obj) {
   r['name'] = e.replace('DATABASE/', "");
 
   $.post('/', JSON.stringify(r), function () {
-    load_container(no_msg=true);
     show_message('Successfull dropped: '+e.replace('DATABASE/', ""));
+    load_container();
   })
 }
 
