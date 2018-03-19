@@ -232,6 +232,9 @@ function format_container(folder, name=null, folder_before="") {
 /* DB utils */
 
 function shutdown() {
+  var c = confirm('Sure you want to shutdown the PhaazeDB?');
+  if (!c) {return ;}
+
   var r = {};
   r['token'] = $('#db_token').val();
   r['action'] = 'shutdown';
