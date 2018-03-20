@@ -405,7 +405,7 @@ function submit_delete() {
 
   $.post('/', JSON.stringify(r))
   .done(function (data) {
-    show_message('Successfull deleted '+data['hits']+' entrys');
+    show_message('Successfull deleted '+data['hits']+' entry(s)');
     show_reload( $('#delete_field').val() );
     $('#delete_where').val('');
   })
@@ -481,4 +481,11 @@ function submit_select() {
   })
 
 
+}
+
+/* Field utils */
+
+function edit_field_type(obj) {
+  $('.selected_col').removeClass('selected_col');
+  $(obj).closest('.value_field').addClass('selected_col');
 }
