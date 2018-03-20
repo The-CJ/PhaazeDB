@@ -222,6 +222,33 @@
 						</div>
 
 					</div>
+					<div class="row">
+						<span class="col"></span>
+						<div class="col-4">
+							<div class="row">
+								<div class="col collapse" id="col_edit_space" style="z-index: 1">
+									<div class="stylish-color-dark" style="margin:0 0.25em;border:1px solid black;border-bottom:none;">
+										<h3>Edit current selected Field</h3>
+										<hr>
+										<h5>Save Changes</h5>
+										<button type="button" class="btn btn-success">Save</button>
+										<hr>
+										<h5>Change Field Type</h5>
+										<button type="button" class="btn green" onclick="change_col_type('string')">String</button>
+										<button type="button" class="btn orange" onclick="change_col_type({})">Object</button>
+										<button type="button" class="btn red" onclick="change_col_type(0)">Number</button>
+										<button type="button" class="btn unique-color" onclick="change_col_type(false)">Bool</button>
+										<button type="button" class="btn grey" onclick="change_col_type(null)">None/Null</button>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<button type="button" class="btn btn-block btn-primary" style="height: 1em;padding:0;" onclick="$('#col_edit_space').collapse('toggle')">Edit</button>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 

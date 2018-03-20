@@ -53,6 +53,69 @@ function show_message(message) {
   }, 5500);
 }
 
+function get_right_col_type(data_content, data_number) {
+  var color = 'black';
+  var field = 'none';
+
+  if (data_content === null) {
+    color = 'grey';
+    field = 'none';
+  }
+
+  else if (typeof data_content === 'boolean') {
+    color = 'unique-color';
+    field = 'bool';
+  }
+
+  else if (typeof data_content === 'number') {
+    color = 'red';
+    field = 'input';
+  }
+
+  else if (typeof data_content === 'string') {
+    color = 'green';
+    field = 'input';
+  }
+
+  else if (typeof data_content === 'object') {
+    color = 'orange';
+    field = 'textarea';
+  }
+
+  // Need color, field
+
+  if (field == "textarea") {
+    field = rctp.clone();
+    field.addClass(color);
+    field.find('._a').text(data_number);
+    field.find('._b').text(JSON.stringify(data_content));
+  }
+
+  else if (field == "none") {
+    field = rcnp.clone();
+    field.addClass(color);
+    field.find('._a').text(data_number);
+  }
+
+  else if (field == "input") {
+    field = rcip.clone();
+    field.addClass(color);
+    field.find('._a').text(data_number);
+    field.find('._b').attr('value',data_content);
+  }
+
+  else if (field == "bool") {
+    field = rcbp.clone();
+    field.addClass(color);
+    field.find('._a').text(data_number);
+    if (data_content) {
+      field.find('._b').attr('checked',true);
+    }
+  }
+
+  return field;
+}
+
 function show_result(data) {
   rrp = $('#result_row_phantom');
 
@@ -86,64 +149,7 @@ function show_result(data) {
     for (var data_number in entry) {
       data_content = entry[data_number];
 
-      var color = 'black';
-      var field = 'none';
-
-      if (data_content === null) {
-        color = 'grey';
-        field = 'none';
-      }
-
-      else if (typeof data_content === 'boolean') {
-        color = 'unique-color';
-        field = 'bool';
-      }
-
-      else if (typeof data_content === 'number') {
-        color = 'red';
-        field = 'input';
-      }
-
-      else if (typeof data_content === 'string') {
-        color = 'green';
-        field = 'input';
-      }
-
-      else if (typeof data_content === 'object') {
-        color = 'orange';
-        field = 'textarea';
-      }
-
-      // Need color, field
-
-      if (field == "textarea") {
-        field = rctp.clone();
-        field.addClass(color);
-        field.find('._a').text(data_number);
-        field.find('._b').text(JSON.stringify(data_content));
-      }
-
-      else if (field == "none") {
-        field = rcnp.clone();
-        field.addClass(color);
-        field.find('._a').text(data_number);
-      }
-
-      else if (field == "input") {
-        field = rcip.clone();
-        field.addClass(color);
-        field.find('._a').text(data_number);
-        field.find('._b').attr('value',data_content);
-      }
-
-      else if (field == "bool") {
-        field = rcbp.clone();
-        field.addClass(color);
-        field.find('._a').text(data_number);
-        if (data_content) {
-          field.find('._b').attr('checked',true);
-        }
-      }
+      field = get_right_col_type(data_content, data_number);
 
       rrp_c.children('.inner').append(field);
 
@@ -488,4 +494,17 @@ function submit_select() {
 function edit_field_type(obj) {
   $('.selected_col').removeClass('selected_col');
   $(obj).closest('.value_field').addClass('selected_col');
+}
+
+function change_col_type(type) {
+
+  var field = $('.selected_col');
+
+  console.log(field);
+  field_name = field.find('._a').text();
+  new_field = get_right_col_type(type, field_name);
+  new_field.addClass('selected_col');
+
+  field.replaceWith(new_field);
+
 }
