@@ -398,7 +398,33 @@ function submit_insert() {
 
   for (var field of new_fields) {
 
-    content[$(field).find('.key').val().trim()] = $(field).find('.value').val().trim();
+    field_key = $(field).find('.key').val().trim();
+    field_value = $(field).find('.value').val().trim();
+    field_type = $(field).find('.selected_type').val().trim();
+
+    if (field_type == "string") {
+      field_value = String(field_value);
+    }
+    else if (field_type == "bool") {
+      field_value = Boolean(field_value);
+    }
+    else if (field_type == "number") {
+      field_value = Number(field_value);
+    }
+    else if (field_type == "object") {
+      try {
+        field_value = JSON.parse(field_value);
+      } catch (e) {
+        show_error('Invalid Content Type');
+        return ;
+      }
+    }
+    else if (field_type == "null") {
+      field_value = null;
+    }
+
+    // add to content
+    content[field_key] = field_value;
 
   }
 
@@ -462,7 +488,33 @@ function submit_update() {
 
   for (var field of update) {
 
-    content[$(field).find('.key').val().trim()] = $(field).find('.value').val().trim();
+    field_key = $(field).find('.key').val().trim();
+    field_value = $(field).find('.value').val().trim();
+    field_type = $(field).find('.selected_type').val().trim();
+
+    if (field_type == "string") {
+      field_value = String(field_value);
+    }
+    else if (field_type == "bool") {
+      field_value = Boolean(field_value);
+    }
+    else if (field_type == "number") {
+      field_value = Number(field_value);
+    }
+    else if (field_type == "object") {
+      try {
+        field_value = JSON.parse(field_value);
+      } catch (e) {
+        show_error('Invalid Content Type');
+        return ;
+      }
+    }
+    else if (field_type == "null") {
+      field_value = null;
+    }
+
+    // add to content
+    content[field_key] = field_value;
 
   }
 
@@ -477,7 +529,7 @@ function submit_update() {
   $.post('/', JSON.stringify(r))
   .done(function (data) {
     show_message('Successfull updated '+data['hits']+' entry(s)');
-    show_reload( $('#update_field').val() );
+    // show_reload( $('#update_field').val() );
     $('#update_where').val('');
   })
   .fail(function (data) {
@@ -508,7 +560,7 @@ function submit_select() {
 
   $.post('/', JSON.stringify(r))
   .done(function (data) {
-    show_message('Show: '+data['hits']+' entry(s) out of '+data['total']);
+    show_message('Show: '+data['hits']+' entry(s) | In Container: '+data['total']);
     show_result(data);
     $(".last_selected_container").val($('#select_field').val());
   })
@@ -526,14 +578,37 @@ function edit_field_type(obj) {
   $(obj).closest('.value_field').addClass('selected_col');
 }
 
+function change_input_field(obj, type) {
+  $(obj).removeClass("green red orange grey unique-color");
+  if (type == "null") {
+    $(obj).addClass('grey');
+    $(obj).parent().parent().find('input.value').attr('type', 'hidden');
+  }
+  if (type == "string") {
+    $(obj).addClass('green');
+    $(obj).parent().parent().find('input.value').attr('type', "text");
+   }
+  if (type == "number") {
+    $(obj).addClass('red');
+    $(obj).parent().parent().find('input.value').attr('type', "number");
+  }
+  if (type == "object") {
+    $(obj).addClass('orange');
+    $(obj).parent().parent().find('input.value').attr('type', "text");
+  }
+  if (type == "bool") {
+    $(obj).addClass('unique-color');
+    $(obj).parent().parent().find('input.value').attr('type', 'text');
+ }
+
+}
+
 function change_col_type(type) {
 
   var field = $('.selected_col');
   if (field.length != 1) {
     return ;
   }
-
-  console.log(field);
   field_name = field.find('._a').text();
   new_field = get_right_col_type(type, field_name);
   new_field.addClass('selected_col');

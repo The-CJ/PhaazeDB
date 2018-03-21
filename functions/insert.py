@@ -42,7 +42,7 @@ def insert(content, DUMP):
 			).encode("UTF-8")
 		return r
 
-	if content_to_add.get('', None) != None:
+	if content_to_add.get('', "4458216asd1qrqw12a12aycac211qewefebgr225wgre545") != "4458216asd1qrqw12a12aycac211qewefebgr225wgre545":
 		class r():
 			response = 400
 			content = json.dumps(

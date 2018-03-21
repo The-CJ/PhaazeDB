@@ -145,13 +145,20 @@
 			<div hidden id="new_field_phantom">
 
 				<div class="row entry" style="margin:0.5em;">
-					<div class="col-4">
+					<div class="col-3">
 						<input type="text" class="key white" value="" placeholder="Key">
 					</div>
 					<div class="col">
 						<input type="text" class="value white" value="" placeholder="Value">
 					</div>
-					<div class="col-1">
+					<div class="col-2">
+						<select class="btn selected_type green" onchange="change_input_field(this, this.value);" style="margin:0;padding:11px;color:black!important;">
+							<option value="string" selected>String</option>
+							<option value="number">Number</option>
+							<option value="bool">Bool</option>
+							<option value="object">Object</option>
+							<option value="null">None/Null</option>
+						</select>
 						<button type="button" class="btn white" onclick="$(this).closest('.entry').remove()" style="margin:0;padding:11px;color:black!important;">x</button>
 					</div>
 				</div>
