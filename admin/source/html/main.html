@@ -226,12 +226,17 @@
 						<span class="col"></span>
 						<div class="col-4">
 							<div class="row">
+								<div class="col">
+									<button type="button" class="btn btn-block btn-primary" style="height: 1em;padding:0;" onclick="$('#col_edit_space').collapse('toggle')">Edit</button>
+								</div>
+							</div>
+							<div class="row">
 								<div class="col collapse" id="col_edit_space" style="z-index: 1">
-									<div class="stylish-color-dark" style="margin:0 0.25em;border:1px solid black;border-bottom:none;">
+									<div class="stylish-color-dark" style="margin:0 0.25em;border:1px solid black;border-top:none;">
 										<h3>Edit current selected Field</h3>
 										<hr>
 										<h5>Save Changes</h5>
-										<button type="button" class="btn btn-success">Save</button>
+										<button type="button" class="btn btn-success" onclick="save_col()">Save</button>
 										<hr>
 										<h5>Change Field Type</h5>
 										<button type="button" class="btn green" onclick="change_col_type('string')">String</button>
@@ -240,11 +245,6 @@
 										<button type="button" class="btn unique-color" onclick="change_col_type(false)">Bool</button>
 										<button type="button" class="btn grey" onclick="change_col_type(null)">None/Null</button>
 									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col">
-									<button type="button" class="btn btn-block btn-primary" style="height: 1em;padding:0;" onclick="$('#col_edit_space').collapse('toggle')">Edit</button>
 								</div>
 							</div>
 						</div>
@@ -431,6 +431,16 @@
 							<div class="col">
 								<input type="text" placeholder="data['id'] == 1337 and 'cool_user_na' in data['name']" id="select_where" class="white" value="">
 							</div>
+						</div>
+						<div class="row" style="margin-top: 1em">
+
+							<div class="col-2">
+								<span style="vertical-align: -webkit-baseline-middle;">Fields</span>
+							</div>
+							<div class="col">
+								<input type="text" placeholder="id;firstname;lastname (; sepperated)" id="select_cols" class="white" value="">
+							</div>
+
 						</div>
 						<div class="row" style="margin-top: 1em">
 

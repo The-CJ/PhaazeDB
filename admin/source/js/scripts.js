@@ -54,32 +54,44 @@ function show_message(message) {
 }
 
 function get_right_col_type(data_content, data_number) {
-  var color = 'black';
-  var field = 'none';
+  let color = 'black';
+  let field = 'none';
+  let type = 'text';
+  let cont = 'string';
 
   if (data_content === null) {
     color = 'grey';
     field = 'none';
+    type = 'text';
+    cont = 'null';
   }
 
   else if (typeof data_content === 'boolean') {
     color = 'unique-color';
     field = 'bool';
+    type = 'checkbox';
+    cont = 'bool';
   }
 
   else if (typeof data_content === 'number') {
     color = 'red';
     field = 'input';
+    type = 'number';
+    cont = 'number';
   }
 
   else if (typeof data_content === 'string') {
     color = 'green';
     field = 'input';
+    type = 'text';
+    cont = 'string';
   }
 
   else if (typeof data_content === 'object') {
     color = 'orange';
     field = 'textarea';
+    type = 'textarea';
+    cont = 'object';
   }
 
   // Need color, field
@@ -87,25 +99,30 @@ function get_right_col_type(data_content, data_number) {
   if (field == "textarea") {
     field = rctp.clone();
     field.addClass(color);
+    field.attr("data-savetype", cont);
     field.find('._a').text(data_number);
     field.find('._b').text(JSON.stringify(data_content));
   }
 
   else if (field == "none") {
     field = rcnp.clone();
+    field.attr("data-savetype", cont);
     field.addClass(color);
     field.find('._a').text(data_number);
   }
 
   else if (field == "input") {
     field = rcip.clone();
+    field.attr("data-savetype", cont);
     field.addClass(color);
     field.find('._a').text(data_number);
+    field.find('._b').attr('type',type);
     field.find('._b').attr('value',data_content);
   }
 
   else if (field == "bool") {
     field = rcbp.clone();
+    field.attr("data-savetype", cont);
     field.addClass(color);
     field.find('._a').text(data_number);
     if (data_content) {
@@ -117,6 +134,13 @@ function get_right_col_type(data_content, data_number) {
 }
 
 function show_result(data) {
+  if (data['hits'] >= 300) {
+    c = confirm("There are "+data['hits']+" results, sure you want to display all?");
+    if (!c) {
+      return ;
+    }
+  }
+
   rrp = $('#result_row_phantom');
 
   rcip = $('#result_col_input_phantom > div');
@@ -137,6 +161,7 @@ function show_result(data) {
     //id extra case
 
     rcip_c = rcip.clone();
+    rcip_c.attr('data-savetype', "id");
     rcip_c.addClass('primary-color');
     rcip_c.find('._a').text('id');
     rcip_c.find('._b').attr('value',entry['id']);
@@ -196,7 +221,8 @@ function show_reload(name) {
   r['token'] = $('#db_token').val();
   r['action'] = 'select';
   r['of'] = name;
-
+  r['limit'] = 50;
+  r['offset'] = 0;
 
   $.post('/', JSON.stringify(r))
     .fail(
@@ -450,9 +476,7 @@ function submit_update() {
 
   $.post('/', JSON.stringify(r))
   .done(function (data) {
-    console.log('success');
-    console.log(data);
-    show_message('Successfull updated '+data['hits']+' entrys');
+    show_message('Successfull updated '+data['hits']+' entry(s)');
     show_reload( $('#update_field').val() );
     $('#update_where').val('');
   })
@@ -473,6 +497,12 @@ function submit_select() {
   r['action'] = 'select';
   r['of'] = $('#select_field').val();
   r['where'] = where;
+  var fields = $('#select_cols').val();
+  if (fields != "") {
+    fields = fields.split(";");
+    fields.push('id')
+    r['fields'] = fields;
+  }
   r['limit'] = $('#select_limit').val();
   r['offset'] = $('#select_offset').val();
 
@@ -499,6 +529,9 @@ function edit_field_type(obj) {
 function change_col_type(type) {
 
   var field = $('.selected_col');
+  if (field.length != 1) {
+    return ;
+  }
 
   console.log(field);
   field_name = field.find('._a').text();
@@ -506,5 +539,58 @@ function change_col_type(type) {
   new_field.addClass('selected_col');
 
   field.replaceWith(new_field);
+
+}
+
+function save_col() {
+  var field = $('.selected_col');
+  if (field.length != 1) {
+    return ;
+  }
+
+  field_id = field.closest('.inner').find('[data-savetype=id]').find('._b').val();
+  field_name = field.find('._a').text();
+  field_value = field.find('._b').val();
+
+  field_type = field.attr("data-savetype");
+
+  // convert
+  if (field_type == "string") {
+    field_value = String(field_value);
+  }
+  else if (field_type == "bool") {
+    field_value = field.find('._b').prop( "checked" );
+  }
+  else if (field_type == "number") {
+    field_value = Number(field_value);
+  }
+  else if (field_type == "object") {
+    try {
+      field_value = JSON.parse(field_value);
+    } catch (e) {
+      show_error('Invalid Content Type');
+      return ;
+    }
+  }
+  else if (field_type == "null") {
+    field_value = null;
+  }
+
+  let content = {};
+  content[field_name] = field_value;
+
+  let r = {};
+  r['token'] = $('#db_token').val();
+  r['action'] = "update";
+  r['of'] = $('#current_view_container').val();
+  r['action'] = "update";
+  r['content'] = content;
+  r['where'] = "data['id'] == "+field_id;
+
+  $.post('/', JSON.stringify(r))
+    .done(function () {
+      show_message('Successfull updated field');
+    });
+
 
 }
