@@ -8,6 +8,7 @@ def create(content):
 			response = 400
 			content = json.dumps(
 				dict(
+					code=400,
 					status="error",
 					msg="field: `name` missing",
 					name=table_name
@@ -20,6 +21,7 @@ def create(content):
 			response = 405
 			content = json.dumps(
 				dict(
+					code=405,
 					status="error",
 					msg="container already exist",
 					name=table_name
@@ -38,14 +40,28 @@ def create(content):
 	g = "DATABASE/{}.phaazedb".format(table_name)
 	g = g.replace("../", "")
 
-	os.makedirs(os.path.dirname(g),exist_ok=True)
+	try:
+		os.makedirs(os.path.dirname(g),exist_ok=True)
 
-	pickle.dump(container, open(g, "wb") )
+		pickle.dump(container, open(g, "wb") )
+
+	except:
+		class r():
+			response = 500
+			content = json.dumps(
+				dict(
+					code=500,
+					status="error",
+					msg="unknown server error"
+				)
+			).encode("UTF-8")
+		return r
 
 	class r():
 		response = 201
 		content = json.dumps(
 			dict(
+				code=201,
 				status="created",
 				msg="container created",
 				name=table_name

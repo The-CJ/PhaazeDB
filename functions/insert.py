@@ -11,6 +11,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `into` missing"
 				)
 			).encode("UTF-8")
@@ -24,6 +25,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `content` missing"
 				)
 			).encode("UTF-8")
@@ -38,6 +40,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `content` is missing a usable JSON {key: value} value"
 				)
 			).encode("UTF-8")
@@ -49,6 +52,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `content` has a unnamed JSON key"
 				)
 			).encode("UTF-8")
@@ -68,6 +72,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="container dont\' exist",
 					name=table_name
 				)
@@ -88,6 +93,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="inserted",
+					code=201,
 					msg="data successfull added",
 					container=table_name,
 					content=content_to_add
@@ -100,6 +106,7 @@ def insert(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=500,
 					msg="unknown server error"
 				)
 			).encode("UTF-8")

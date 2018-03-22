@@ -31,6 +31,7 @@ def show(content, DUMP):
 			json.dumps(
 				dict(
 					status="showed",
+					code=200,
 					data=all_container
 					)
 				)
