@@ -52,6 +52,7 @@ def delete(content, DUMP):
 
 	hit = 0
 	new_db = []
+	field_count = 0
 
 	for data in active_container.get("data", []):
 		#check if data is needed -> check where
@@ -62,7 +63,9 @@ def delete(content, DUMP):
 
 		if not v:
 			new_db.append(data)
-		else: hit += 1
+		else:
+			hit += 1
+			field_count = field_count + len(data)
 
 	active_container["data"] = new_db
 
@@ -76,7 +79,8 @@ def delete(content, DUMP):
 					status="deleted",
 					msg="data successfull deleted",
 					container=table_name,
-					hits=hit
+					hits=hit,
+					hits_field=field_count
 				)
 			).encode("UTF-8")
 		return r

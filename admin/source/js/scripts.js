@@ -134,8 +134,8 @@ function get_right_col_type(data_content, data_number) {
 }
 
 function show_result(data) {
-  if (data['hits'] >= 300) {
-    c = confirm("There are "+data['hits']+" results, sure you want to display all?");
+  if (data['hits'] >= 300 || data['hits_field'] >= 500) {
+    c = confirm("There are "+data['hits']+" results with "+data['hits_field']+" fields, sure you want to display all?");
     if (!c) {
       return ;
     }
@@ -189,7 +189,7 @@ function get_result(container, limit=null, offset=null) {
   $(".last_selected_container").val(name);
 
   if (limit == null) {
-    limit = 50;
+    limit = 10;
   }
 
   var r = {};
@@ -221,7 +221,7 @@ function show_reload(name) {
   r['token'] = $('#db_token').val();
   r['action'] = 'select';
   r['of'] = name;
-  r['limit'] = 50;
+  r['limit'] = 10;
   r['offset'] = 0;
 
   $.post('/', JSON.stringify(r))

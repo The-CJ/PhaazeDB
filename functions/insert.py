@@ -29,7 +29,8 @@ def insert(content, DUMP):
 			).encode("UTF-8")
 		return r
 
-	content_to_add.pop('id', None)
+	try: content_to_add.pop('id', None)
+	except: content_to_add = {}
 
 	if content_to_add in [{}, [], "", 0] or not type(content_to_add) is dict:
 		class r():

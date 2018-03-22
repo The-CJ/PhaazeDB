@@ -82,6 +82,7 @@ def select(content, DUMP):
 			limit = math.inf
 
 	hits = 0
+	field_count = 0
 	cur_offset = 0
 
 	for data in active_container.get("data", []):
@@ -99,6 +100,7 @@ def select(content, DUMP):
 		if offset >= cur_offset: continue
 		hits += 1
 		actuall_requested_data = requested_data(data, requested_fields)
+		field_count = field_count + len(actuall_requested_data)
 		return_data.append(actuall_requested_data)
 
 		if hits >= limit:
@@ -111,6 +113,7 @@ def select(content, DUMP):
 				dict(
 					status="selected",
 					hits=hits,
+					hits_field=field_count,
 					total=len(active_container.get("data", [])),
 					data=return_data
 					)

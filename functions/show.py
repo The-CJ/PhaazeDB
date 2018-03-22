@@ -1,7 +1,5 @@
 import json, os
 
-from utils.load import load as load
-
 def get_folder_content(p):
 	r = {'supercontainer': {},'container': []}
 	for thing in os.listdir('DATABASE/'+p):
