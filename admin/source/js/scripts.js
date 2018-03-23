@@ -135,7 +135,7 @@ function get_right_col_type(data_content, data_number) {
 
 function show_result(data) {
   if (data['hits'] >= 300 || data['hits_field'] >= 500) {
-    c = confirm("There are "+data['hits']+" results with "+data['hits_field']+" fields, sure you want to display all?");
+    c = confirm("There are "+data['hits']+" out of "+data['total']+" results with "+data['hits_field']+" fields, sure you want to display all?");
     if (!c) {
       return ;
     }

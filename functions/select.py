@@ -39,6 +39,7 @@ def select(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `of` missing",
 				)
 			).encode("UTF-8")
@@ -59,6 +60,7 @@ def select(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="container don\'t exist",
 					name=table_name
 				)
@@ -112,6 +114,7 @@ def select(content, DUMP):
 			json.dumps(
 				dict(
 					status="selected",
+					code=200,
 					hits=hits,
 					hits_field=field_count,
 					total=len(active_container.get("data", [])),

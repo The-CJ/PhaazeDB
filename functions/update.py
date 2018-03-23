@@ -38,6 +38,7 @@ def update(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `content` missing"
 				)
 			).encode("UTF-8")
@@ -51,6 +52,7 @@ def update(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `content` is missing a usable JSON {key: value} value"
 				)
 			).encode("UTF-8")
@@ -63,6 +65,7 @@ def update(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `of` missing",
 				)
 			).encode("UTF-8")
@@ -74,6 +77,7 @@ def update(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `content` has a unnamed JSON key"
 				)
 			).encode("UTF-8")
@@ -95,6 +99,7 @@ def update(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="container don\'t exist",
 					name=table_name
 				)
@@ -112,7 +117,7 @@ def update(content, DUMP):
 			v = False
 
 		if v:
-			hits += 1			
+			hits += 1
 			for key in content_to_update:
 				data[key] = content_to_update[key]
 
@@ -121,8 +126,9 @@ def update(content, DUMP):
 	class r():
 		response = 200
 		content = json.dumps(dict(
-		hits=hits,
 		status="updated",
+		code=200,
+		hits=hits,
 		msg="successfull updated/added values"
 		)).encode("UTF-8")
 	return r

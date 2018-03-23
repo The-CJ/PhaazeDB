@@ -22,6 +22,7 @@ def delete(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `of` missing"
 				)
 			).encode("UTF-8")
@@ -42,6 +43,7 @@ def delete(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="container dont\' exist",
 					name=table_name
 				)
@@ -77,6 +79,7 @@ def delete(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="deleted",
+					code=201,
 					msg="data successfull deleted",
 					container=table_name,
 					hits=hit,
@@ -89,6 +92,7 @@ def delete(content, DUMP):
 			response = 500
 			content = json.dumps(
 				dict(
+					code=500,
 					status="error",
 					msg="unknown server error"
 				)

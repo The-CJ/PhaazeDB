@@ -25,6 +25,7 @@ def drop(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=400,
 					msg="field: `name` missing"
 				)
 			).encode("UTF-8")
@@ -37,6 +38,7 @@ def drop(content, DUMP):
 			content = json.dumps(
 				dict(
 					status="error",
+					code=405,
 					msg="container does not exists",
 					name=table_name
 				)
@@ -59,6 +61,7 @@ def drop(content, DUMP):
 		content = json.dumps(
 			dict(
 				status="droped",
+				code=202,
 				msg="container successfull droped",
 				name=table_name
 			)
