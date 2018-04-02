@@ -103,6 +103,9 @@ def select(content, DUMP):
 		hits += 1
 		actuall_requested_data = requested_data(data, requested_fields)
 		field_count = field_count + len(actuall_requested_data)
+
+		actuall_requested_data = dict(sorted(actuall_requested_data.items()))
+
 		return_data.append(actuall_requested_data)
 
 		if hits >= limit:
