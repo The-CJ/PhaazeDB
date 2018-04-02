@@ -66,6 +66,13 @@ function get_right_col_type(data_content, data_number) {
     cont = 'null';
   }
 
+  else if (data_content === "<!<-rf->!>") {
+    color = 'black';
+    field = 'none';
+    type = 'text';
+    cont = 'remove';
+  }
+
   else if (typeof data_content === 'boolean') {
     color = 'unique-color';
     field = 'bool';
@@ -512,6 +519,9 @@ function submit_update() {
     else if (field_type == "null") {
       field_value = null;
     }
+    else if (field_type == "remove") {
+      field_value = "<!<-rf->!>";
+    }
 
     // add to content
     content[field_key] = field_value;
@@ -579,7 +589,11 @@ function edit_field_type(obj) {
 }
 
 function change_input_field(obj, type) {
-  $(obj).removeClass("green red orange grey unique-color");
+  $(obj).removeClass("green red orange grey unique-color white");
+  if (type == "remove") {
+    $(obj).addClass('white');
+    $(obj).parent().parent().find('input.value').attr('type', 'hidden');
+  }
   if (type == "null") {
     $(obj).addClass('grey');
     $(obj).parent().parent().find('input.value').attr('type', 'hidden');
@@ -649,6 +663,9 @@ function save_col() {
   }
   else if (field_type == "null") {
     field_value = null;
+  }
+  else if (field_type == "remove") {
+    field_value = "<!<-rf->!>";
   }
 
   let content = {};

@@ -120,7 +120,14 @@ def update(content, DUMP):
 		if v:
 			hits += 1
 			for key in content_to_update:
+				if key == "id":
+					continue
+
 				data[key] = content_to_update[key]
+
+				if content_to_update[key] == "<!<-rf->!>":
+					data.pop(key, None)
+
 
 		return_data.append(data)
 

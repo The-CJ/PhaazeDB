@@ -158,6 +158,7 @@
 							<option value="bool">Bool</option>
 							<option value="object">Object</option>
 							<option value="null">None/Null</option>
+							<option value="remove">Remove</option>
 						</select>
 						<button type="button" class="btn white" onclick="$(this).closest('.entry').remove()" style="margin:0;padding:11px;color:black!important;">x</button>
 					</div>
@@ -252,6 +253,7 @@
 										<button type="button" class="btn red" onclick="change_col_type(0)">Number</button>
 										<button type="button" class="btn unique-color" onclick="change_col_type(false)">Bool</button>
 										<button type="button" class="btn grey" onclick="change_col_type(null)">None/Null</button>
+										<button type="button" class="btn white" style="color:black!important;" onclick="change_col_type('<!<-rf->!>')">Remove</button>
 									</div>
 								</div>
 							</div>
