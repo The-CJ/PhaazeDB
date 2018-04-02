@@ -1,6 +1,7 @@
 import json
 
 from utils.load import load as load
+from utils.store import store
 
 class not_found():
 	"Dummy class"
@@ -123,12 +124,27 @@ def update(content, DUMP):
 
 		return_data.append(data)
 
-	class r():
-		response = 200
-		content = json.dumps(dict(
-		status="updated",
-		code=200,
-		hits=hits,
-		msg="successfull updated/added values"
-		)).encode("UTF-8")
-	return r
+	s = store(table_name, active_container)
+
+	if s:
+		class r():
+			response = 200
+			content = json.dumps(dict(
+				status="updated",
+				code=200,
+				hits=hits,
+				msg="successfull updated/added values"
+			)).encode("UTF-8")
+		return r
+	else:
+		class r():
+			response = 500
+			content = json.dumps(
+				dict(
+					status="error",
+					code=500,
+					msg="unknown server error"
+				)
+			).encode("UTF-8")
+		return r
+
