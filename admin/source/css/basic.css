@@ -123,6 +123,27 @@ input:checked + .slider:before {
   animation-iteration-count: infinite;
 }
 
+#field_setting_box {
+  position: fixed;
+  right:0;
+  top:10vh;
+}
+
+#col_edit_space > div{
+  margin:0 0.25em;
+  border:1px solid black;
+  border-top:none;
+  padding: 10px;
+}
+
+#col_edit_space button{
+  margin: 1px;
+}
+
+#col_edit_space{
+  z-index: 20;
+}
+
 @keyframes selected_col_shine {
   0% {box-shadow: 0px 0px 2px 3px red;}
   50% {box-shadow: 0px 0px 2px 3px yellow;}

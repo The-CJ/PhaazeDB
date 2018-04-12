@@ -181,19 +181,22 @@
 							<span>PhaazeDB</span>
 						</div>
 					</div>
-					<button type="button" class="btn btn-primary" style="padding:5px;"><h3 style="margin:0px;" onclick="load_container()">Load</h3></button>
+					<button type="button" class="btn btn-primary" style="padding:5px;"><h3 style="margin:0px;" onclick="load_container()">Show Container</h3></button>
 				</div>
 				<div class="col">
-					<h1>PhaazeDB - Administration</h1>
-					<hr>
+					<div class="row">
+						<div class="col">
+							<h1>PhaazeDB - Administration</h1>
+						</div>
+						<div class="col">
+							<button type="button" class="btn btn-danger float-right" onclick="shutdown()">Shutdown DB</button>
+						</div>
+					</div>
 					<div class="row">
 						<div class="col-3">
 							<input type="password" class="white-text" value="" placeholder="DB Token" id="db_token">
 							<a href="#" onmousedown="$('#db_token').attr('type', 'text')" onmouseout="$('#db_token').attr('type', 'password')" style="position: relative;top: -30px;right: -95%;">👁️</a>
 							<p>Please insert DB-Token AND leave it there all time</p>
-						</div>
-						<div class="col">
-							<button type="button" class="btn btn-danger float-right" onclick="shutdown()">Shutdown DB</button>
 						</div>
 					</div>
 					<div class="row">
@@ -204,56 +207,28 @@
 						<div class="col">
 							<input type="text" class="white-text last_selected_container" value="None" id="current_view_container" disabled>
 						</div>
-						<!-- Field explanation -->
-						<div class="col">
-							<div class="row text-center">
 
-								<div class="col">
-									<div class="primary-color">ID</div>
-								</div>
-								<div class="col">
-									<div class="green">String</div>
-								</div>
-								<div class="col">
-									<div class="orange">Object</div>
-								</div>
-								<div class="col">
-									<div class="red">Number</div>
-								</div>
-								<div class="col">
-									<div class="unique-color">Bool</div>
-								</div>
-								<div class="col">
-									<div class="grey">None/Null</div>
-								</div>
-
-							</div>
-						</div>
-
-					</div>
-					<div class="row">
-						<span class="col"></span>
-						<div class="col-4">
+						<div class="col-4" id="field_setting_box">
 							<div class="row">
 								<div class="col">
-									<button type="button" class="btn btn-block btn-primary" style="height: 1em;padding:0;" onclick="$('#col_edit_space').collapse('toggle')">Edit</button>
+									<button type="button" class="btn btn-block btn-primary" onclick="$('#col_edit_space').collapse('toggle')">Field Settings</button>
 								</div>
 							</div>
 							<div class="row">
-								<div class="col collapse" id="col_edit_space" style="z-index: 1">
-									<div class="stylish-color-dark" style="margin:0 0.25em;border:1px solid black;border-top:none;">
+								<div class="col collapse" id="col_edit_space">
+									<div class="stylish-color-dark">
 										<h3>Edit current selected Field</h3>
 										<hr>
 										<h5>Save Changes</h5>
-										<button type="button" class="btn btn-success" onclick="save_col()">Save</button>
+										<button type="button" class="btn btn-block btn-success" onclick="save_col()">Save</button>
 										<hr>
 										<h5>Change Field Type</h5>
-										<button type="button" class="btn green" onclick="change_col_type('string')">String</button>
-										<button type="button" class="btn orange" onclick="change_col_type({})">Object</button>
-										<button type="button" class="btn red" onclick="change_col_type(0)">Number</button>
-										<button type="button" class="btn unique-color" onclick="change_col_type(false)">Bool</button>
-										<button type="button" class="btn grey" onclick="change_col_type(null)">None/Null</button>
-										<button type="button" class="btn white" style="color:black!important;" onclick="change_col_type('<!<-rf->!>')">Remove</button>
+										<button type="button" class="btn-block btn green" onclick="change_col_type('string')">String</button>
+										<button type="button" class="btn-block btn orange" onclick="change_col_type({})">Object</button>
+										<button type="button" class="btn-block btn red" onclick="change_col_type(0)">Number</button>
+										<button type="button" class="btn-block btn unique-color" onclick="change_col_type(false)">Bool</button>
+										<button type="button" class="btn-block btn grey" onclick="change_col_type(null)">None/Null</button>
+										<button type="button" class="btn-block btn white" style="color:black!important;" onclick="change_col_type('<!<-rf->!>')">Remove</button>
 									</div>
 								</div>
 							</div>
