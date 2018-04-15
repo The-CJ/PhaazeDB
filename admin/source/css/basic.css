@@ -127,6 +127,7 @@ input:checked + .slider:before {
   position: fixed;
   right:0;
   top:10vh;
+  z-index: 50;
 }
 
 #col_edit_space > div{
