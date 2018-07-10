@@ -53,7 +53,7 @@ async def create(self, request, _INFO):
 		res = dict(
 			code=201,
 			status="created",
-			msg=f"created container {table_name}"
+			msg=f"created container '{table_name}'"
 		)
 		return self.response(status=201, body=json.dumps(res))
 

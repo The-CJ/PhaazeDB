@@ -1,5 +1,7 @@
 import os, json
 
+import asyncio
+
 def drop_upper_empty_folder(table_name):
 
 	t = [r for r in table_name.split('/')]
@@ -16,55 +18,60 @@ def drop_upper_empty_folder(table_name):
 		#check if this is now empty as well
 		drop_upper_empty_folder(t)
 
+async def drop(self, request, _INFO):
+	""" Used to drop/delete container from DB (automaticly deletes supercontainer if necessary) """
 
-def drop(content, DUMP):
-	table_name = content.get('name', None)
-	if table_name == None:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="field: `name` missing"
-				)
-			).encode("UTF-8")
+	#get reqired vars (POST -> JSON based)
 
-		return r
+	#no tabel name
+	table_name = _INFO.get('_POST', {}).get('name', "")
+	if table_name == "":
+		table_name = _INFO.get('_JSON', {}).get('name', "")
 
-	if not os.path.isfile("DATABASE/{}.phaazedb".format(table_name)):
-		class r():
-			response = 405
-			content = json.dumps(
-				dict(
-					status="error",
-					code=405,
-					msg="container does not exists",
-					name=table_name
-				)
-			).encode("UTF-8")
+	table_name = table_name.replace('..', '')
+	table_name = table_name.strip('/')
 
-		return r
+	#no name
+	if table_name == "":
+		res = dict(
+			code=400,
+			status="error",
+			msg="missing 'name' field"
+		)
+		return self.response(status=400, body=json.dumps(res))
 
-	path = "DATABASE/{}.phaazedb".format(table_name)
+	#does not exist
+	if not os.path.isfile(f"DATABASE/{table_name}.phaazedb"):
+		res = dict(
+			code=400,
+			status="error",
+			msg=f"container '{table_name}' does not exist"
+		)
+		return self.response(status=400, body=json.dumps(res))
 
-	os.remove(path)
-	DUMP.pop(table_name, None)
+	file_path = f"DATABASE/{table_name}.phaazedb"
 
 	try:
+		#remove from file system
+		os.remove(file_path)
+
+		#remove from active db
+		self.db.pop(table_name, None)
+
+		#remove upper folder
 		drop_upper_empty_folder(table_name)
+
+		res = dict(
+			code=200,
+			status="droped",
+			msg=f"droped container '{table_name}'"
+		)
+		return self.response(status=200, body=json.dumps(res))
+
 	except:
-		pass
-
-	class r():
-		response = 202
-		content = json.dumps(
-			dict(
-				status="droped",
-				code=202,
-				msg="container successfull droped",
-				name=table_name
-			)
-		).encode("UTF-8")
-
-	return r
+		res = dict(
+			code=500,
+			status="error",
+			msg="unknown server error"
+		)
+		return self.response(status=500, body=json.dumps(res))

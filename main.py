@@ -86,7 +86,7 @@ class DATABASE(object):
 		elif action == "delete":
 			pass
 		elif action == "drop":
-			pass
+			return await self.drop(request, _INFO)
 		elif action == "insert":
 			pass
 		elif action == "select":
