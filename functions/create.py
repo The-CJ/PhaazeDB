@@ -40,8 +40,16 @@ async def create(self, request, _INFO):
 	file_path = f"DATABASE/{table_name}.phaazedb"
 
 	try:
+		#add file folders
 		os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+		#add file
 		pickle.dump(container, open(file_path, "wb") )
+
+		#add to active db
+		self.db[table_name] = container
+
+		#awnser
 		res = dict(
 			code=201,
 			status="created",
