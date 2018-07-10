@@ -6,7 +6,7 @@ import json, time, os, threading
 class DATABASE(object):
 	def __init__(self, config=dict()):
 		self.config = config
-		self.version = "2"
+		self.version = "2.0"
 		self.active = True
 		self.db = dict()
 		self.response = self.send_back_response
@@ -33,8 +33,7 @@ class DATABASE(object):
 		kwargs['headers'] = already_set_header
 		kwargs['headers']['server'] =f"PhaazeDB v{self.version}"
 		kwargs['headers']['Content-Type'] ="Application/json"
-		r = web.Response(**kwargs)
-		return r
+		return web.Response(**kwargs)
 
 	#accessable via web - /admin
 	async def interface(self, request):
@@ -78,10 +77,12 @@ class DATABASE(object):
 		action = _POST.get('action', None)
 		if action == None: action = _JSON.get('action', None)
 
+		_INFO = dict(_GET=_GET, _POST=_POST, _JSON=_JSON, _HEADER=_HEADER)
+
 		if action == None:
 			return await self.missing_function()
 		elif action == "create":
-			pass
+			return await self.create(request, _INFO)
 		elif action == "delete":
 			pass
 		elif action == "drop":
