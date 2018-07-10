@@ -1,70 +1,58 @@
 import os, pickle, json
 from datetime import datetime
 
-def create(content):
-	table_name = content.get('name', None)
-	if table_name == None:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					code=400,
-					status="error",
-					msg="field: `name` missing",
-					name=table_name
-				)
-			).encode("UTF-8")
-		return r
+async def create(self, request, _INFO):
+	""" Used to create new container in the database (automaticly creates supercontainer if necessary) """
 
-	if os.path.isfile("DATABASE/{}.phaazedb".format(table_name)):
-		class r():
-			response = 405
-			content = json.dumps(
-				dict(
-					code=405,
-					status="error",
-					msg="container already exist",
-					name=table_name
-				)
-			).encode("UTF-8")
-		return r
+	#get reqired vars (POST -> JSON based)
 
-	#everything ok, make db
+	#no tabel name
+	table_name = _INFO.get('_POST', {}).get('name', "")
+	if table_name == "":
+		table_name = _INFO.get('_JSON', {}).get('name', "")
+
+	table_name = table_name.replace('..', '')
+	table_name = table_name.strip('/')
+
+	if table_name == "":
+		res = dict(
+			code=400,
+			status="error",
+			msg="missing 'name' field"
+		)
+		return self.response(status=400, body=json.dumps(res))
+
+	#already exist
+	if os.path.isfile(f"DATABASE/{table_name}.phaazedb"):
+		res = dict(
+			code=400,
+			status="error",
+			msg=f"container '{table_name}' already exist"
+		)
+		return self.response(status=400, body=json.dumps(res))
 
 	container = dict (
 		current_id = 1,
-		data = [],
+		data = dict(),
 		creation_date = str(datetime.now())
 	)
 
-	g = "DATABASE/{}.phaazedb".format(table_name)
-	g = g.replace("../", "")
+	file_path = f"DATABASE/{table_name}.phaazedb"
 
 	try:
-		os.makedirs(os.path.dirname(g),exist_ok=True)
-
-		pickle.dump(container, open(g, "wb") )
+		os.makedirs(os.path.dirname(file_path), exist_ok=True)
+		pickle.dump(container, open(file_path, "wb") )
+		res = dict(
+			code=201,
+			status="created",
+			msg=f"created container {table_name}"
+		)
+		return self.response(status=201, body=json.dumps(res))
 
 	except:
-		class r():
-			response = 500
-			content = json.dumps(
-				dict(
-					code=500,
-					status="error",
-					msg="unknown server error"
-				)
-			).encode("UTF-8")
-		return r
-
-	class r():
-		response = 201
-		content = json.dumps(
-			dict(
-				code=201,
-				status="created",
-				msg="container created",
-				name=table_name
-			)
-		).encode("UTF-8")
-	return r
+		res = dict(
+			code=500,
+			status="error",
+			msg="unknown server error"
+		)
+		return self.response(status=500, body=json.dumps(res))
