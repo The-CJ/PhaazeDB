@@ -1,27 +1,27 @@
 import pickle, threading, os
 
-lock = threading.Lock()
 
+lock = threading.Lock()
 locked_files = []
 
-def store(name, file_content):
+async def store(self, container_name, container_content):
 
-	if not os.path.isfile("DATABASE/{}.phaazedb".format(name)):
+	if not os.path.isfile(f"DATABASE/{container_name}.phaazedb"):
 		return False
 
 	#file is already open -> wait until lock opened -> lock it + add name
-	if name in locked_files:
+	if container_name in locked_files:
 		lock.acquire()
-		locked_files.append(name)
+		locked_files.append(container_name)
 	#file is not opened -> lock without time delay + add name
 	else:
 		lock.acquire()
-		locked_files.append(name)
+		locked_files.append(container_name)
 
-	pickle.dump(file_content, open("DATABASE/{}.phaazedb".format(name), "wb") )
+	pickle.dump(container_content, open(f"DATABASE/{container_name}.phaazedb", "wb") )
 
 	#operation finished -> remove name + release Lock
-	locked_files.remove(name)
+	locked_files.remove(container_name)
 	lock.release()
 
 	return True

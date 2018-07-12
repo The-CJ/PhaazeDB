@@ -1,13 +1,29 @@
+import asyncio
+
 import pickle, os
 
-def load(container_name, DUMP):
-	if not os.path.isfile("DATABASE/{}.phaazedb".format(container_name)):
-		return None
+class db_obj(object):
+	def __init__(self, status="sys_error", content=None):
+		self.status = status
+		self.content = content
 
-	file_path = "DATABASE/{}.phaazedb".format(container_name)
-	container = pickle.load(open(file_path, "rb"))
+async def load(self, container_name):
 
-	#store in Dump
-	DUMP[container_name] = container
+	existing_container = self.db.get(container_name, None)
 
-	return container
+	#try to load
+	container_location = f"DATABASE/{container_name}.phaazedb"
+	if existing_container == None:
+		#does not exist
+		if not os.path.isfile(container_location):
+			return db_obj(status="not_found")
+
+	try:
+		container = pickle.load(open(container_location, "rb"))
+		#store in db
+		self.db[container_name] = container
+		return db_obj(status="success", content=container)
+
+	except:
+		return db_obj(status="sys_error")
+
