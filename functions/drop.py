@@ -28,6 +28,9 @@ async def drop(self, request, _INFO):
 	if table_name == "":
 		table_name = _INFO.get('_JSON', {}).get('name', "")
 
+	if type(table_name) is not str:
+		table_name = str(table_name)
+
 	table_name = table_name.replace('..', '')
 	table_name = table_name.strip('/')
 
