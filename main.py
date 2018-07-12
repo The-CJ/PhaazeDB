@@ -28,6 +28,9 @@ class DATABASE(object):
 	from utils.errors import unknown_function as unknown_function
 	from utils.errors import missing_function as missing_function
 
+	from utils.load import load
+	from utils.store import store
+
 	def send_back_response(self, **kwargs):
 		already_set_header = kwargs.get('headers', dict())
 		kwargs['headers'] = already_set_header
@@ -79,26 +82,36 @@ class DATABASE(object):
 
 		_INFO = dict(_GET=_GET, _POST=_POST, _JSON=_JSON, _HEADER=_HEADER)
 
+		# # #
+
 		if action == None:
 			return await self.missing_function()
+
 		elif action == "create":
 			return await self.create(request, _INFO)
+
 		elif action == "delete":
 			pass
+
 		elif action == "drop":
 			return await self.drop(request, _INFO)
+
 		elif action == "insert":
-			pass
+			return await self.insert(request, _INFO)
+
 		elif action == "select":
 			pass
+
 		elif action == "show":
 			pass
+
 		elif action == "update":
 			pass
+
 		else:
 			return await self.unknown_function()
 
-		return self.response()
+		# # #
 
 def start_server():
 

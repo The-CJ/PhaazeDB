@@ -1,113 +1,114 @@
-from utils.load import load
-from utils.store import store
+import asyncio, json
 
-import json
+async def insert(self, request, _INFO):
+	""" Used to insert a new entry into a existing container """
 
-def insert(content, DUMP):
-	table_name = content.get("into", None)
-	if table_name == None:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="field: `into` missing"
-				)
-			).encode("UTF-8")
+	#get reqired vars (POST -> JSON based)
 
-		return r
+	#get table_name
+	table_name = _INFO.get('_POST', {}).get('into', "")
+	if table_name == "":
+		table_name = _INFO.get('_JSON', {}).get('into', "")
 
-	content_to_add = content.get("content", None)
-	if content_to_add == None:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="field: `content` missing"
-				)
-			).encode("UTF-8")
-		return r
+	if type(table_name) is not str:
+		table_name = str(table_name)
 
-	try: content_to_add.pop('id', None)
-	except: content_to_add = {}
+	table_name = table_name.replace('..', '')
+	table_name = table_name.strip('/')
 
-	if content_to_add in [{}, [], "", 0] or not type(content_to_add) is dict:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="field: `content` is missing a usable JSON {key: value} value"
-				)
-			).encode("UTF-8")
-		return r
+	#no tabel name
+	if table_name == "":
+		res = dict(
+			code=400,
+			status="error",
+			msg="missing 'into' field"
+		)
+		return self.response(status=400, body=json.dumps(res))
 
-	if content_to_add.get('', "4458216asd1qrqw12a12aycac211qewefebgr225wgre545") != "4458216asd1qrqw12a12aycac211qewefebgr225wgre545":
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="field: `content` has a unnamed JSON key"
-				)
-			).encode("UTF-8")
-		return r
+	#get content
+	content = _INFO.get('_POST', {}).get('content', None)
+	if content == None:
+		content = _INFO.get('_JSON', {}).get('content', None)
 
-	already_loaded = DUMP.get(table_name, None)
-	if already_loaded == None:
-		#not loaded -> load in
-		active_container = load(table_name, DUMP)
+	if type(content) is not dict:
+		content = None
+
+	#no content
+	if content == None:
+		res = dict(
+			code=400,
+			status="error",
+			msg="missing 'content' field as valid json-object"
+		)
+		return self.response(status=400, body=json.dumps(res))
+
+	#unnamed key
+	if content.get('', dummy) != dummy:
+		res = dict(
+			code=400,
+			status="error",
+			msg="field 'content' has a unnamed json-object key"
+		)
+		return self.response(status=400, body=json.dumps(res))
+
+	#get current container from db
+	container = await self.load(table_name)
+
+	#error handling
+	if container.status == "sys_error":
+		# this SHOULD never happen, but hey... just in case
+		res = dict(
+			code=500,
+			status="error",
+			msg="DB could not load container file."
+		)
+		return self.response(status=500, body=json.dumps(res))
+
+	elif container.status == "not_found":
+		res = dict(
+			code=404,
+			status="error",
+			msg=f"container '{table_name}' not found"
+		)
+		return self.response(status=404, body=json.dumps(res))
+
+	elif container.status == "success":
+
+		container = container.content
+
+	# # #
+
+	#get current_id
+	_id_ = container['current_id']
+
+	#add entry
+	container['data'][_id_] = content
+
+	#increase id
+	container['current_id'] = _id_ + 1
+
+	# # #
+
+	#save everything
+	finished = await self.store(table_name, container)
+
+	if finished:
+		res = dict(
+			code=201,
+			status="inserted",
+			msg=f"successfully inserted into container '{table_name}'",
+			data=content
+		)
+		return self.response(status=201, body=json.dumps(res))
 
 	else:
-		active_container = already_loaded
+		# this SHOULD never happen, but hey... just in case
+		res = dict(
+			code=500,
+			status="error",
+			msg="DB could not save your data."
+		)
+		return self.response(status=500, body=json.dumps(res))
 
-	if active_container == None:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="container dont\' exist",
-					name=table_name
-				)
-			).encode("UTF-8")
-		return r
-
-	#add id value
-	content_to_add["id"] = active_container['current_id']
-
-	active_container["data"].append(content_to_add)
-	active_container["current_id"] += 1
-
-	s = store(table_name, active_container)
-
-	if s:
-		class r():
-			response = 201
-			content = json.dumps(
-				dict(
-					status="inserted",
-					code=201,
-					msg="data successfull added",
-					container=table_name,
-					content=content_to_add
-				)
-			).encode("UTF-8")
-		return r
-	else:
-		class r():
-			response = 500
-			content = json.dumps(
-				dict(
-					status="error",
-					code=500,
-					msg="unknown server error"
-				)
-			).encode("UTF-8")
-		return r
+class dummy(object):
+	pass
