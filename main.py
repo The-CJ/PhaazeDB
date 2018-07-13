@@ -100,7 +100,7 @@ class DATABASE(object):
 			return await self.insert(request, _INFO)
 
 		elif action == "select":
-			pass
+			return await self.select(request, _INFO)
 
 		elif action == "show":
 			pass
