@@ -3,7 +3,7 @@ import asyncio, json
 async def insert(self, request, _INFO):
 	""" Used to insert a new entry into a existing container """
 
-	#get reqired vars (POST -> JSON based)
+	#get required vars (POST -> JSON based)
 
 	#get table_name
 	table_name = _INFO.get('_POST', {}).get('into', "")

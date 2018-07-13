@@ -21,7 +21,7 @@ def drop_upper_empty_folder(table_name):
 async def drop(self, request, _INFO):
 	""" Used to drop/delete container from DB (automaticly deletes supercontainer if necessary) """
 
-	#get reqired vars (POST -> JSON based)
+	#get required vars (POST -> JSON based)
 
 	#no tabel name
 	table_name = _INFO.get('_POST', {}).get('name', "")

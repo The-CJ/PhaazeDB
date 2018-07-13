@@ -4,9 +4,9 @@ from datetime import datetime
 async def create(self, request, _INFO):
 	""" Used to create new container in the database (automaticly creates supercontainer if necessary) """
 
-	#get reqired vars (POST -> JSON based)
+	#get required vars (POST -> JSON based)
 
-	#no tabel name
+	#get tabel name
 	table_name = _INFO.get('_POST', {}).get('name', "")
 	if table_name == "":
 		table_name = _INFO.get('_JSON', {}).get('name', "")
@@ -17,6 +17,7 @@ async def create(self, request, _INFO):
 	table_name = table_name.replace('..', '')
 	table_name = table_name.strip('/')
 
+	#no tabel name
 	if table_name == "":
 		res = dict(
 			code=400,
