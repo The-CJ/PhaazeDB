@@ -79,6 +79,7 @@ class DATABASE(object):
 		#get action
 		action = _POST.get('action', None)
 		if action == None: action = _JSON.get('action', None)
+		if action == None: action = _GET.get('action', None)
 
 		_INFO = dict(_GET=_GET, _POST=_POST, _JSON=_JSON, _HEADER=_HEADER)
 
