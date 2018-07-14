@@ -83,6 +83,7 @@ async def insert(self, request, _INFO):
 
 	#add entry
 	container['data'][_id_] = content
+	content['id'] = _id_
 
 	#increase id
 	container['current_id'] = _id_ + 1
