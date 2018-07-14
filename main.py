@@ -91,7 +91,7 @@ class DATABASE(object):
 			return await self.create(request, _INFO)
 
 		elif action == "delete":
-			pass
+			return await self.delete(request, _INFO)
 
 		elif action == "drop":
 			return await self.drop(request, _INFO)

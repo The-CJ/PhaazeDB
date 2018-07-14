@@ -1,100 +1,137 @@
-from utils.load import load
-from utils.store import store
+import asyncio, json, math
 
-import json
+async def delete(self, request, _INFO):
+	#get required vars (POST -> JSON based)
 
-def check_data_if_needed(data, where):
-	if where == "":
-		return True
+	#get tabel name
+	table_name = _INFO.get('_POST', {}).get('of', "")
+	if table_name == "":
+		table_name = _INFO.get('_JSON', {}).get('of', "")
 
-	if eval(where):
-		return True
+	if type(table_name) is not str:
+		table_name = str(table_name)
 
-	return False
+	table_name = table_name.replace('..', '')
+	table_name = table_name.strip('/')
 
+	#no tabel name
+	if table_name == "":
+		res = dict(
+			code=400,
+			status="error",
+			msg="missing 'of' field"
+		)
+		return self.response(status=400, body=json.dumps(res))
 
+	#get container
+	container = await self.load(table_name)
 
-def delete(content, DUMP):
-	table_name = content.get("of", None)
-	if table_name == None:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="field: `of` missing"
-				)
-			).encode("UTF-8")
+	#error handling
+	if container.status == "sys_error":
+		# this SHOULD never happen, but hey... just in case
+		res = dict(
+			code=500,
+			status="error",
+			msg="DB could not load container file."
+		)
+		return self.response(status=500, body=json.dumps(res))
 
-		return r
+	elif container.status == "not_found":
+		res = dict(
+			code=404,
+			status="error",
+			msg=f"container '{table_name}' not found"
+		)
+		return self.response(status=404, body=json.dumps(res))
 
-	already_loaded = DUMP.get(table_name, None)
-	if already_loaded == None:
-		#not loaded -> load in
-		active_container = load(table_name, DUMP)
+	elif container.status == "success":
+
+		container = container.content
+
+	#get where :: eval str
+	where = _INFO.get('_JSON', {}).get('where', None)
+	if where == None:
+		where = _INFO.get('_POST', {}).get('where', None)
+
+	if type(where) is not str:
+		where = None
+
+	#get offset :: int
+	offset = _INFO.get('_JSON', {}).get('offset', None)
+	if offset == None:
+		offset = _INFO.get('_POST', {}).get('offset', None)
+
+	if type(offset) is str:
+		if offset.isdigit():
+			offset = int(offset)
+	if type(offset) is not int:
+		offset = 0
+
+	#get limit :: int
+	limit = _INFO.get('_JSON', {}).get('limit', None)
+	if limit == None:
+		limit = _INFO.get('_POST', {}).get('limit', None)
+
+	if type(limit) is str:
+		if limit.isdigit():
+			limit = int(limit)
+	if type(limit) is not int:
+		limit = math.inf
+
+	#search all entrys
+	hits = 0
+	hits_field = 0
+	found = 0
+
+	check_list = [_id_ for _id_ in container.get('data', [])]
+
+	for entry_id in check_list:
+		entry = container['data'][entry_id]
+		entry['id'] = entry_id
+
+		if not await check_where(entry, where):
+			continue
+
+		found += 1
+		if offset >= found:
+			continue
+
+		del container['data'][entry_id]
+		hits += 1
+
+		if hits >= limit:
+			break
+
+	#save everything
+	finished = await self.store(table_name, container)
+
+	if finished:
+		res = dict(
+			code=201,
+			status="deleted",
+			hits=hits,
+			total=len( container.get('data', []) ),
+		)
+		return self.response(status=201, body=json.dumps(res))
 
 	else:
-		active_container = already_loaded
+		# this SHOULD never happen, but hey... just in case
+		res = dict(
+			code=500,
+			status="error",
+			msg="DB could not save your data."
+		)
+		return self.response(status=500, body=json.dumps(res))
 
-	if active_container == None:
-		class r():
-			response = 400
-			content = json.dumps(
-				dict(
-					status="error",
-					code=400,
-					msg="container dont\' exist",
-					name=table_name
-				)
-			).encode("UTF-8")
-		return r
 
-	where = content.get("where", "")
+async def check_where(data, where):
+	if where == "" or where == None:
+		return True
 
-	hit = 0
-	new_db = []
-	field_count = 0
-
-	for data in active_container.get("data", []):
-		#check if data is needed -> check where
-		try:
-			v = check_data_if_needed(data, where)
-		except:
-			v = False
-
-		if not v:
-			new_db.append(data)
+	try:
+		if eval(where):
+			return True
 		else:
-			hit += 1
-			field_count = field_count + len(data)
-
-	active_container["data"] = new_db
-
-	s = store(table_name, active_container)
-
-	if s:
-		class r():
-			response = 201
-			content = json.dumps(
-				dict(
-					status="deleted",
-					code=201,
-					msg="data successfull deleted",
-					container=table_name,
-					hits=hit,
-					hits_field=field_count
-				)
-			).encode("UTF-8")
-		return r
-	else:
-		class r():
-			response = 500
-			content = json.dumps(
-				dict(
-					code=500,
-					status="error",
-					msg="unknown server error"
-				)
-			).encode("UTF-8")
-		return r
+			return False
+	except:
+		return False
