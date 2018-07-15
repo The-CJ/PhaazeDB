@@ -107,7 +107,7 @@ class DATABASE(object):
 			pass
 
 		elif action == "update":
-			pass
+			return await self.update(request, _INFO)
 
 		else:
 			return await self.unknown_function()
