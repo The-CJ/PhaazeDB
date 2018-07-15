@@ -104,7 +104,7 @@ class DATABASE(object):
 			return await self.select(request, _INFO)
 
 		elif action == "show":
-			pass
+			return await self.show(request, _INFO)
 
 		elif action == "update":
 			return await self.update(request, _INFO)

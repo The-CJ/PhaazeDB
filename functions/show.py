@@ -1,39 +1,75 @@
-import json, os
+import asyncio, json, os
 
-def get_folder_content(p):
-	r = {'supercontainer': {},'container': []}
-	for thing in os.listdir('DATABASE/'+p):
-		if thing.endswith('.phaazedb'):
-			thing = thing.split('.phaazedb')[0]
-			r['container'].append(thing)
+async def show(self, request, _INFO):
+	""" Shows container hierarchy from 'name' or all if not defined """
 
+	#get recursive path
+	recursive = _INFO.get('_GET', {}).get('recursive', None)
+	if recursive == None:
+		recursive = _INFO.get('_JSON', {}).get('recursive', None)
+	if recursive == None:
+		recursive = _INFO.get('_POST', {}).get('recursive', None)
+
+	if type(recursive) is not bool:
+		recursive = bool(recursive)
+
+	#get show path
+	path = _INFO.get('_GET', {}).get('path', None)
+	if path == None:
+		path = _INFO.get('_JSON', {}).get('path', None)
+	if path == None:
+		path = _INFO.get('_POST', {}).get('path', None)
+
+	if path == None:
+		path = ""
+	else:
+		path = str(path)
+
+	path = path.replace('..', '')
+	path = path.strip('/')
+	path = "DATABASE/"+path
+
+	###
+
+	#check if there
+	try:
+		os.listdir(path)
+	except Exception as e:
+		res = dict(
+			code=400,
+			status="error",
+			msg=f"no tree path found at '{path}'",
+		)
+		return self.response(status=400, body=json.dumps(res))
+
+	root = {'supercontainer': {},'container': []}
+
+	tree = await get_container(root, path, recursive=recursive)
+
+	###
+
+	res = dict(
+		code=200,
+		status="showed",
+		path=path,
+		recursive=recursive,
+		tree=tree
+	)
+	return self.response(status=200, body=json.dumps(res))
+
+async def get_container(tree, folder_path, recursive=False):
+	for file in os.listdir(folder_path):
+
+		#is container
+		if file.endswith('.phaazedb'):
+			file = file.split('.phaazedb')[0]
+			tree['container'].append(file)
+
+		#is supercontainer
 		else:
-			r['supercontainer'][thing] = get_folder_content(p+"/"+thing)
+			if recursive:
+				tree['supercontainer'][file] = await get_container(dict(supercontainer={}, container=[]), folder_path + "/" + file)
+			else:
+				tree['supercontainer'][file] = {}
 
-	return r
-
-def show(content, DUMP):
-
-	all_container = {'supercontainer': {},'container': []}
-
-	for thing in os.listdir('DATABASE'):
-		if thing.endswith('.phaazedb'):
-			thing = thing.split('.phaazedb')[0]
-			all_container['container'].append(thing)
-
-		else:
-			all_container['supercontainer'][thing] = get_folder_content(thing)
-
-
-	class r():
-		response = 200
-		content = str(
-			json.dumps(
-				dict(
-					status="showed",
-					code=200,
-					data=all_container
-					)
-				)
-			).encode("UTF-8")
-	return r
+	return tree
