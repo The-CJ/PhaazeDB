@@ -1,6 +1,8 @@
 import asyncio, json, math
 
 async def delete(self, request, _INFO):
+	""" Used to delete entrys from the database """
+
 	#get required vars (POST -> JSON based)
 
 	#get tabel name
