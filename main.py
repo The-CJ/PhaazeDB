@@ -20,8 +20,8 @@ class DATABASE(object):
 	from functions.select import select as select
 	from functions.show import show as show
 
-	#website
-	from admin.website import website as website
+	#website interface
+	from admin.interface import web_interface as web_interface
 
 	#errors
 	from utils.errors import unauthorised as unauthorised
@@ -35,12 +35,15 @@ class DATABASE(object):
 		already_set_header = kwargs.get('headers', dict())
 		kwargs['headers'] = already_set_header
 		kwargs['headers']['server'] =f"PhaazeDB v{self.version}"
-		kwargs['headers']['Content-Type'] ="Application/json"
+
+		if kwargs['headers'].get('Content-Type', None) == None:
+			kwargs['headers']['Content-Type'] ="Application/json"
+
 		return web.Response(**kwargs)
 
 	#accessable via web - /admin
 	async def interface(self, request):
-		return self.website()
+		return await self.web_interface(request)
 
 	#main entry call point
 	async def process(self, request):
