@@ -2,3 +2,8 @@ __pycache__
 DATABASE/*
 config.json
 .ropeproject
+admin/source/css/bootstrap.css
+admin/source/css/mdb.css
+admin/source/js/bootstrap.js
+admin/source/js/mdb.js
+admin/source/js/jquery.js
