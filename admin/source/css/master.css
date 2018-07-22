@@ -1,0 +1,39 @@
+* {
+	box-sizing: border-box!important;
+}
+
+.btn {
+	text-transform: none;
+}
+
+/* window parts */
+header {
+	top: 0;
+	width: 100vw;
+	height: 15vh;
+	color: white;
+	overflow: auto;
+}
+
+main {
+	width: 100vw;
+	height: 80vh
+}
+
+footer {
+	bottom: 0;
+	width: 100vw;
+	height: 5vh;
+	overflow: auto;
+}
+
+.container-select {
+	border-right: 3px solid black;
+	height: 100%;
+	width: 17.5vw;
+}
+
+/* logo image */
+#db_logo {
+	height: 100%;
+}

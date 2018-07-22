@@ -1,0 +1,38 @@
+/* token fields */
+
+.token-input {
+  height: 80%;
+  margin-left: 6px
+}
+.token-input > .input-start {
+  height: 100%;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding:0.5em;
+}
+.token-input > .input-end {
+  height: 100%;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding:0.5em;
+}
+.token-input > .input-field {
+  height: 100%;
+  text-align: center;
+  width: 15vw;
+  border-top: 1px solid white;
+  border-bottom: 1px solid white;
+}
+.token-input > .input-field:focus {
+  border-top: 2px solid rgb(0, 255, 186)!important;
+  border-bottom: 2px solid rgb(0, 255, 186)!important;
+  box-shadow: none!important;
+}

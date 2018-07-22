@@ -1,14 +1,72 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>PhaazeDB - Admin</title>
+		<title>PhaazeDB</title>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="/admin/source/css/bootstrap.css">
 		<link rel="stylesheet" href="/admin/source/css/mdb.css">
-		<link rel="stylesheet" href="/admin/source/css/basic.css">
+		<link rel="stylesheet" href="/admin/source/css/master.css">
+		<link rel="stylesheet" href="/admin/source/css/utils.css">
+		<link rel="stylesheet" href="/admin/source/css/elements.css">
+		<link rel="stylesheet" href="/admin/source/css/icons/icons.css">
 	</head>
 
 	<body class="stylish-color">
+
+		<header class="stylish-color-dark">
+			<div class="remain-height center-item-row">
+				<img src="admin/source/PhaazeDB.png" alt="PhaazeDD_img" id="db_logo">
+				<div class="display-block">
+					<h1>PhaazeDB - Administration Interface</h1>
+					<div class="center-item-row">
+						<span>Current&nbsp;container:&nbsp;</span>
+						<input type="text" class="white-text" readonly id="current_container" value="None">
+					</div>
+				</div>
+				<div class="display-block ml-auto">
+					<div class="center-item-col">
+						<button type="button" class="btn btn-danger">Shutdown</button>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<main>
+
+			<div class="container-select">
+
+			</div>
+
+		</main>
+
+		<footer class="stylish-color-dark">
+			<div class="remain-height center-item-row">
+
+				<!-- token -->
+				<div class="token-input center-item-row">
+
+					<div class="input-start">
+						<i class="material-icons">vpn_key</i>
+					</div>
+
+					<input type="password" class="input-field text-white" value="" placeholder="PhaazeDB token">
+
+					<div class="input-end">
+						<i class="material-icons">remove_red_eye</i>
+					</div>
+
+				</div>
+
+				<!-- buttons -->
+				<div class="ml-auto center-item-row">
+					<button type="button" class="btn btn-primary">Select</button>
+					<button type="button" class="btn btn-success">Insert</button>
+					<button type="button" class="btn btn-warning">Update</button>
+					<button type="button" class="btn btn-danger">Delete</button>
+				</div>
+
+			</div>
+		</footer>
 
 		<script src="/admin/source/js/jquery.js"></script>
 		<script src="/admin/source/js/bootstrap.js"></script>
