@@ -36,3 +36,22 @@
   border-bottom: 2px solid rgb(0, 255, 186)!important;
   box-shadow: none!important;
 }
+
+/* container */
+.supercontainer {
+  width: 100%;
+}
+.supercontainer > .btn {
+  width: 100%;
+  margin: 0;
+}
+.supercontainer .content-list {
+  width: 100%;
+  padding-right: 5%;
+}
+
+/* message's */
+.message {
+  width: 100%;
+
+}

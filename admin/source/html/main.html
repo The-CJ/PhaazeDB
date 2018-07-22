@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- window.history.pushState('obj', 'newtitle', 'new url here') -->
 <html>
 	<head>
 		<title>PhaazeDB</title>
@@ -12,6 +13,8 @@
 	</head>
 
 	<body class="stylish-color">
+
+		<div id="message-space"></div>
 
 		<header class="stylish-color-dark">
 			<div class="remain-height center-item-row">
@@ -34,7 +37,16 @@
 		<main>
 
 			<div class="container-select">
+				<div class="supercontainer">
+					<button type="button" class="btn btn-primary" onclick="show_container(this)" path="">DATABASE</button>
+					<div class="collapse">
+						<div class="content-list">
 
+							<!-- list of (super)container -->
+
+						</div>
+					</div>
+				</div>
 			</div>
 
 		</main>
@@ -49,7 +61,7 @@
 						<i class="material-icons">vpn_key</i>
 					</div>
 
-					<input type="password" class="input-field text-white" value="" placeholder="PhaazeDB token">
+					<input type="password" class="input-field text-white" value="" placeholder="PhaazeDB token" id="db_token">
 
 					<div class="input-end">
 						<i class="material-icons">remove_red_eye</i>
@@ -71,7 +83,7 @@
 		<script src="/admin/source/js/jquery.js"></script>
 		<script src="/admin/source/js/bootstrap.js"></script>
 		<script src="/admin/source/js/mdb.js"></script>
-		<script src="/admin/source/js/scripts.js"></script>
+		<script src="/admin/source/js/show.js"></script>
 		<script src="/admin/source/js/utils.js"></script>
 	</body>
 </html>

@@ -37,3 +37,10 @@ footer {
 #db_logo {
 	height: 100%;
 }
+
+/* message */
+#message-space {
+  top: 15vh;
+  width: 100%;
+	position: fixed;
+}
