@@ -51,6 +51,14 @@
   padding-right: 5%;
   padding-bottom: 1vh;
 }
+.supercontainer > button[loaded=true]::after {
+  font-family: "Material Icons";
+  content: ' arrow_downward';
+}
+.supercontainer > button:not([loaded=true])::after {
+  font-family: "Material Icons";
+  content: ' expand_more';
+}
 .container_button {
   border-top: 1px solid black;
   width: 100%;
