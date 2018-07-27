@@ -1,5 +1,4 @@
 /* token fields */
-
 .token-input {
   height: 80%;
   margin-left: 6px
@@ -52,16 +51,34 @@
   padding-right: 5%;
   padding-bottom: 1vh;
 }
-
 .container_button {
   border-top: 1px solid black;
   width: 100%;
   margin: 0;
   background: rgb(66, 66, 255);
 }
+
 /* message's */
 .message {
   width: 100%;
   font-size: 120%;
 
+}
+
+/* scroll bar */
+::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar
+{
+	width: 10px;
+	background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb
+{
+	background-color: #0ae;
 }
