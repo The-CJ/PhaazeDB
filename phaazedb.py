@@ -26,6 +26,7 @@ class DATABASE(object):
 	from functions.insert import insert as insert
 	from functions.select import select as select
 	from functions.show import show as show
+	# TODO: add functions.config : to edit configs on the fly without restart
 
 	#website interface
 	from admin.interface import web_interface as web_interface

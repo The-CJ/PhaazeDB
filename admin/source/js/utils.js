@@ -30,3 +30,17 @@ function display_message(message_obj) {
   }, time);
 
 }
+
+function notify_incorrect_token() {
+  $('#db_token').focus();
+  $('#db_token').css('background', '#fa0');
+  setTimeout(function () {
+    $('#db_token').css('background', 'none');
+  }, 500);
+  setTimeout(function () {
+    $('#db_token').css('background', '#fa0');
+  }, 1000);
+  setTimeout(function () {
+    $('#db_token').css('background', 'none');
+  }, 1500);
+}

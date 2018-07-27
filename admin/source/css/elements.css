@@ -42,16 +42,26 @@
   width: 100%;
 }
 .supercontainer > .btn {
+  border-top: 1px solid black;
   width: 100%;
   margin: 0;
+  background: rgb(88, 88, 255);
 }
 .supercontainer .content-list {
   width: 100%;
   padding-right: 5%;
+  padding-bottom: 1vh;
 }
 
+.container_button {
+  border-top: 1px solid black;
+  width: 100%;
+  margin: 0;
+  background: rgb(66, 66, 255);
+}
 /* message's */
 .message {
   width: 100%;
+  font-size: 120%;
 
 }
