@@ -22,9 +22,13 @@
 				<img src="admin/source/PhaazeDB.png" alt="PhaazeDD_img" id="db_logo">
 				<div class="display-block">
 					<h1>PhaazeDB - Administration Interface</h1>
-					<div class="center-item-row">
-						<span>Current&nbsp;container:&nbsp;</span>
-						<input type="text" class="white-text" readonly id="current_container" value="None">
+					<div class="row center-item-row">
+						<span class="col-3">Current&nbsp;container:&nbsp;</span>
+						<span class="col" id="current_container">None</span>
+					</div>
+					<div class="row center-item-row">
+						<span class="col-3">Entry's&nbsp;in&nbsp;Container:&nbsp;</span>
+						<span class="col" id="total_entrys">None</span>
 					</div>
 				</div>
 				<div class="display-block ml-auto">
@@ -35,7 +39,7 @@
 			</div>
 		</header>
 
-		<main>
+		<main class="center-item-row">
 
 			<div class="container-select">
 
@@ -49,6 +53,10 @@
 						</div>
 					</div>
 				</div>
+
+			</div>
+
+			<div id="result_space">
 
 			</div>
 
@@ -89,5 +97,6 @@
 		<script src="/admin/source/js/utils.js"></script>
 
 		<script src="/admin/source/js/show.js"></script>
+		<script src="/admin/source/js/select.js"></script>
 	</body>
 </html>

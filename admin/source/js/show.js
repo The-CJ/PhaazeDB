@@ -40,7 +40,6 @@ function show_container(button_obj) {
     }
     btn.attr('loaded', "true");
     content_list.closest('.collapse').collapse('show');
-    console.log(data);
   })
   .fail(function (data) {
     data = data.responseJSON ? data.responseJSON : {};

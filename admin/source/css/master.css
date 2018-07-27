@@ -29,6 +29,12 @@ footer {
 	width: 17.5vw;
 	overflow-y: auto;
 }
+#result_space {
+	height: 100%;
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: visible;
+}
 
 /* logo image */
 #db_logo {

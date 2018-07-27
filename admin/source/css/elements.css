@@ -72,21 +72,76 @@
   font-size: 120%;
 
 }
+.no-results {
+  text-align: center;
+  width: 100%;
+  color: white;
+  font-size: 300%;
+  background: #7a7a7a;
+  border-top: 5px solid #d9d9d9;
+  border-bottom: 5px solid #d9d9d9;
+}
+.no-results::after {
+  content: "No entrys returned";
+}
 
 /* scroll bar */
-::-webkit-scrollbar-track
-{
+::-webkit-scrollbar-track{
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	background-color: #F5F5F5;
 }
-
-::-webkit-scrollbar
-{
+::-webkit-scrollbar{
 	width: 10px;
 	background-color: #F5F5F5;
 }
-
-::-webkit-scrollbar-thumb
-{
+::-webkit-scrollbar-thumb{
 	background-color: #0ae;
+}
+
+/* result entry col's */
+.result_row {
+  height: 7.5%;
+}
+.result_col {
+  width: fit-content;
+  height: 100%;
+  border: 1px solid black;
+  margin: 2px;
+  padding: 3px;
+  position: relative;
+  transition: 0.3s;
+}
+.result_col.id{
+  background: #56aaff;
+}
+.result_col.none{
+  background: rgb(100, 100, 100);
+}
+.result_col.string{
+  background: #00d000;
+}
+.result_col.number{
+  background: #ff6540;
+}
+.result_col.bool{
+  background: rgb(100, 75, 125);
+}
+.result_col.object{
+  background: rgb(225, 175, 0);
+}
+.result_col div.key {
+  text-align: left;
+  height: 50%;
+}
+.result_col input {
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  background: white;
+  border: none;
+  height: 50%;
+  width: 150px;
+}
+.result_col input:focus {
+  width: 450px;
 }
