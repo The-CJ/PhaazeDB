@@ -59,6 +59,8 @@ async def create(self, request, _INFO):
 			status="created",
 			msg=f"created container '{table_name}'"
 		)
+		if self.log != False:
+			self.log.info(f"created container '{table_name}'")
 		return self.response(status=201, body=json.dumps(res))
 
 	except:
@@ -67,4 +69,6 @@ async def create(self, request, _INFO):
 			status="error",
 			msg="unknown server error"
 		)
+		if self.log != False:
+			self.log.critical(f"create container '{table_name}' failed")
 		return self.response(status=500, body=json.dumps(res))

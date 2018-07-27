@@ -100,6 +100,8 @@ async def insert(self, request, _INFO):
 			msg=f"successfully inserted into container '{table_name}'",
 			data=content
 		)
+		if self.log != False:
+			self.log.info(f"insert entry into '{table_name}': {str(content)}")
 		return self.response(status=201, body=json.dumps(res))
 
 	else:
@@ -109,6 +111,8 @@ async def insert(self, request, _INFO):
 			status="error",
 			msg="DB could not save your data."
 		)
+		if self.log != False:
+			self.log.critical(f"insert entry into '{table_name}' failed")
 		return self.response(status=500, body=json.dumps(res))
 
 class dummy(object):

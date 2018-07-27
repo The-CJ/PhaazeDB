@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, logging
 from aiohttp import web
 import json, time, os, threading
 
@@ -6,10 +6,14 @@ import json, time, os, threading
 class DATABASE(object):
 	def __init__(self, config=dict()):
 		self.config = config
+		self.log = logging.getLogger('PhaazeDB') if config.get('logging', False) == True else False
 		self.version = "2.0"
 		self.active = True
 		self.db = dict()
 		self.response = self.send_back_response
+		if self.log != False:
+			self.log.setLevel(logging.DEBUG)
+			self.log.addHandler(logging.StreamHandler())
 
 	#functions
 	from functions.create import create as create

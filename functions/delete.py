@@ -114,6 +114,8 @@ async def delete(self, request, _INFO):
 			hits=hits,
 			total=len( container.get('data', []) ),
 		)
+		if self.log != False:
+			self.log.info(f"deleted {str(hits)} entry(s) from '{table_name}'")
 		return self.response(status=201, body=json.dumps(res))
 
 	else:
@@ -123,6 +125,8 @@ async def delete(self, request, _INFO):
 			status="error",
 			msg="DB could not save your data."
 		)
+		if self.log != False:
+			self.log.critical(f"deleted {str(hits)} entry(s) from '{table_name}'")
 		return self.response(status=500, body=json.dumps(res))
 
 

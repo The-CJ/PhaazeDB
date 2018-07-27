@@ -1,7 +1,8 @@
 {
 	"adress": "0.0.0.0",
 	"port": 2000,
+	"auth_token": "example!!!_..,",
 
-	"auth_token": "example!!!_..,"
+	"logging": false,
 
 }

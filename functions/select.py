@@ -138,6 +138,8 @@ async def select(self, request, _INFO):
 		total=len( container.get('data', []) ),
 		data=result
 	)
+	if self.log != False:
+		self.log.info(f"selected {str(hits)} entry(s) from '{table_name}'")
 	return self.response(status=200, body=json.dumps(res))
 
 async def check_where(data, where):

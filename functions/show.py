@@ -55,6 +55,8 @@ async def show(self, request, _INFO):
 		recursive=recursive,
 		tree=tree
 	)
+	if self.log != False:
+		self.log.info(f"showed tree: path={path}, recursive={str(recursive)}")
 	return self.response(status=200, body=json.dumps(res))
 
 async def get_container(tree, folder_path, recursive=False):
