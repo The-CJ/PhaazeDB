@@ -13,7 +13,10 @@ class DATABASE(object):
 		self.response = self.send_back_response
 		if self.log != False:
 			self.log.setLevel(logging.DEBUG)
-			self.log.addHandler(logging.StreamHandler())
+			SH = logging.StreamHandler()
+			SHF = logging.Formatter("%(name)s [%(levelname)s]: %(message)s")
+			SH.setFormatter(SHF)
+			self.log.addHandler(SH)
 
 	#functions
 	from functions.create import create as create
