@@ -100,34 +100,36 @@
 
 /* result colors */
 .typeof_id{
-  background: #56aaff;
+  background: #4285F4;
 }
 .typeof_none{
-  background: rgb(100, 100, 100);
+  background: #9e9e9e;
 }
 .typeof_string{
-  background: #00d000;
+  background: #4CAF50;
 }
 .typeof_number{
-  background: #ff6540;
+  background: #F44336;
 }
 .typeof_bool{
-  background: rgb(100, 75, 125);
+  background: #3F729B;
 }
 .typeof_object{
-  background: rgb(225, 175, 0);
+  background: #e48800;
 }
 
 /* result entry col's */
 .result_row {
-  height: 7.5%;
+  height: 8.5%;
+  margin: 3px;
 }
 .result_col {
   width: fit-content;
+  color: white;
   height: 100%;
   border: 1px solid black;
-  margin: 2px;
-  padding: 3px;
+  margin: 3px;
+  padding: 4px;
   position: relative;
   transition: 0.3s;
 }

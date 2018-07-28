@@ -11,7 +11,8 @@ function insert(r) {
   };
   $.post("/", JSON.stringify(request))
   .done(function (data) {
-    console.log(data);
+    $('#insert_modal').modal('hide');
+    display_message({content:"Successfull inserted into '"+request.into+"'", color:"#afa"});
   })
   .fail(function (data) {
     data = data.responseJSON ? data.responseJSON : {};
