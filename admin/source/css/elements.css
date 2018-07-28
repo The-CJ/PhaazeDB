@@ -137,7 +137,7 @@
   text-align: left;
   height: 50%;
 }
-.result_col input {
+.result_col input, .result_col textarea {
   text-align: left;
   padding: 0;
   margin: 0;
@@ -145,9 +145,16 @@
   border: none;
   height: 50%;
   width: 150px;
+  transition: all 0.3s;
+  resize: none;
+  position: relative;
 }
-.result_col input:focus {
+.result_col input:focus, .result_col textarea:focus {
   width: 450px;
+}
+.result_col textarea:focus {
+  height: 250px;
+  z-index: 100;
 }
 
 /* modal input fields */

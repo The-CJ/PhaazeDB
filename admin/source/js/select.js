@@ -85,6 +85,7 @@ function fill_entrys(data_list) {
   }
 
 }
+
 function generate_id(id) {
   let ob = $('<div class="result_col typeof_id"></div>');
   ob.append( $('<div class="key">').text("id") );
@@ -113,6 +114,8 @@ function generate_bool(key, value) {
   return ob;
 }
 function generate_object(key, value) {
-  let ob = $('<div class="result_col typeof_object">x</div>');
+  let ob = $('<div class="result_col typeof_object"></div>');
+  ob.append( $('<div class="key">').text(key) );
+  ob.append( $('<textarea>').val(JSON.stringify(value)) );
   return ob;
 }
