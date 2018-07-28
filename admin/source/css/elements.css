@@ -137,7 +137,7 @@
   text-align: left;
   height: 50%;
 }
-.result_col input, .result_col textarea {
+.result_col input[type=text], .result_col input[type=number], .result_col .switch, .result_col textarea {
   text-align: left;
   padding: 0;
   margin: 0;
@@ -149,12 +149,32 @@
   resize: none;
   position: relative;
 }
-.result_col input:focus, .result_col textarea:focus {
+.result_col input[type=text]:focus, .result_col input[type=number]:focus, .result_col textarea:focus {
   width: 450px;
 }
 .result_col textarea:focus {
   height: 250px;
   z-index: 100;
+}
+.result_col .switch {
+  display: flex;
+  align-items: center;
+}
+.result_col .switch[state=false] {
+  background: red;
+}
+.result_col .switch[state=true] {
+  background: lime;
+}
+.result_col .switch[state=false]::after {
+  content: "False";
+  margin: auto;
+  color: white;
+}
+.result_col .switch[state=true]::after {
+  content: "True";
+  margin: auto;
+  color: black;
 }
 
 /* modal input fields */
@@ -168,4 +188,3 @@
 .field_space input {
   text-align: center;
 }
-

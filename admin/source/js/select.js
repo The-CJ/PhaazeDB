@@ -95,6 +95,7 @@ function generate_id(id) {
 function generate_none(key) {
   let ob = $('<div class="result_col typeof_none"></div>');
   ob.append( $('<div class="key">').text(key) );
+  ob.append( $('<input disabled type="text">').val('None/null') );
   return ob;
 }
 function generate_string(key, value) {
@@ -110,7 +111,12 @@ function generate_number(key, value) {
   return ob;
 }
 function generate_bool(key, value) {
-  let ob = $('<div class="result_col typeof_bool">x</div>');
+  let ob = $('<div class="result_col typeof_bool"></div>');
+  ob.append( $('<div class="key">').text(key) );
+  let s = $('<div class="switch">');
+  s.attr('state', String(value));
+  s.attr('onclick', 'if ($(this).attr("state") == "true") {$(this).attr("state", "false")} else {$(this).attr("state", "true")}');
+  ob.append(s);
   return ob;
 }
 function generate_object(key, value) {
