@@ -19,13 +19,10 @@ function insert(r) {
     if (data.status == "error") {
       if (data.msg == "unauthorised") {
         display_message( {content:"Unauthorised, please check token", color:"#fa3"} );
-        display_message_in_modal($('#insert_modal'), {content:"Unauthorised, please check token", color:"#fa3"});
         return notify_incorrect_token();
       }
-      display_message_in_modal($('#insert_modal'), {content:data.msg, color:"#fa3"});
       return display_message( {content:data.msg, color:"#fa3"} );
     } else {
-      display_message_in_modal($('#insert_modal'), {content:"Unknown Server Error", color:"#f00"});
       return display_message( {content:"Unknown Server Error", color:"#f00"} );
     }
   })
@@ -49,13 +46,11 @@ function modal_insert() {
     if (key == "") {
       field.find('[placeholder=key]').addClass('need_correction');
       display_message({content:"no key can be empty", color:"orange"});
-      display_message_in_modal($('#insert_modal'), {content:"no key can be empty", color:"orange"});
       return ;
     }
 
-    new_object[key] = get_value_in_right_type(value, type);
+    new_object[key] = get_value_in_right_type(value, type, key);
   }
-
 
   console.log(new_object);
   return insert({"into":table_name, "content": new_object});

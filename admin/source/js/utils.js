@@ -33,38 +33,6 @@ function display_message(message_obj) {
 
 }
 
-function display_message_in_modal(modal, message_obj) {
-
-  content = message_obj['content'];
-  color = message_obj['color'];
-  text_color = message_obj['text_color'];
-  time = message_obj['time'];
-
-  let message = $('<div class="message text-center">');
-  message.text(content);
-
-  if (color == null) {
-    color = "lightgrey";
-  }
-  message.css('background', color);
-
-  if (text_color == null) {
-    text_color = "black";
-  }
-  message.css('color', text_color);
-
-  modal.find('.message_space').append(message);
-  if (time == null) {
-    time = 5;
-  }
-
-  time = time * 1000
-  setTimeout(function () {
-    message.remove();
-  }, time);
-
-}
-
 function notify_incorrect_token() {
   $('#db_token').focus();
   $('#db_token').css('background', '#fa0');
@@ -104,6 +72,34 @@ function update_typeof_color(obj, val) {
   obj.addClass('typeof_'+val)
 }
 
-function get_value_in_right_type(value, type) {
-  return value;
+function get_value_in_right_type(value, type, key) {
+  if (type == "string") {
+    return String(value);
+  }
+  else if (type == "number") {
+    return Number(value);
+  }
+  else if (type == "bool") {
+    return Boolean(value);
+  }
+  else if (type == "none") {
+    return null;
+  }
+  else if (type == "object") {
+    try {
+      let obj = JSON.parse(value);
+      return obj;
+    }
+    catch (e) {
+      var inputfield = $('.modal input').filter(function () {
+          return $(this).val() == value;
+      });
+      inputfield.addClass('need_correction');
+      display_message({content:"no key can be empty", color:"orange"});
+      throw "invalid json object";
+    }
+  }
+  else {
+    alert(value)
+  }
 }
