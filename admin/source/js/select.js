@@ -11,7 +11,8 @@ function select(r, preview=false) {
   };
   $.get("/", request)
   .done(function (data) {
-    $('#current_container').text(request["of"]);
+    last_selected_container = request["of"];
+    $('#current_container').text(last_selected_container);
     $('#total_entrys').text(data.total);
     if (preview == false) {
       display_message( {content:"Select: Returned: "+data.hits+" entry(s)", color:"#ccc"} );
@@ -85,33 +86,33 @@ function fill_entrys(data_list) {
 
 }
 function generate_id(id) {
-  let ob = $('<div class="result_col id"></div>');
+  let ob = $('<div class="result_col typeof_id"></div>');
   ob.append( $('<div class="key">').text("id") );
   ob.append( $('<input readonly type="number">').val(id) );
   return ob;
 }
 function generate_none(key) {
-  let ob = $('<div class="result_col none"></div>');
+  let ob = $('<div class="result_col typeof_none"></div>');
   ob.append( $('<div class="key">').text(key) );
   return ob;
 }
 function generate_string(key, value) {
-  let ob = $('<div class="result_col string"></div>');
+  let ob = $('<div class="result_col typeof_string"></div>');
   ob.append( $('<div class="key">').text(key) );
   ob.append( $('<input type="text">').val(value) );
   return ob;
 }
 function generate_number(key, value) {
-  let ob = $('<div class="result_col number"></div>');
+  let ob = $('<div class="result_col typeof_number"></div>');
   ob.append( $('<div class="key">').text(key) );
   ob.append( $('<input type="number">').val(value) );
   return ob;
 }
 function generate_bool(key, value) {
-  let ob = $('<div class="result_col bool">x</div>');
+  let ob = $('<div class="result_col typeof_bool">x</div>');
   return ob;
 }
 function generate_object(key, value) {
-  let ob = $('<div class="result_col object">x</div>');
+  let ob = $('<div class="result_col typeof_object">x</div>');
   return ob;
 }
