@@ -1,3 +1,5 @@
+var last_selected_container = ""
+
 function display_message(message_obj) {
 
   content = message_obj['content'];
@@ -43,4 +45,10 @@ function notify_incorrect_token() {
   setTimeout(function () {
     $('#db_token').css('background', 'none');
   }, 1500);
+}
+
+function update_typeof_color(obj, val) {
+  let new_status = val;
+  obj.removeClass('typeof_bool typeof_none typeof_number typeof_object typeof_string');
+  obj.addClass('typeof_'+val)
 }
