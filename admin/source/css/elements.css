@@ -98,6 +98,26 @@
 	background-color: #0ae;
 }
 
+/* result colors */
+.typeof_id{
+  background: #56aaff;
+}
+.typeof_none{
+  background: rgb(100, 100, 100);
+}
+.typeof_string{
+  background: #00d000;
+}
+.typeof_number{
+  background: #ff6540;
+}
+.typeof_bool{
+  background: rgb(100, 75, 125);
+}
+.typeof_object{
+  background: rgb(225, 175, 0);
+}
+
 /* result entry col's */
 .result_row {
   height: 7.5%;
@@ -110,24 +130,6 @@
   padding: 3px;
   position: relative;
   transition: 0.3s;
-}
-.result_col.id{
-  background: #56aaff;
-}
-.result_col.none{
-  background: rgb(100, 100, 100);
-}
-.result_col.string{
-  background: #00d000;
-}
-.result_col.number{
-  background: #ff6540;
-}
-.result_col.bool{
-  background: rgb(100, 75, 125);
-}
-.result_col.object{
-  background: rgb(225, 175, 0);
 }
 .result_col div.key {
   text-align: left;
@@ -145,3 +147,16 @@
 .result_col input:focus {
   width: 450px;
 }
+
+/* modal input fields */
+.field_space .field_key_value {
+  padding: 5px;
+}
+.field_space button, .field_space select {
+  margin: 0;
+  padding: 8px;
+}
+.field_space input {
+  text-align: center;
+}
+
