@@ -91,11 +91,11 @@ function get_value_in_right_type(value, type, key) {
       return obj;
     }
     catch (e) {
-      var inputfield = $('.modal input').filter(function () {
-          return $(this).val() == value;
+      var inputfield = $('.modal:visible input').filter(function () {
+          return $(this).val() == value && $(this).closest('.field_key_value').find('select').val() == 'object';
       });
       inputfield.addClass('need_correction');
-      display_message({content:"no key can be empty", color:"orange"});
+      display_message({content:"invalid json object", color:"orange"});
       throw "invalid json object";
     }
   }

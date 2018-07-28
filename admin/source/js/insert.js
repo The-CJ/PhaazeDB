@@ -10,9 +10,9 @@ function insert(r) {
     "content": r['content']
   };
   $.post("/", JSON.stringify(request))
-  .done(function (data) {
+  .done(function (result) {
     $('#insert_modal').modal('hide');
-    display_message({content:"Successfull inserted into '"+request.into+"'", color:"#afa"});
+    display_message({content:"Successfull inserted into '"+request.into+"' - ID: "+result.data.id, color:"#afa"});
   })
   .fail(function (data) {
     data = data.responseJSON ? data.responseJSON : {};
@@ -52,7 +52,6 @@ function modal_insert() {
     new_object[key] = get_value_in_right_type(value, type, key);
   }
 
-  console.log(new_object);
   return insert({"into":table_name, "content": new_object});
 
 }
