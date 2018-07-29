@@ -42,6 +42,13 @@ footer {
 	width: 82.5vw;
 	z-index: 1000;
 }
+#delete_modal {
+	position: fixed;
+	right: 0;
+	bottom: 5vh;
+	width: 82.5vw;
+	z-index: 1000;
+}
 
 /* logo image */
 #db_logo {

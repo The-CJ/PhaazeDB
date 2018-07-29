@@ -20,6 +20,7 @@ function select(r, preview=false) {
   $.get("/", request)
   .done(function (data) {
     last_selected_container = request["of"];
+    $('input[name=where]').val(r.where);
     $('#current_container').text(last_selected_container);
     $('#total_entrys').text(data.total);
     if (preview == false) {
@@ -50,6 +51,7 @@ function start_select() {
     $('#select_modal').collapse('hide');
     return ;
   }
+  $('#modal-space > .collapse').collapse('hide');
   $('#select_modal').find('[name=of]').val( last_selected_container );
   $('#select_modal').find('.need_correction').removeClass('need_correction');
   $('#select_modal').collapse('show');
