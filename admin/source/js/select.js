@@ -6,9 +6,17 @@ function select(r, preview=false) {
   let request = {
     "action": "select",
     "of": r['of'],
-    "limit": r['limit'],
     "token": $('#db_token').val()
   };
+  if (r.limit != null) {
+    request['limit'] = r.limit;
+  }
+  if (r.offset != null) {
+    request['offset'] = r.offset;
+  }
+  if (r.where != null) {
+    request['where'] = r.where;
+  }
   $.get("/", request)
   .done(function (data) {
     last_selected_container = request["of"];
@@ -35,6 +43,28 @@ function select(r, preview=false) {
       return display_message( {content:"Unknown Server Error", color:"#f00"} );
     }
   })
+}
+
+function start_select() {
+  if ($('#select_modal').is(':visible')) {
+    $('#select_modal').collapse('hide');
+    return ;
+  }
+  $('#select_modal').find('[name=of]').val( last_selected_container );
+  $('#select_modal').find('.need_correction').removeClass('need_correction');
+  $('#select_modal').collapse('show');
+}
+
+function modal_select() {
+  let col_modal = $('#select_modal');
+  let r = {};
+
+  r['of'] = col_modal.find('[name=of]').val();
+  r['where'] = col_modal.find('[name=where]').val();
+  r['limit'] = col_modal.find('[name=limit]').val();
+  r['offset'] = col_modal.find('[name=offset]').val();
+
+  return select(r);
 }
 
 function preview(btn) {

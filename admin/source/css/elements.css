@@ -188,3 +188,18 @@
 .field_space input {
   text-align: center;
 }
+
+/* collapse-modal parts */
+.collapse-modal > form .head {
+  padding: 1em;
+  display: flex;
+}
+.collapse-modal > form .head h4 {
+  width: 100%
+}
+.collapse-modal > form .body {
+  padding: 1em;
+}
+.collapse-modal > form .footer {
+  padding: 1em;
+}
