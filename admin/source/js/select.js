@@ -19,6 +19,13 @@ function select(r, preview=false) {
   }
   $.get("/", request)
   .done(function (data) {
+
+    curl['container'] = request["of"];
+    curl['where'] = request["where"];
+    curl['limit'] = request["limit"];
+    curl['offset'] = request["offset"];
+    update_curl();
+
     last_selected_container = request["of"];
     $('input[name=into], input[name=of]').val(last_selected_container);
     $('input[name=where]').val(r.where);

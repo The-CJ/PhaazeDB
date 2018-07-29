@@ -1,4 +1,10 @@
-var last_selected_container = ""
+var last_selected_container = "";
+var curl = {};
+
+$('document').ready(function () {
+  extract_curl();
+  set_window_from_url();
+});
 
 function display_message(message_obj) {
 
@@ -102,4 +108,64 @@ function get_value_in_right_type(value, type, key) {
   else {
     alert(value)
   }
+}
+
+function update_curl() {
+
+  let ucurl = "/admin";
+  let pre = "?";
+
+  for (var key in curl) {
+    let value = curl[key];
+    if (value == null) {
+      continue;
+    }
+
+    ucurl = ucurl + pre + key + "" + value;
+    pre = "&";
+
+  }
+  window.history.pushState('obj', 'newtitle', ucurl);
+
+}
+
+function extract_curl() {
+
+  let ncurl = {};
+
+  ncurl['container'] = getParameter('container');
+  ncurl['where'] = getParameter('where');
+  ncurl['limit'] = getParameter('limit');
+  ncurl['offset'] = getParameter('offset');
+  ncurl['modal'] = getParameter('modal');
+
+  curl = ncurl;
+}
+
+function getParameter(name) {
+    let url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function set_window_from_url() {
+
+  if (curl.container != null) {
+    $('[name=of], [name=into]').val(curl.container);
+    $('#current_container').val(curl.container);
+  }
+  if (curl.limit != null) {
+    $('[name=limit]').val(curl.limit);
+  }
+  if (curl.offset != null) {
+    $('[name=offset]').val(curl.offset);
+  }
+  if (curl.where != null) {
+    $('[name=where]').val(curl.where);
+  }
+
 }
