@@ -51,6 +51,96 @@
 				</div>
 			</div>
 
+			<div id="update_modal" class="modal fade" tabindex="-1" role="dialog">
+
+				<div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
+
+					<form class="" onsubmit="event.preventDefault();modal_update();" method="post" >
+						<div class="modal-content">
+							<div class="modal-header warning-color text-white">
+								<h4 class="modal-title">Update</h4>
+								<button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+									<i class="material-icons text-white">close</i>
+								</button>
+							</div>
+							<div class="modal-body" style="max-height: 50vh; overflow-y: auto">
+								<div class="center-item-row">
+									<span>Into&nbsp;container:&nbsp;</span>
+									<input type="text" name="into" placeholder="Container name">
+								</div>
+								<button type="button" class="btn btn-success" onclick="add_key_value_field($('#insert_modal').find('.field_space'))">Add field</button>
+								<button type="button" class="btn btn-warning ml-auto" onclick="$(this).siblings('.field_space').html('')">Clear all fields</button>
+								<div class="field_space">
+									<!-- filed with key - value pairs -->
+								</div>
+							</div>
+							<div class="modal-footer warning-color">
+								<div class="center-item-col" style="width: 100%">
+									<button type="submit" class="btn btn-block warning-color-dark" style="box-shadow: none">Submit insert</button>
+									<div class="message_space" style="width: 100%"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+
+				</div>
+			</div>
+
+			<div id="delete_modal" class="modal fade" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
+
+					<form class="" onsubmit="event.preventDefault();modal_delete();" method="post" >
+						<div class="modal-content">
+							<div class="modal-header danger-color-dark text-white">
+								<h4 class="modal-title">Delete</h4>
+								<button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+									<i class="material-icons text-white">close</i>
+								</button>
+							</div>
+							<div class="modal-body" style="max-height: 50vh; overflow-y: auto">
+								<div class="center-item-row">
+									<div class="col-2">
+										<span>In container:</span>
+									</div>
+									<div class="col">
+										<input type="text" name="of" placeholder="Container name">
+									</div>
+								</div>
+								<div class="center-item-row">
+									<div class="col-2">
+										<span>Where statement</span>
+									</div>
+									<div class="col">
+										<input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
+									</div>
+								</div>
+								<div class="center-item-row">
+									<div class="col-2">
+										<span>Limit</span>
+									</div>
+									<div class="col">
+										<input type="number" name="limit" placeholder="Infinite">
+									</div>
+									<div class="col-2">
+										<span>Offset</span>
+									</div>
+									<div class="col">
+										<input type="number" name="offset" placeholder="0">
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer danger-color-dark">
+								<div class="center-item-col" style="width: 100%">
+									<button type="submit" class="btn btn-block danger-color" style="box-shadow: none">Submit delete</button>
+									<div class="message_space" style="width: 100%"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+
+				</div>
+			</div>
+
 			<div id="select_modal" class="collapse collapse-modal">
 
 				<form onsubmit="event.preventDefault();modal_select();" method="post" >
@@ -95,57 +185,6 @@
 					<div class="footer primary-color-dark">
 						<div class="center-item-col" style="width: 100%">
 							<button type="submit" class="btn btn-block primary-color" style="box-shadow: none">Submit insert</button>
-							<div class="message_space" style="width: 100%"></div>
-						</div>
-					</div>
-				</form>
-
-			</div>
-
-			<div id="delete_modal" class="collapse collapse-modal">
-
-				<form onsubmit="event.preventDefault();modal_delete();" method="post" >
-					<div class="head danger-color-dark text-white">
-						<h4>Select</h4>
-						<button type="button" class="hidden_button" onclick="$('#delete_modal').collapse('hide')">
-							<i class="material-icons text-white">close</i>
-						</button>
-					</div>
-					<div class="body white" style="max-height: 50vh; overflow-y: auto">
-						<div class="center-item-row">
-							<div class="col-2">
-								<span>In container:</span>
-							</div>
-							<div class="col">
-								<input type="text" name="of" placeholder="Container name">
-							</div>
-						</div>
-						<div class="center-item-row">
-							<div class="col-2">
-								<span>Where statement</span>
-							</div>
-							<div class="col">
-								<input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
-							</div>
-						</div>
-						<div class="center-item-row">
-							<div class="col-2">
-								<span>Limit</span>
-							</div>
-							<div class="col">
-								<input type="number" name="limit" placeholder="Infinite">
-							</div>
-							<div class="col-2">
-								<span>Offset</span>
-							</div>
-							<div class="col">
-								<input type="number" name="offset" placeholder="0">
-							</div>
-						</div>
-					</div>
-					<div class="footer danger-color-dark">
-						<div class="center-item-col" style="width: 100%">
-							<button type="submit" class="btn btn-block danger-color" style="box-shadow: none">Submit insert</button>
 							<div class="message_space" style="width: 100%"></div>
 						</div>
 					</div>
@@ -222,7 +261,7 @@
 				<div class="ml-auto center-item-row">
 					<button type="button" class="btn btn-primary" onclick="start_select()">Select</button>
 					<button type="button" class="btn btn-success" onclick="start_insert()">Insert</button>
-					<button type="button" class="btn btn-warning">Update</button>
+					<button type="button" class="btn btn-warning" onclick="start_update()">Update</button>
 					<button type="button" class="btn btn-danger" onclick="start_delete()">Delete</button>
 				</div>
 
@@ -237,6 +276,7 @@
 		<script src="/admin/source/js/show.js"></script>
 		<script src="/admin/source/js/select.js"></script>
 		<script src="/admin/source/js/delete.js"></script>
+		<script src="/admin/source/js/update.js"></script>
 		<script src="/admin/source/js/insert.js"></script>
 	</body>
 </html>

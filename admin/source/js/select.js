@@ -20,6 +20,7 @@ function select(r, preview=false) {
   $.get("/", request)
   .done(function (data) {
     last_selected_container = request["of"];
+    $('input[name=into], input[name=of]').val(last_selected_container);
     $('input[name=where]').val(r.where);
     $('#current_container').text(last_selected_container);
     $('#total_entrys').text(data.total);
