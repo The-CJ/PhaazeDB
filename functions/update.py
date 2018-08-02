@@ -193,3 +193,5 @@ async def check_where(data, where):
 	except:
 		return False
 
+class dummy():
+	pass
