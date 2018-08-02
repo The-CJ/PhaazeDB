@@ -54,6 +54,7 @@
 
 				<div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
 
+					<input type="hidden" name="method" value="field_content">
 					<form class="" onsubmit="event.preventDefault();modal_update();" method="post" >
 						<div class="modal-content">
 							<div class="modal-header warning-color text-white">
@@ -65,13 +66,35 @@
 							<div class="modal-body" style="max-height: 50vh; overflow-y: auto">
 								<div class="center-item-row">
 									<span>Into&nbsp;container:&nbsp;</span>
-									<input type="text" name="into" placeholder="Container name">
+									<input type="text" name="of" placeholder="Container name">
 								</div>
-								<button type="button" class="btn btn-success" onclick="add_key_value_field($('#insert_modal').find('.field_space'))">Add field</button>
-								<button type="button" class="btn btn-warning ml-auto" onclick="$(this).siblings('.field_space').html('')">Clear all fields</button>
-								<div class="field_space">
-									<!-- filed with key - value pairs -->
+								<hr>
+								<div class="row">
+									<div class="col">
+										<button entry-type-button="field_content" type="button" class="btn btn-block warning-color-dark" onclick="switch_entry_type('field_content')">Field Method</button>
+									</div>
+									<div class="col">
+										<button entry-type-button="string_content" type="button" class="btn btn-block warning-color-dark" onclick="switch_entry_type('string_content')">Exec() Method</button>
+									</div>
 								</div>
+
+								<div entry-type="field_content" style="display: none">
+									<hr>
+									<button type="button" class="btn btn-success" onclick="add_key_value_field($('#update_modal').find('.field_space'))">Add field</button>
+									<button type="button" class="btn btn-warning ml-auto" onclick="$(this).siblings('.field_space').html('')">Clear all fields</button>
+									<div class="field_space">
+										<!-- filed with key - value pairs -->
+									</div>
+								</div>
+								<div entry-type="string_content" style="display: none">
+									<hr>
+									<div class="row">
+										<div class="col">
+											<input type="text" name="content" placeholder="data['name1'] = 'something'; data['aNumber'] += 3;">
+										</div>
+									</div>
+								</div>
+
 							</div>
 							<div class="modal-footer warning-color">
 								<div class="center-item-col" style="width: 100%">

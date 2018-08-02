@@ -5,7 +5,7 @@ function update(r) {
 
   let request = {
     "action": "update",
-    "into": r['into'],
+    "of": r['of'],
     "token": $('#db_token').val(),
     "content": r['content']
   };
@@ -30,29 +30,39 @@ function update(r) {
 
 function modal_update() {
   let modal = $('#update_modal');
-  let table_name = modal.find('[name=into]').val();
+  let table_name = modal.find('[name=of]').val();
   if (table_name == "") {
-    modal.find('[name=into]').addClass('need_correction').focus();
+    modal.find('[name=of]').addClass('need_correction').focus();
     return ;
   }
 
-  let new_object = {};
-  for (field of $('#update_modal').find('.field_key_value') ) {
-    field = $(field);
-    let key = field.find('[placeholder=key]').val();
-    let type = field.find('select').val();
-    let value = field.find('[placeholder=value]').val();
+  let method = $('#update_modal [method]').val();
+  if (method == 'field_content') {
 
-    if (key == "") {
-      field.find('[placeholder=key]').addClass('need_correction');
-      display_message({content:"no key can be empty", color:"orange"});
-      return ;
+    let new_object = {};
+    for (field of $('#update_modal').find('.field_key_value') ) {
+      field = $(field);
+      let key = field.find('[placeholder=key]').val();
+      let type = field.find('select').val();
+      let value = field.find('[placeholder=value]').val();
+
+      if (key == "") {
+        field.find('[placeholder=key]').addClass('need_correction');
+        display_message({content:"no key can be empty", color:"orange"});
+        return ;
+      }
+
+      new_object[key] = get_value_in_right_type(value, type, key);
     }
 
-    new_object[key] = get_value_in_right_type(value, type, key);
-  }
+    return update({"of":table_name, "content": new_object});
 
-  return update({"into":table_name, "content": new_object});
+  }
+  else if (method == 'string_content') {
+
+    let exec_string = $('#update_modal [entry-type=string_content] [name=content]').val();
+    return update({"of":table_name, "content": exec_string});
+  }
 
 }
 
@@ -62,3 +72,13 @@ function start_update() {
   $('#update_modal').modal('show');
 }
 
+function switch_entry_type(entry_type) {
+  $('#update_modal [method]').val(entry_type);
+
+  $('[entry-type-button]').removeClass('selected');
+  $('[entry-type-button='+entry_type+']').addClass('selected');
+
+  $('[entry-type]').hide();
+  $('[entry-type='+entry_type+']').show();
+
+}
