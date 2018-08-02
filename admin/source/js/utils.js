@@ -55,17 +55,17 @@ function notify_incorrect_token() {
 
 function add_key_value_field(into) {
   let field_space = into;
-  let field = $('<div class="row field_key_value">');
-  let inputs = $('<div class="col">').append( $('<div class="row">') );
-  let controlls = $('<div class="col-3">').append( $('<div class="row">') );
+  let field = $('<div class="center-item-row field_key_value">');
+  let inputs = $('<div class="col">').append( $('<div class="center-item-row">') );
+  let controlls = $('<div class="center-item-row">');
 
   inputs.children('div').append( $('<input class="col" type="text" placeholder="key">') );
-  inputs.children('div').append( $('<span class="col-1 text-center">').text('-')  );
+  inputs.children('div').append( $('<span class="text-center">').text('-')  );
   inputs.children('div').append( $('<input class="col" type="text" placeholder="value">') );
   field.append(inputs);
 
-  controlls.children('div').append( $('<div class="col">').append( get_select_with_options() ) );
-  controlls.children('div').append( $('<div class="col">').append( $('<button type="button" class="btn btn-warning">').text("X") ) );
+  controlls.append( $('<div class="col">').append( get_select_with_options() ) );
+  controlls.append( $('<div class="col">').append( $('<button type="button" class="btn btn-warning">').text("X") ) );
   controlls.find('button').attr('onclick', '$(this).closest(".field_key_value").remove()');
   field.append(controlls);
 

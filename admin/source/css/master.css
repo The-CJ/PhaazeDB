@@ -23,6 +23,10 @@ footer {
 	height: 5vh;
 	overflow: auto;
 }
+footer .btn {
+	height: 90%;
+	margin: 0 0.65em;
+}
 .container-select {
 	border-right: 3px solid black;
 	height: 100%;
