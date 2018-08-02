@@ -65,8 +65,31 @@
 							</div>
 							<div class="modal-body" style="max-height: 50vh; overflow-y: auto">
 								<div class="center-item-row">
-									<span>Into&nbsp;container:&nbsp;</span>
+									<span>In&nbsp;container:&nbsp;</span>
 									<input type="text" name="of" placeholder="Container name">
+								</div>
+								<hr>
+								<div class="center-item-row">
+									<div class="col-2">
+										<span>Where&nbsp;statement</span>
+									</div>
+									<div class="col">
+										<input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
+									</div>
+								</div>
+								<div class="center-item-row">
+									<div class="col-2">
+										<span>Limit</span>
+									</div>
+									<div class="col">
+										<input type="number" name="limit" placeholder="Infinite">
+									</div>
+									<div class="col-2">
+										<span>Offset</span>
+									</div>
+									<div class="col">
+										<input type="number" name="offset" placeholder="0">
+									</div>
 								</div>
 								<hr>
 								<div class="row">
@@ -74,10 +97,9 @@
 										<button entry-type-button="field_content" type="button" class="btn btn-block warning-color-dark" onclick="switch_entry_type('field_content')">Field Method</button>
 									</div>
 									<div class="col">
-										<button entry-type-button="string_content" type="button" class="btn btn-block warning-color-dark" onclick="switch_entry_type('string_content')">Exec() Method</button>
+										<button entry-type-button="string_content" type="button" class="btn btn-block warning-color-dark" onclick="switch_entry_type('string_content')">exec() Method</button>
 									</div>
 								</div>
-
 								<div entry-type="field_content" style="display: none">
 									<hr>
 									<button type="button" class="btn btn-success" onclick="add_key_value_field($('#update_modal').find('.field_space'))">Add field</button>

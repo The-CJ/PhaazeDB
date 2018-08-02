@@ -9,6 +9,15 @@ function update(r) {
     "token": $('#db_token').val(),
     "content": r['content']
   };
+  if (r.limit != null) {
+    request['limit'] = r.limit;
+  }
+  if (r.offset != null) {
+    request['offset'] = r.offset;
+  }
+  if (r.where != null) {
+    request['where'] = r.where;
+  }
   $.post("/", JSON.stringify(request))
   .done(function (result) {
     $('#update_modal').modal('hide');
@@ -55,13 +64,27 @@ function modal_update() {
       new_object[key] = get_value_in_right_type(value, type, key);
     }
 
-    return update({"of":table_name, "content": new_object});
+    let r = {};
+    r['of'] = table_name;
+    r['where'] = modal.find('[name=where]').val();
+    r['limit'] = modal.find('[name=limit]').val();
+    r['offset'] = modal.find('[name=offset]').val();
+    r["content"] = new_object;
+
+    return update(r);
 
   }
   else if (method == 'string_content') {
 
     let exec_string = $('#update_modal [entry-type=string_content] [name=content]').val();
-    return update({"of":table_name, "content": exec_string});
+    let r = {};
+    r['of'] = table_name;
+    r['where'] = modal.find('[name=where]').val();
+    r['limit'] = modal.find('[name=limit]').val();
+    r['offset'] = modal.find('[name=offset]').val();
+    r["content"] = exec_string;
+
+    return update(r);
   }
 
 }
