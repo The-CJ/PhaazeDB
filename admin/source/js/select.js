@@ -77,7 +77,7 @@ function modal_select() {
   return select(r);
 }
 
-function preview(btn) {
+function preview_select(btn) {
   btn = $(btn);
   let table_name = btn.attr('path');
   return select( {"of":table_name, "limit":10}, true );

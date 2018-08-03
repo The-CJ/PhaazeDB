@@ -4,6 +4,11 @@ var curl = {};
 $('document').ready(function () {
   extract_curl();
   set_window_from_url();
+  if (curl['container'] != "" || curl['container'] != null) {
+    let r = curl;
+    r['of'] = curl['container'];
+    select(r, preview=true);
+  }
 });
 
 function display_message(message_obj) {
@@ -121,7 +126,7 @@ function update_curl() {
       continue;
     }
 
-    ucurl = ucurl + pre + key + "" + value;
+    ucurl = ucurl + pre + key + "=" + value;
     pre = "&";
 
   }
@@ -155,17 +160,18 @@ function getParameter(name) {
 function set_window_from_url() {
 
   if (curl.container != null) {
-    $('[name=of], [name=into]').val(curl.container);
-    $('#current_container').val(curl.container);
+    $('[name=of], [name=into]').attr('value',curl.container).val(curl.container);
+    $('#current_container').text(curl.container);
   }
   if (curl.limit != null) {
-    $('[name=limit]').val(curl.limit);
+    $('[name=limit]').attr('value',curl.limit).val(curl.limit);
   }
   if (curl.offset != null) {
-    $('[name=offset]').val(curl.offset);
+    $('[name=offset]').attr('value',curl.offset).val(curl.offset);
   }
   if (curl.where != null) {
-    $('[name=where]').val(curl.where);
+    $('[name=where]').attr('value',curl.where).val(curl.where);
   }
+
 
 }
