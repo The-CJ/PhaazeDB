@@ -60,6 +60,9 @@ function start_insert() {
   $('#insert_modal').find('[name=into]').val( last_selected_container )
   $('#insert_modal').find('.need_correction').removeClass('need_correction');
   $('#insert_modal').modal('show');
+  curl['modal'] = 'insert';
+  update_curl();
+
 }
 
 function get_select_with_options() {

@@ -93,6 +93,8 @@ function start_update() {
   $('#update_modal').find('[name=into]').val( last_selected_container )
   $('#update_modal').find('.need_correction').removeClass('need_correction');
   $('#update_modal').modal('show');
+  curl['modal'] = 'update';
+  update_curl();
 }
 
 function switch_entry_type(entry_type) {

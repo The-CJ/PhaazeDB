@@ -4,7 +4,7 @@ var curl = {};
 $('document').ready(function () {
   extract_curl();
   set_window_from_url();
-  if (curl['container'] != "" || curl['container'] != null) {
+  if (curl['container'] != "" && curl['container'] != null) {
     let r = curl;
     r['of'] = curl['container'];
     select(r, preview=true);
@@ -172,6 +172,23 @@ function set_window_from_url() {
   if (curl.where != null) {
     $('[name=where]').attr('value',curl.where).val(curl.where);
   }
-
+  if (curl.modal != null) {
+    if (curl.modal == "select") {
+      $('#'+curl.modal+'_modal').collapse('show');
+    }
+    else {
+      $('#'+curl.modal+'_modal').modal('show');
+    }
+  }
 
 }
+
+$(document).on('hidden.bs.modal', function (event) {
+  curl['modal'] = null;
+  update_curl();
+});
+
+$(document).on('hidden.bs.collapse', function (event) {
+  curl['modal'] = null;
+  update_curl();
+});

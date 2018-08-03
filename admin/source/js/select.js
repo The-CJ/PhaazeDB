@@ -63,6 +63,9 @@ function start_select() {
   $('#select_modal').find('[name=of]').val( last_selected_container );
   $('#select_modal').find('.need_correction').removeClass('need_correction');
   $('#select_modal').collapse('show');
+  curl['modal'] = 'select';
+  update_curl();
+
 }
 
 function modal_select() {

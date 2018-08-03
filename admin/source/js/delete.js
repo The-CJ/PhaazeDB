@@ -47,6 +47,9 @@ function start_delete() {
   $('#delete_modal').find('[name=into]').val( last_selected_container )
   $('#delete_modal').find('.need_correction').removeClass('need_correction');
   $('#delete_modal').modal('show');
+  curl['modal'] = 'delete';
+  update_curl();
+
 }
 
 function modal_delete() {
