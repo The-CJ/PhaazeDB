@@ -33,7 +33,7 @@ function show_container(button_obj) {
       let b = $('<button>');
       b.addClass('btn container_button');
       b.attr('path', btn.attr('path') + "/" + container);
-      b.attr('onclick', "preview(this)");
+      b.attr('onclick', "preview_select(this)");
       b.text(container);
 
       content_list.append(b);
