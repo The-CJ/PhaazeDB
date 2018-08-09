@@ -3,13 +3,27 @@ var curl = {};
 
 $('document').ready(function () {
   extract_curl();
+
+  let t = window.sessionStorage.getItem('token');
+  if (t != null) { $('#db_token').val(t) }
+
   set_window_from_url();
+
   if (curl['container'] != "" && curl['container'] != null) {
     let r = curl;
     r['of'] = curl['container'];
     select(r, preview=true);
   }
 });
+
+function save_token() {
+  let x = $('#db_token').val();
+  window.sessionStorage.setItem('token', x);
+  $('.token-input > .input-end').addClass('success-color').find('span').text('Saved for this session');
+  setTimeout(function () {
+    $('.token-input > .input-end').removeClass('success-color').find('span').text('');
+  }, 3000);
+}
 
 function display_message(message_obj) {
 

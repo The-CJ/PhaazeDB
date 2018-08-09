@@ -287,7 +287,7 @@
 			<div class="remain-height center-item-row">
 
 				<!-- token -->
-				<div class="token-input center-item-row">
+				<form class="token-input center-item-row" action="javascript:save_token()" method="post">
 
 					<div class="input-start">
 						<i class="material-icons">vpn_key</i>
@@ -295,11 +295,16 @@
 
 					<input type="password" class="input-field text-white" value="" placeholder="PhaazeDB token" name="db_token" id="db_token">
 
-					<div class="input-end">
+					<div class="input-middle waves-effect" onmousedown="$('#db_token').attr('type', 'text')" onmouseout="$('#db_token').attr('type', 'password')">
 						<i class="material-icons">remove_red_eye</i>
 					</div>
 
-				</div>
+					<div class="input-end waves-effect" onclick="save_token()">
+						<span></span>
+						<i class="material-icons">save</i>
+					</div>
+
+				</form>
 
 				<!-- buttons -->
 				<div class="remain-height ml-auto center-item-row">
