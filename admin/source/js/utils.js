@@ -173,8 +173,16 @@ function getParameter(name) {
 
 function set_window_from_url() {
 
+  if (curl.modal != null) {
+    if (curl.modal == "select") {
+      $('#'+curl.modal+'_modal').collapse('show');
+    }
+    else {
+      $('#'+curl.modal+'_modal').modal('show');
+    }
+  }
   if (curl.container != null) {
-    $('[name=of], [name=into]').attr('value',curl.container).val(curl.container);
+    $('[name=of], [name=into], [name=container]').attr('value',curl.container).val(curl.container);
     $('#current_container').text(curl.container);
   }
   if (curl.limit != null) {
@@ -185,14 +193,6 @@ function set_window_from_url() {
   }
   if (curl.where != null) {
     $('[name=where]').attr('value',curl.where).val(curl.where);
-  }
-  if (curl.modal != null) {
-    if (curl.modal == "select") {
-      $('#'+curl.modal+'_modal').collapse('show');
-    }
-    else {
-      $('#'+curl.modal+'_modal').modal('show');
-    }
   }
 
 }

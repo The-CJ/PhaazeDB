@@ -60,3 +60,14 @@ footer .btn {
 	position: fixed;
 	z-index: 50000;
 }
+
+/* menu */
+#main-menu {
+	padding: 0.15em;
+	background: rgba(255,255,255, 0.10);
+	border: 1px solid white;
+	position: fixed;
+  top: 15vh;
+	right: 0;
+	z-index: 400;
+}

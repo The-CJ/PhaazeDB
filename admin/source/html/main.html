@@ -14,7 +14,73 @@
 	<body class="stylish-color">
 
 		<div id="message-space"></div>
+		<div id="main-menu" class="collapse">
+			<button type="button" class="btn btn-success btn-block" onclick="start_container_create()">Create container</button>
+			<button type="button" class="btn btn-warning btn-block" onclick="start_container_drop()">Drop container</button>
+			<hr>
+			<button type="button" class="btn btn-danger btn-block" onclick="alert('TODO: Shutdown')">Shutdown</button>
+		</div>
 		<div id="modal-space">
+
+			<div id="container_create_modal" class="modal fade" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
+
+					<form class="" onsubmit="event.preventDefault();modal_create();" method="post" >
+						<div class="modal-content">
+							<div class="modal-header success-color-dark text-white">
+								<h4 class="modal-title">Create</h4>
+								<button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+									<i class="material-icons text-white">close</i>
+								</button>
+							</div>
+							<div class="modal-body" style="max-height: 50vh; overflow-y: auto">
+								<div class="center-item-row">
+									<span>New&nbsp;container:&nbsp;</span>
+									<input type="text" name="container" placeholder="Container name">
+								</div>
+							</div>
+							<div class="modal-footer success-color-dark">
+								<div class="center-item-col" style="width: 100%">
+									<button type="submit" class="btn btn-block success-color" style="box-shadow: none">Submit create</button>
+									<div class="message_space" style="width: 100%"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+
+				</div>
+			</div>
+
+			<div id="container_drop_modal" class="modal fade" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
+
+					<form class="" onsubmit="event.preventDefault();modal_drop();" method="post" >
+						<div class="modal-content">
+							<div class="modal-header warning-color-dark text-white">
+								<h4 class="modal-title">Drop</h4>
+								<button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+									<i class="material-icons text-white">close</i>
+								</button>
+							</div>
+							<div class="modal-body" style="max-height: 50vh; overflow-y: auto">
+								<div class="center-item-row">
+									<span>Container&nbsp;name:&nbsp;</span>
+									<input type="text" name="container" placeholder="Container name">
+								</div>
+							</div>
+							<div class="modal-footer warning-color-dark">
+								<div class="center-item-col" style="width: 100%">
+									<button type="submit" class="btn btn-block warning-color" style="box-shadow: none">Submit drop</button>
+									<div class="message_space" style="width: 100%"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+
+				</div>
+			</div>
+
+			<!-- // -->
 
 			<div id="insert_modal" class="modal fade" tabindex="-1" role="dialog">
 				<div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
@@ -254,7 +320,12 @@
 				</div>
 				<div class="display-block ml-auto">
 					<div class="center-item-col">
-						<button type="button" class="btn btn-danger">Shutdown</button>
+						<button type="button" class="btn btn-primary btn-block" onclick="$('#main-menu').collapse('toggle')">
+							<div class="center-item-row">
+								<i class="material-icons">menu</i>
+								<span>Menu</span>
+							</div>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -327,5 +398,7 @@
 		<script src="/admin/source/js/delete.js"></script>
 		<script src="/admin/source/js/update.js"></script>
 		<script src="/admin/source/js/insert.js"></script>
+		<script src="/admin/source/js/create.js"></script>
+		<script src="/admin/source/js/drop.js"></script>
 	</body>
 </html>
