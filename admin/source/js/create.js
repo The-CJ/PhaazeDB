@@ -20,7 +20,7 @@ function create(name) {
   $.post('/', d)
   .done(function (data) {
     $('#container_create_modal').modal('hide');
-    display_message({content:"Successfull created '"+request.into+"'", color:"#afa"});
+    display_message({content:"Successfull created '"+name+"'", color:"#afa"});
   })
   .fail(function (data) {
     data = data.responseJSON ? data.responseJSON : {};

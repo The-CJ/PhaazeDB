@@ -19,7 +19,7 @@ function drop(name) {
   $.post('/', d)
   .done(function (data) {
     $('#container_drop_modal').modal('hide');
-    display_message({content:"Successfull dropped '"+request.into+"'", color:"#afa"});
+    display_message({content:"Successfull dropped '"+name+"'", color:"#afa"});
   })
   .fail(function (data) {
     data = data.responseJSON ? data.responseJSON : {};
