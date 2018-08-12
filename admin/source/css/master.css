@@ -71,3 +71,9 @@ footer .btn {
 	right: 0;
 	z-index: 400;
 }
+#col_edit_menu {
+	padding: 0.15em;
+	background: rgba(255,255,255, 0.10);
+	border: 1px solid white;
+	z-index: 400;
+}

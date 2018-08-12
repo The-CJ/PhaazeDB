@@ -16,6 +16,89 @@ $('document').ready(function () {
   }
 });
 
+function edit_select(entry_col) {
+  let c = $(entry_col);
+  if (c.hasClass("selected")) {
+    $('#result_space').find(".selected").removeClass("selected");
+    $('#col_edit_menu').collapse('hide');
+    return ;
+  }
+  $('#result_space').find(".selected").removeClass("selected");
+  c.addClass("selected");
+  $('#col_edit_menu').collapse('show');
+}
+
+function close_all_edit() {
+  $('#result_space').find(".selected").removeClass("selected");
+  $('#col_edit_menu').collapse('hide');
+}
+
+function change_col_type(type) {
+  let C = $('#result_space .selected');
+  let key = C.find('.key').text();
+
+  let x = null;
+
+  if (type == "string") {
+    x = generate_string(key);
+  }
+  else if (type == "none") {
+    x = generate_none(key);
+  }
+  else if (type == "number") {
+    x = generate_number(key);
+  }
+  else if (type == "bool") {
+    x = generate_bool(key);
+  }
+  else if (type == "object") {
+    x = generate_object(key);
+  }
+  else if (type == "remove") {
+    x = generate_remove(key);
+  }
+  else {
+    alert('Error');
+  }
+  x.addClass('selected');
+  C.replaceWith(x);
+}
+
+function save_col_changes() {
+  let selected_col = $('#result_space .selected');
+  let entry_key = selected_col.find('.key').text();
+
+  let entry_val = selected_col.find('input, textarea').val();
+  if (entry_val == null) {
+    entry_val = selected_col.find('.switch').attr('state');
+    if (entry_val == "true") {
+      entry_val = true;
+    } else {
+      entry_val = false;
+    }
+  }
+
+  let entry_row = selected_col.closest('.result_row');
+  let entry_id = entry_row.find('.typeof_id').find('input').val();
+  let type = selected_col.attr('object_type');
+
+  let r = {};
+  r['of'] = $('#current_container').text();
+  if (type != "remove") {
+    r['content'] = {};
+    r['content'][entry_key] = get_value_in_right_type(entry_val, type);
+  }
+  else {
+    r['content'] = "del data['"+entry_key+"']";
+    selected_col.remove();
+  }
+  r['where'] = "data['id'] == "+entry_id;
+  r['limit'] = 1;
+
+  update(r);
+
+}
+
 function save_token() {
   let x = $('#db_token').val();
   window.sessionStorage.setItem('token', x);

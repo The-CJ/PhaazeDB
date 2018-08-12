@@ -69,9 +69,11 @@ function modal_delete() {
   let t = false;
   if (r.where == "" || r.where == null) {
     t = confirm("WARNING\nYour 'where' field is empty. that will erase all entrys if not hold by\nlimit or offset.\n\nSure you wanna do this?");
+    if (t) {
+      return delete_(r);
+    }
   }
-  if (t) {
-    return delete_(r);
-  }
+  return delete_(r);
+  
 }
 

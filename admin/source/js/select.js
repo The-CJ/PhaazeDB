@@ -136,25 +136,29 @@ function generate_id(id) {
   return ob;
 }
 function generate_none(key) {
-  let ob = $('<div class="result_col typeof_none"></div>');
+  let ob = $('<div class="result_col typeof_none" ondblclick="edit_select(this)"></div>');
+  ob.attr('object_type', 'none');
   ob.append( $('<div class="key">').text(key) );
   ob.append( $('<input disabled type="text">').val('None/null') );
   return ob;
 }
 function generate_string(key, value) {
-  let ob = $('<div class="result_col typeof_string"></div>');
+  let ob = $('<div class="result_col typeof_string" ondblclick="edit_select(this)"></div>');
+  ob.attr('object_type', 'string');
   ob.append( $('<div class="key">').text(key) );
   ob.append( $('<input type="text">').val(value) );
   return ob;
 }
 function generate_number(key, value) {
-  let ob = $('<div class="result_col typeof_number"></div>');
+  let ob = $('<div class="result_col typeof_number" ondblclick="edit_select(this)"></div>');
+  ob.attr('object_type', 'number');
   ob.append( $('<div class="key">').text(key) );
   ob.append( $('<input type="number">').val(value) );
   return ob;
 }
 function generate_bool(key, value) {
-  let ob = $('<div class="result_col typeof_bool"></div>');
+  let ob = $('<div class="result_col typeof_bool" ondblclick="edit_select(this)"></div>');
+  ob.attr('object_type', 'bool');
   ob.append( $('<div class="key">').text(key) );
   let s = $('<div class="switch">');
   s.attr('state', String(value));
@@ -163,8 +167,16 @@ function generate_bool(key, value) {
   return ob;
 }
 function generate_object(key, value) {
-  let ob = $('<div class="result_col typeof_object"></div>');
+  let ob = $('<div class="result_col typeof_object" ondblclick="edit_select(this)"></div>');
+  ob.attr('object_type', 'object');
   ob.append( $('<div class="key">').text(key) );
   ob.append( $('<textarea>').val(JSON.stringify(value)) );
+  return ob;
+}
+function generate_remove(key) {
+  let ob = $('<div class="result_col typeof_remove" ondblclick="edit_select(this)"></div>');
+  ob.attr('object_type', 'remove');
+  ob.append( $('<div class="key">').text(key) );
+  ob.append( $('<input disabled type="text">').val('Remove') );
   return ob;
 }

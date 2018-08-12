@@ -125,6 +125,9 @@
 .typeof_object{
   background: #e48800;
 }
+.typeof_remove{
+  background: #323232;
+}
 
 /* result entry col's */
 .result_row {
