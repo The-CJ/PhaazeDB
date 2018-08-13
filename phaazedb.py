@@ -2,6 +2,7 @@ import asyncio, logging
 from aiohttp import web
 import json, time, os, threading
 
+SERVER = None
 
 class DATABASE(object):
 	def __init__(self, config=dict()):
@@ -25,6 +26,7 @@ class DATABASE(object):
 	from functions.update import update as update
 	from functions.insert import insert as insert
 	from functions.select import select as select
+	from functions.option import option as option
 	from functions.show import show as show
 	# TODO: add functions.config : to edit configs on the fly without restart
 
@@ -49,12 +51,38 @@ class DATABASE(object):
 
 		return web.Response(**kwargs)
 
+	async def shutdown(self):
+		global SERVER
+
+		self.log.info(f"Preparing shutdown | 3sec")
+		await asyncio.sleep(3)
+		await SERVER.shutdown()
+		await SERVER.cleanup()
+		self.log.info(f"Shutdown finished")
+		exit(1)
+
 	#accessable via web - /admin
 	async def interface(self, request):
+		if not self.active:
+			res = dict(
+				code=400,
+				status="rejected",
+				msg="DB is marked as disabled"
+			)
+			return self.response(status=400, body=json.dumps(res))
+
 		return await self.web_interface(request)
 
 	#main entry call point
 	async def process(self, request):
+		if not self.active:
+			res = dict(
+				code=400,
+				status="rejected",
+				msg="DB is marked as disabled"
+			)
+			return self.response(status=400, body=json.dumps(res))
+
 		#gather everything
 		_GET = request.query
 		_POST = dict()
@@ -120,12 +148,17 @@ class DATABASE(object):
 		elif action == "update":
 			return await self.update(request, _INFO)
 
+		elif action == "option":
+			return await self.option(request, _INFO)
+
 		else:
 			return await self.unknown_function()
 
 		# # #
 
 def start_server():
+
+	global SERVER
 
 	#gather configs
 	try:
@@ -143,18 +176,18 @@ def start_server():
 
 	#make app
 	DB = DATABASE(config=configs)
-	server = web.Application()
+	SERVER = web.Application()
 
 	#web interface route
-	server.router.add_route('GET', '/admin{useless:.*}', DB.interface)
+	SERVER.router.add_route('GET', '/admin{useless:.*}', DB.interface)
 	#main route
-	server.router.add_route('*', '/{useless:.*}', DB.process)
+	SERVER.router.add_route('*', '/{useless:.*}', DB.process)
 
 	#start
 	try:
 		print(open("logo.txt", "r").read())
 	except:
 		pass
-	web.run_app(server, port=configs.get('port', 1001))
+	web.run_app(SERVER, port=configs.get('port', 3000))
 
 start_server()
