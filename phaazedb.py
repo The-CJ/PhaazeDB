@@ -7,17 +7,18 @@ SERVER = None
 class DATABASE(object):
 	def __init__(self, config=dict()):
 		self.config = config
-		self.log = logging.getLogger('PhaazeDB') if config.get('logging', False) == True else False
+		self.log = config.get('logging', False)
+		self.logger = logging.getLogger('PhaazeDB')
 		self.version = "2.0"
 		self.active = True
 		self.db = dict()
 		self.response = self.send_back_response
-		if self.log != False:
-			self.log.setLevel(logging.DEBUG)
+		if self.logger != False:
+			self.logger.setLevel(logging.DEBUG)
 			SH = logging.StreamHandler()
 			SHF = logging.Formatter("%(name)s [%(levelname)s]: %(message)s")
 			SH.setFormatter(SHF)
-			self.log.addHandler(SH)
+			self.logger.addHandler(SH)
 
 	#functions
 	from functions.create import create as create
@@ -54,11 +55,11 @@ class DATABASE(object):
 	async def shutdown(self):
 		global SERVER
 
-		self.log.info(f"Preparing shutdown | 3sec")
+		self.logger.info(f"Preparing shutdown -> 3sec")
 		await asyncio.sleep(3)
 		await SERVER.shutdown()
 		await SERVER.cleanup()
-		self.log.info(f"Shutdown finished")
+		self.logger.info(f"Shutdown finished")
 		exit(1)
 
 	#accessable via web - /admin

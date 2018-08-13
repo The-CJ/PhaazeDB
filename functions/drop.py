@@ -70,7 +70,7 @@ async def drop(self, request, _INFO):
 			msg=f"droped container '{table_name}'"
 		)
 		if self.log != False:
-			self.log.info(f"droped container '{table_name}'")
+			self.logger.info(f"droped container '{table_name}'")
 		return self.response(status=200, body=json.dumps(res))
 
 	except:
@@ -80,5 +80,5 @@ async def drop(self, request, _INFO):
 			msg="unknown server error"
 		)
 		if self.log != False:
-			self.log.critical(f"drop container '{table_name}' failed")
+			self.logger.critical(f"drop container '{table_name}' failed")
 		return self.response(status=500, body=json.dumps(res))

@@ -44,16 +44,13 @@ async def option(self, request, _INFO):
 			else: v = False
 
 		if v == True:
-			self.log = logging.getLogger('PhaazeDB')
-			self.log.setLevel(logging.DEBUG)
-			SH = logging.StreamHandler()
-			SHF = logging.Formatter("%(name)s [%(levelname)s]: %(message)s")
-			SH.setFormatter(SHF)
-			self.log.addHandler(SH)
+			self.log = True
 		elif v == False:
 			self.log = False
 
 		vv = "active" if v == True else "disabled"
+
+		self.logger.info(f"Logging Module: '{vv}'")
 
 		res = dict(
 			code=200,

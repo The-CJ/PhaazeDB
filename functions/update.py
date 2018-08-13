@@ -167,7 +167,7 @@ async def update(self, request, _INFO):
 			total=len( container.get('data', []) ),
 		)
 		if self.log != False:
-			self.log.info(f"updated {str(hits)} entry(s) in '{table_name}'")
+			self.logger.info(f"updated {str(hits)} entry(s) in '{table_name}'")
 		return self.response(status=201, body=json.dumps(res))
 
 	else:
@@ -178,7 +178,7 @@ async def update(self, request, _INFO):
 			msg="DB could not save your data."
 		)
 		if self.log != False:
-				self.log.critical(f"update entry(s) from '{table_name}' failed")
+				self.logger.critical(f"update entry(s) from '{table_name}' failed")
 		return self.response(status=500, body=json.dumps(res))
 
 async def check_where(data, where):
