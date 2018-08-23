@@ -1,8 +1,18 @@
 import asyncio, logging
 from aiohttp import web
-import json, time, os, threading
+import json, time, os, threading, sys, re
+try:
+	from systemd.journal import JournalHandler
+except ImportError:
+	pass
 
 SERVER = None
+option_re = re.compile(r'^--(.+?)=(.*)$')
+all_args = dict()
+for arg in sys.argv[1:]:
+	d = option_re.match(arg)
+	if d != None:
+		all_args[d.group(1)] = d.group(2)
 
 class DATABASE(object):
 	def __init__(self, config=dict()):
@@ -15,10 +25,15 @@ class DATABASE(object):
 		self.response = self.send_back_response
 		if self.logger != False:
 			self.logger.setLevel(logging.DEBUG)
-			SH = logging.StreamHandler()
-			SHF = logging.Formatter("%(name)s [%(levelname)s]: %(message)s")
-			SH.setFormatter(SHF)
-			self.logger.addHandler(SH)
+			SHF = logging.Formatter("[%(levelname)s]: %(message)s")
+			if all_args.get('logging', 'console') == "systemd" and 'systemd' in sys.modules:
+				JH = JournalHandler()
+				JH.setFormatter(SHF)
+				self.logger.addHandler(JH)
+			else:
+				SH = logging.StreamHandler()
+				SH.setFormatter(SHF)
+				self.logger.addHandler(SH)
 
 	#functions
 	from functions.create import create as create
