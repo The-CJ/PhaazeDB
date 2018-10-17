@@ -109,6 +109,7 @@ async def select(self, request, _INFO):
 	found = 0
 	result = []
 
+	#go through all entrys
 	for entry_id in container.get('data', []):
 		entry = container['data'][entry_id]
 		entry['id'] = entry_id

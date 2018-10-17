@@ -87,6 +87,17 @@ class DATABASE(object):
 			)
 			return self.response(status=400, body=json.dumps(res))
 
+		# is limited to certain ip's
+		if self.config.get("allowed_ips", []) != []:
+			allowed_ips = self.config.get("allowed_ips", [])
+			if request.remote not in allowed_ips:
+				res = dict(
+					code=400,
+					status="rejected",
+					msg="ip not allowed"
+				)
+				return self.response(status=400, body=json.dumps(res))
+
 		return await self.web_interface(request)
 
 	#main entry call point
@@ -98,6 +109,17 @@ class DATABASE(object):
 				msg="DB is marked as disabled"
 			)
 			return self.response(status=400, body=json.dumps(res))
+
+		# is limited to certain ip's
+		if self.config.get("allowed_ips", []) != []:
+			allowed_ips = self.config.get("allowed_ips", [])
+			if request.remote not in allowed_ips:
+				res = dict(
+					code=400,
+					status="rejected",
+					msg="ip not allowed"
+				)
+				return self.response(status=400, body=json.dumps(res))
 
 		#gather everything
 		_GET = request.query
@@ -200,10 +222,16 @@ def start_server():
 	SERVER.router.add_route('*', '/{useless:.*}', DB.process)
 
 	#start
-	try:
-		print(open("logo.txt", "r").read())
-	except:
-		pass
-	web.run_app(SERVER, port=configs.get('port', 3000))
+	DB.logger.info(f"Starting PhaazeDB v{DB.version}")
+	DB.logger.info(f"Running on port: {configs.get('port', 3000)}")
+	if configs.get("allowed_ips", []) != []:
+		ips = configs.get("allowed_ips", [])
+		ips_str = ", ".join("["+ip+"]" for ip in ips)
+	else:
+		ips_str = "--ALL--"
+	DB.logger.info(f"Allowed IP's: {ips_str}")
+	DB.logger.info(f"Action Logging: {DB.log}")
+
+	web.run_app(SERVER, port=configs.get('port', 3000), print=False)
 
 start_server()
