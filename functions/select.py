@@ -2,26 +2,78 @@ import json, math
 
 from utils.load import load as load
 
+class MissingOfField(Exception): pass
+class SysLoadError(Exception): pass
+class ContainerNotFound(Exception): pass
+
 async def select(self, request, _INFO):
 	""" Used to select data from ad DB container and give it back """
-
 	#get required vars (GET -> JSON -> POST based)
 
-	#get tabel name
-	table_name = _INFO.get('_GET', {}).get('of', "")
-	if table_name == "":
-		table_name = _INFO.get('_JSON', {}).get('of', "")
-	if table_name == "":
-		table_name = _INFO.get('_POST', {}).get('of', "")
+	# table_name :: str
+	table_name = str(get_value(_INFO, "of", "")).replace('..', '').strip('/')
 
-	if type(table_name) is not str:
-		table_name = str(table_name)
+	# where :: str
+	where = get_value(_INFO, "where", None)
+	if type(where) is not str:
+		where = None
 
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
+	# fields :: str || list
+	fields = get_value(_INFO, "fields", None)
+	if type(fields) is str:
+		fields = fields.split(',')
+	if type(fields) is not list:
+		fields = None
 
-	#no tabel name
-	if table_name == "":
+	# offset :: int
+	offset = get_value(_INFO, "offset", 0)
+	if type(offset) is str:
+		if offset.isdigit():
+			offset = int(offset)
+	if type(offset) is not int:
+		offset = 0
+
+	# limit :: int
+	limit = get_value(_INFO, "limit", math.inf)
+	if type(limit) is str:
+		if limit.isdigit():
+			limit = int(limit)
+	if type(limit) is not int:
+		limit = math.inf
+	if limit == 0: limit = 1
+
+	# store :: str
+	store = get_value(_INFO, "store", None)
+
+	# join :: dict
+	join = get_value(_INFO, "join", None)
+
+	# # #
+
+	try:
+		if table_name == "": raise MissingOfField
+
+		container = await self.load(table_name)
+
+		if container.status == "sys_error": raise SysLoadError
+		elif container.status == "not_found": raise ContainerNotFound
+		elif container.status == "success":	container = container.content
+
+		result, hits, hits_field = await get_data_from_container(container=container, limit=limit, offset=offset, where=where, fields=fields, store=store)
+
+		res = dict(
+			code=200,
+			status="selected",
+			hits=hits,
+			hits_field=hits_field,
+			total=len( container.get('data', []) ),
+			data=result
+		)
+		if self.log != False:
+			self.logger.info(f"selected {str(hits)} entry(s) from '{table_name}'")
+		return self.response(status=200, body=json.dumps(res))
+
+	except MissingOfField:
 		res = dict(
 			code=400,
 			status="error",
@@ -29,10 +81,7 @@ async def select(self, request, _INFO):
 		)
 		return self.response(status=400, body=json.dumps(res))
 
-	container = await self.load(table_name)
-
-	#error handling
-	if container.status == "sys_error":
+	except SysLoadError:
 		# this SHOULD never happen, but hey... just in case
 		res = dict(
 			code=500,
@@ -41,7 +90,7 @@ async def select(self, request, _INFO):
 		)
 		return self.response(status=500, body=json.dumps(res))
 
-	elif container.status == "not_found":
+	except ContainerNotFound:
 		res = dict(
 			code=404,
 			status="error",
@@ -49,72 +98,20 @@ async def select(self, request, _INFO):
 		)
 		return self.response(status=404, body=json.dumps(res))
 
-	elif container.status == "success":
+async def get_data_from_container(container=None, limit=math.inf, offset=0, where=None, fields=[], store=None):
+	if container == None: return [], 0, 0
 
-		container = container.content
-
-	#get optional vars (GET -> JSON -> POST based)
-
-	#get where :: eval str
-	where = _INFO.get('_GET', {}).get('where', None)
-	if where == None:
-		where = _INFO.get('_JSON', {}).get('where', None)
-	if where == None:
-		where = _INFO.get('_POST', {}).get('where', None)
-
-	if type(where) is not str:
-		where = None
-
-	#get fields :: list || comma string
-	fields = _INFO.get('_GET', {}).get('fields', None)
-	if fields == None:
-		fields = _INFO.get('_JSON', {}).get('fields', None)
-	if fields == None:
-		fields = _INFO.get('_POST', {}).get('fields', None)
-
-	if type(fields) is str:
-		fields = fields.split(',')
-	if type(fields) is not list:
-		fields = None
-
-	#get offset :: int
-	offset = _INFO.get('_GET', {}).get('offset', None)
-	if offset == None:
-		offset = _INFO.get('_JSON', {}).get('offset', None)
-	if offset == None:
-		offset = _INFO.get('_POST', {}).get('offset', None)
-
-	if type(offset) is str:
-		if offset.isdigit():
-			offset = int(offset)
-	if type(offset) is not int:
-		offset = 0
-
-	#get limit :: int
-	limit = _INFO.get('_GET', {}).get('limit', None)
-	if limit == None:
-		limit = _INFO.get('_JSON', {}).get('limit', None)
-	if limit == None:
-		limit = _INFO.get('_POST', {}).get('limit', None)
-
-	if type(limit) is str:
-		if limit.isdigit():
-			limit = int(limit)
-	if type(limit) is not int:
-		limit = math.inf
-
-	#search all entrys
+	result = []
+	found = 0
 	hits = 0
 	hits_field = 0
-	found = 0
-	result = []
 
 	#go through all entrys
 	for entry_id in container.get('data', []):
 		entry = container['data'][entry_id]
 		entry['id'] = entry_id
 
-		if not await check_where(entry, where):
+		if not await check_where(entry, where, store):
 			continue
 
 		found += 1
@@ -131,21 +128,25 @@ async def select(self, request, _INFO):
 		if hits >= limit:
 			break
 
-	res = dict(
-		code=200,
-		status="selected",
-		hits=hits,
-		hits_field=hits_field,
-		total=len( container.get('data', []) ),
-		data=result
-	)
-	if self.log != False:
-		self.logger.info(f"selected {str(hits)} entry(s) from '{table_name}'")
-	return self.response(status=200, body=json.dumps(res))
+	return result, hits, hits_field
 
-async def check_where(data, where):
+def get_value(info, value, default):
+	v = info.get('_GET', {}).get(value, None)
+	if v == None:
+		v = info.get('_JSON', {}).get(value, None)
+	if v == None:
+		v = info.get('_POST', {}).get(value, None)
+
+	if v == None: return default
+	else: return v
+
+async def check_where(data, where, store):
 	if where == "" or where == None:
 		return True
+
+	store if store != None else "data"
+
+	locals()[store] = data
 
 	try:
 		if eval(where):
