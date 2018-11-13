@@ -3,6 +3,7 @@ import json, math
 from utils.load import load as load
 
 class MissingOfField(Exception): pass
+class MissingStoreInJoin(Exception): pass
 class SysLoadError(Exception): pass
 class ContainerNotFound(Exception): pass
 
@@ -44,29 +45,43 @@ async def select(self, request, _INFO):
 
 	# store :: str
 	store = get_value(_INFO, "store", None)
+	if type(store) is not str:
+		store = None
 
 	# join :: dict
 	join = get_value(_INFO, "join", None)
+	if type(join) == str:
+		try:
+			join = json.loads(join)
+		except:
+			join = None
 
 	# # #
 
 	try:
 		if table_name == "": raise MissingOfField
 
-		container = await self.load(table_name)
+		result, hits, hits_field, total = await get_data_from_container(
+			self,
+			container=table_name,
+			limit=limit,
+			offset=offset,
+			where=where,
+			fields=fields,
+			store=store
+		)
 
-		if container.status == "sys_error": raise SysLoadError
-		elif container.status == "not_found": raise ContainerNotFound
-		elif container.status == "success":	container = container.content
-
-		result, hits, hits_field = await get_data_from_container(container=container, limit=limit, offset=offset, where=where, fields=fields, store=store)
+		# join entry?
+		if type(join) == dict:
+			result = await perform_join(self, result, join)
 
 		res = dict(
 			code=200,
 			status="selected",
+
 			hits=hits,
 			hits_field=hits_field,
-			total=len( container.get('data', []) ),
+			total=total,
 			data=result
 		)
 		if self.log != False:
@@ -98,8 +113,14 @@ async def select(self, request, _INFO):
 		)
 		return self.response(status=404, body=json.dumps(res))
 
-async def get_data_from_container(container=None, limit=math.inf, offset=0, where=None, fields=[], store=None):
-	if container == None: return [], 0, 0
+async def get_data_from_container(Main_instance, container=None, limit=math.inf, offset=0, where=None, fields=[], store=None):
+	if container == None: return [], 0, 0, 0
+
+	container = await Main_instance.load(container)
+
+	if container.status == "sys_error": raise SysLoadError
+	elif container.status == "not_found": raise ContainerNotFound
+	elif container.status == "success":	container = container.content
 
 	result = []
 	found = 0
@@ -128,7 +149,7 @@ async def get_data_from_container(container=None, limit=math.inf, offset=0, wher
 		if hits >= limit:
 			break
 
-	return result, hits, hits_field
+	return result, hits, hits_field, len(container.get('data', []) )
 
 def get_value(info, value, default):
 	v = info.get('_GET', {}).get(value, None)
@@ -166,3 +187,71 @@ async def check_fields(data, fields):
 
 	return requested_fields
 
+async def perform_join(Main_instance, current_result, join):
+
+	# table_name :: str
+	table_name = str(get_value(join, "of", "")).replace('..', '').strip('/')
+
+	# where :: str
+	where = get_value(join, "where", None)
+	if type(where) is not str:
+		where = None
+
+	# fields :: str || list
+	fields = get_value(join, "fields", None)
+	if type(fields) is str:
+		fields = fields.split(',')
+	if type(fields) is not list:
+		fields = None
+
+	# store :: str
+	store = get_value(join, "store", None)
+	if table_name == "": raise MissingStoreInJoin
+
+	# join :: dict
+	join = get_value(join, "join", None)
+	if type(join) == str:
+		try:
+			join = json.loads(join)
+		except:
+			join = None
+
+	# # #
+
+	if table_name == "": raise MissingOfField
+
+	# # #
+
+	container = await Main_instance.load(table_name)
+
+	if container.status == "sys_error": raise SysLoadError
+	elif container.status == "not_found": raise ContainerNotFound
+	elif container.status == "success":	container = container.content
+
+	for already_selected in current_result:
+
+		result = []
+
+		for entry_id in container.get('data', []):
+			entry = container['data'][entry_id]
+			entry['id'] = entry_id
+
+			if not await check_where(where_str=where, base_container=already_selected, base_name=None, check_entry=entry, check_name=store):
+				continue
+
+			requested_fields = await check_fields(entry, fields)
+
+			result.append( dict(sorted(requested_fields.items())) )
+
+			if hits >= limit:
+				break
+
+		return result, hits, hits_field, len(container.get('data', []) )
+
+		# join entry?
+		if type(join) == dict:
+			result = await perform_join(self, result, join)
+
+		already_selected[store] = result
+
+	return current_result
