@@ -72,8 +72,10 @@ async def select(self, request, _INFO):
 		)
 
 		# join entry?
-		if type(join) == dict:
-			result = await perform_join(self, result, join)
+		if type(join) != list: join = [join]
+		for j in join:
+			if j == None: continue
+			result = await perform_join(self, result, j)
 
 		res = dict(
 			code=200,
@@ -96,6 +98,14 @@ async def select(self, request, _INFO):
 		)
 		return self.response(status=400, body=json.dumps(res))
 
+	except MissingStoreInJoin:
+		res = dict(
+			code=400,
+			status="error",
+			msg="missing 'store' field in join"
+		)
+		return self.response(status=400, body=json.dumps(res))
+
 	except SysLoadError:
 		# this SHOULD never happen, but hey... just in case
 		res = dict(
@@ -114,7 +124,7 @@ async def select(self, request, _INFO):
 		return self.response(status=404, body=json.dumps(res))
 
 async def get_data_from_container(Main_instance, container=None, limit=math.inf, offset=0, where=None, fields=[], store=None):
-	if container == None: return [], 0, 0, 0
+	if container in [None, ""]: return [], 0, 0, 0
 
 	container = await Main_instance.load(container)
 
@@ -132,7 +142,7 @@ async def get_data_from_container(Main_instance, container=None, limit=math.inf,
 		entry = container['data'][entry_id]
 		entry['id'] = entry_id
 
-		if not await check_where(entry, where, store):
+		if not await check_where(where_str=where, base_entry=entry, base_name=store):
 			continue
 
 		found += 1
@@ -161,7 +171,7 @@ def get_value(info, value, default):
 	if v == None: return default
 	else: return v
 
-async def check_where(data, where, store):
+async def check_where_(data, where, store):
 	if where == "" or where == None:
 		return True
 
@@ -171,6 +181,27 @@ async def check_where(data, where, store):
 
 	try:
 		if eval(where):
+			return True
+		else:
+			return False
+	except:
+		return False
+
+async def check_where(where_str="", base_entry=None, base_name="data", check_entry=None, check_name="None"):
+	if where_str == "" or where_str == None:
+		return True
+
+	if base_entry == None:
+		return True
+
+	if base_name == None:
+		base_name = "data"
+
+	locals()[base_name] = base_entry
+	locals()[check_name] = check_entry
+
+	try:
+		if eval(where_str):
 			return True
 		else:
 			return False
@@ -190,26 +221,25 @@ async def check_fields(data, fields):
 async def perform_join(Main_instance, current_result, join):
 
 	# table_name :: str
-	table_name = str(get_value(join, "of", "")).replace('..', '').strip('/')
+	table_name = str(join.get("of", "")).replace('..', '').strip('/')
 
 	# where :: str
-	where = get_value(join, "where", None)
+	where = join.get("where", None)
 	if type(where) is not str:
 		where = None
 
 	# fields :: str || list
-	fields = get_value(join, "fields", None)
+	fields = join.get("fields", None)
 	if type(fields) is str:
 		fields = fields.split(',')
 	if type(fields) is not list:
 		fields = None
 
 	# store :: str
-	store = get_value(join, "store", None)
-	if table_name == "": raise MissingStoreInJoin
+	store = join.get("store", None)
 
 	# join :: dict
-	join = get_value(join, "join", None)
+	join = join.get("join", None)
 	if type(join) == str:
 		try:
 			join = json.loads(join)
@@ -219,6 +249,8 @@ async def perform_join(Main_instance, current_result, join):
 	# # #
 
 	if table_name == "": raise MissingOfField
+
+	if store in ["", None]: raise MissingStoreInJoin
 
 	# # #
 
@@ -236,21 +268,18 @@ async def perform_join(Main_instance, current_result, join):
 			entry = container['data'][entry_id]
 			entry['id'] = entry_id
 
-			if not await check_where(where_str=where, base_container=already_selected, base_name=None, check_entry=entry, check_name=store):
+			if not await check_where(where_str=where, base_entry=already_selected, base_name=None, check_entry=entry, check_name=store):
 				continue
 
 			requested_fields = await check_fields(entry, fields)
 
-			result.append( dict(sorted(requested_fields.items())) )
-
-			if hits >= limit:
-				break
-
-		return result, hits, hits_field, len(container.get('data', []) )
+			result.append( requested_fields )
 
 		# join entry?
-		if type(join) == dict:
-			result = await perform_join(self, result, join)
+		if type(join) != list: join = [join]
+		for j in join:
+			if j == None: continue
+			result = await perform_join(Main_instance, result, j)
 
 		already_selected[store] = result
 
