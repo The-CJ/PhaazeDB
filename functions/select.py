@@ -75,7 +75,7 @@ async def select(self, request, _INFO):
 		if type(join) != list: join = [join]
 		for j in join:
 			if j == None: continue
-			result = await perform_join(self, result, j)
+			result = await perform_join(self, last_result=result, join=j, parent_name=store)
 
 		res = dict(
 			code=200,
@@ -171,23 +171,8 @@ def get_value(info, value, default):
 	if v == None: return default
 	else: return v
 
-async def check_where_(data, where, store):
-	if where == "" or where == None:
-		return True
-
-	store if store != None else "data"
-
-	locals()[store] = data
-
-	try:
-		if eval(where):
-			return True
-		else:
-			return False
-	except:
-		return False
-
 async def check_where(where_str="", base_entry=None, base_name="data", check_entry=None, check_name="None"):
+
 	if where_str == "" or where_str == None:
 		return True
 
@@ -218,7 +203,7 @@ async def check_fields(data, fields):
 
 	return requested_fields
 
-async def perform_join(Main_instance, current_result, join):
+async def perform_join(Main_instance, last_result=[], join=dict(), parent_name=None):
 
 	# table_name :: str
 	table_name = str(join.get("of", "")).replace('..', '').strip('/')
@@ -237,6 +222,9 @@ async def perform_join(Main_instance, current_result, join):
 
 	# store :: str
 	store = join.get("store", None)
+
+	# include :: bool
+	include = bool(join.get("include", False))
 
 	# join :: dict
 	join = join.get("join", None)
@@ -260,7 +248,7 @@ async def perform_join(Main_instance, current_result, join):
 	elif container.status == "not_found": raise ContainerNotFound
 	elif container.status == "success":	container = container.content
 
-	for already_selected in current_result:
+	for already_selected in last_result:
 
 		result = []
 
@@ -268,7 +256,7 @@ async def perform_join(Main_instance, current_result, join):
 			entry = container['data'][entry_id]
 			entry['id'] = entry_id
 
-			if not await check_where(where_str=where, base_entry=already_selected, base_name=None, check_entry=entry, check_name=store):
+			if not await check_where(where_str=where, base_entry=already_selected, base_name=parent_name, check_entry=entry, check_name=store):
 				continue
 
 			requested_fields = await check_fields(entry, fields)
@@ -279,8 +267,13 @@ async def perform_join(Main_instance, current_result, join):
 		if type(join) != list: join = [join]
 		for j in join:
 			if j == None: continue
-			result = await perform_join(Main_instance, result, j)
+			result = await perform_join(Main_instance, last_result=result, join=j, parent_name=store)
 
-		already_selected[store] = result
+		if include and len(result) >= 1:
+			for field_of_join in result[0]:
+				if field_of_join == "id": continue
+				already_selected[field_of_join] = result[0][field_of_join]
+		else:
+			already_selected[store] = result
 
-	return current_result
+	return last_result
