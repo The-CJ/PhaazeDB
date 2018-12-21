@@ -218,6 +218,7 @@ def start_server():
 
 	#web interface route
 	SERVER.router.add_route('GET', '/admin{useless:.*}', DB.interface)
+	SERVER.router.add_route("GET", "/favicon.ico", DB.interface)
 	#main route
 	SERVER.router.add_route('*', '/{useless:.*}', DB.process)
 

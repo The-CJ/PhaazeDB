@@ -15,4 +15,4 @@ async def web_interface(self, request):
             return self.response(status=200, body=r, headers={'Content-Type': mimetypes.guess_type(path)[0]})
 
         except:
-            return self.response(status=400)
+            return self.response(status=404)
