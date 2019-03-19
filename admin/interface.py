@@ -18,7 +18,7 @@ async def web_interface(self, request):
             modals=part_modals
         )
 
-        return self.response(status=200, body=main_html, headers={'Content-Type': 'text/html'} )
+        return self.response(status=200, body=finished_html, headers={'Content-Type': 'text/html'} )
 
     else:
         path = path.replace("..", "")
@@ -33,5 +33,5 @@ async def web_interface(self, request):
 
 def html_format (raw, **kwargs):
     for key in kwargs:
-        raw = raw.replace(f"|>>>({key})<<<|", kwargs[key])
+        raw = raw.replace(bytes(f"|>>>({key})<<<|", "UTF-8"), kwargs[key])
     return raw
