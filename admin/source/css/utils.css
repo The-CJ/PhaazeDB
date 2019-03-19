@@ -7,6 +7,9 @@
   flex-direction: row;
   align-items: center;
 }
+.center-item-row * {
+  white-space: nowrap!important;
+}
 
 .center-item-col {
   display: flex;

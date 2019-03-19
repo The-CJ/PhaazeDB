@@ -29,6 +29,34 @@
     </div>
   </div>
 
+  <div id="container_edit_modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="max-width:unset;width:75vw;">
+
+      <div class="modal-content">
+        <div class="modal-header secondary-color-dark text-white">
+          <h4 class="modal-title">Describe / Edit</h4>
+          <button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+            <i class="material-icons text-white">close</i>
+          </button>
+        </div>
+        <div class="modal-body" style="max-height: 50vh; overflow-y: auto">
+          <div class="center-item-row">
+            <span>Inspect&nbsp;container:&nbsp;</span>
+            <input type="text" name="container" placeholder="Container name">
+          </div>
+          <hr>
+          <button type="button" class="btn btn-block btn-secondary" onclick="describe()">Inspect</button>
+          <div class="modal-result">
+
+          </div>
+        </div>
+        <div class="modal-footer secondary-color-dark">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <div id="container_drop_modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
 

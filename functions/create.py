@@ -38,6 +38,7 @@ async def create(self, request, _INFO):
 	container = dict (
 		current_id = 1,
 		data = dict(),
+		default = dict(),
 		creation_date = str(datetime.now())
 	)
 
