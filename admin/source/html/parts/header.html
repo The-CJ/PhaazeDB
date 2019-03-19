@@ -1,0 +1,47 @@
+<header class="stylish-color-dark">
+  <div class="remain-height center-item-row">
+    <img src="admin/source/PhaazeDB.png" alt="PhaazeDD_img" id="db_logo">
+    <div class="display-block">
+      <h1>PhaazeDB - Administration Interface</h1>
+      <div class="row center-item-row">
+        <span class="col-3">Current&nbsp;container:&nbsp;</span>
+        <span class="col" id="current_container">None</span>
+      </div>
+      <div class="row center-item-row">
+        <span class="col-3">Entry's&nbsp;in&nbsp;Container:&nbsp;</span>
+        <span class="col" id="total_entrys">None</span>
+      </div>
+    </div>
+    <div class="display-block mr-auto ml-auto">
+      <div id="col_edit_menu" class="collapse">
+
+        <div class="text-center">
+          <div class="center-item-row">
+            <h3 style="margin:0;">Change field settings</h3>
+            <i class="material-icons ml-auto waves-effect" onclick="close_all_edit()">close</i>
+          </div>
+          <div class="center-item-row">
+            <button type="button" class="btn typeof_string" onclick="change_col_type('string')">String</button>
+            <button type="button" class="btn typeof_bool" onclick="change_col_type('bool')">Bool</button>
+            <button type="button" class="btn typeof_number" onclick="change_col_type('number')">Number</button>
+            <button type="button" class="btn typeof_none" onclick="change_col_type('none')">None/null</button>
+            <button type="button" class="btn typeof_object" onclick="change_col_type('object')">Object</button>
+            <button type="button" class="btn" onclick="change_col_type('remove')" style="color:#000!important;">Remove</button>
+          </div>
+          <button type="button" class="btn btn-block btn-success" onclick="save_col_changes()">Save Changes</button>
+        </div>
+
+      </div>
+    </div>
+    <div class="display-block ml-auto">
+      <div class="center-item-col">
+        <button type="button" class="btn btn-primary btn-block" onclick="$('#main-menu').collapse('toggle')">
+          <div class="center-item-row">
+            <i class="material-icons">menu</i>
+            <span>Menu</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
