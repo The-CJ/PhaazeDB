@@ -65,14 +65,16 @@ function set_default() {
     new_default[key] = get_value_in_right_type(value, type, key);
 
   }
+  let name = $('#container_edit_modal [name=container]').val();
   let d = {
     'action': 'default',
     'token': $('#db_token').val(),
+    'container': name,
     'default': new_default
   };
-  $.post('/', d)
+  $.post('/', JSON.stringify(d))
   .done(function (data) {
-    display_message( {content:"Successfull updated default template for "+data.container, color:"#ccc"} );
+    display_message( {content:"Successfull updated default template for: "+data.container, color:"#ccc"} );
   })
   .fail(function (data) {
     data = data.responseJSON ? data.responseJSON : {};

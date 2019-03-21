@@ -45,6 +45,7 @@ class DATABASE(object):
 	from functions.option import option as option
 	from functions.show import show as show
 	from functions.describe import describe
+	from functions.default import default
 	# TODO: add functions.config : to edit configs on the fly without restart
 
 	#website interface
@@ -186,6 +187,9 @@ class DATABASE(object):
 
 		elif action == "show":
 			return await self.show(request, _INFO)
+
+		elif action == "default":
+			return await self.default(request, _INFO)
 
 		elif action == "describe":
 			return await self.describe(request, _INFO)
