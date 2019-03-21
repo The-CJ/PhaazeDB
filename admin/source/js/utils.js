@@ -3,6 +3,7 @@ var last_selected_container = "";
 var curl = {};
 
 // global functions
+
 function isEmpty(o) {
   // null
   if (o == null) { return true; }
@@ -71,10 +72,38 @@ class DynamicURL {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
   }
+
+  restoreWindow() {
+    // restores a window from URL parameters
+
+    // reopen modals
+    if (this.values.modal != null) {
+      Display.show(this.values.modal);
+    }
+
+    // set last viewed container
+    if (this.values.container != null) {
+      document.querySelector("#current_container").text = this.values.container;
+
+      // $('[name=of], [name=into], [name=container]').attr('value',curl.container).val(curl.container);
+      // $('#current_container').text(curl.container);
+    }
+    return
+    if (curl.limit != null) {
+      $('[name=limit]').attr('value',curl.limit).val(curl.limit);
+    }
+    if (curl.offset != null) {
+      $('[name=offset]').attr('value',curl.offset).val(curl.offset);
+    }
+    if (curl.where != null) {
+      $('[name=where]').attr('value',curl.where).val(curl.where);
+    }
+  }
 }
 
-// on load
+// events
 document.addEventListener("DOMContentLoaded", function () {
+  // init all classes
   DynamicURL = new DynamicURL();
 })
 
@@ -87,21 +116,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-
-
 $('document').ready(function () {
-  extract_curl();
+  //extract_curl();
 
-  let t = window.sessionStorage.getItem('token');
-  if (t != null) { $('#db_token').val(t) }
+  //let t = window.sessionStorage.getItem('token');
+  //if (t != null) { $('#db_token').val(t) }
 
-  set_window_from_url();
+  //set_window_from_url();
 
-  if (curl['container'] != "" && curl['container'] != null) {
-    let r = curl;
-    r['of'] = curl['container'];
-    select(r, preview=true);
-  }
+  //if (curl['container'] != "" && curl['container'] != null) {
+  //  let r = curl;
+  //  r['of'] = curl['container'];
+  //  select(r, preview=true);
+  //}
 });
 
 function edit_select(entry_col) {
@@ -300,7 +327,7 @@ function get_value_in_right_type(value, type, key) {
   }
 }
 
-function update_curl() {
+function update_curl() { //REMOVE
 
   let ucurl = "/admin";
   let pre = "?";
@@ -319,7 +346,7 @@ function update_curl() {
 
 }
 
-function extract_curl() {
+function extract_curl() { //REMOVE
 
   let ncurl = {};
 
@@ -332,7 +359,7 @@ function extract_curl() {
   curl = ncurl;
 }
 
-function getParameter(name) {
+function getParameter(name) { //REMOVE
     let url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
     var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
@@ -342,7 +369,7 @@ function getParameter(name) {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-function set_window_from_url() {
+function set_window_from_url() { //REMOVE
 
   if (curl.modal != null) {
     if (curl.modal == "select") {
