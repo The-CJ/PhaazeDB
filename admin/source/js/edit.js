@@ -7,7 +7,7 @@ function start_container_edit() {
 }
 
 function describe() {
-  let name = $('#container_create_modal [name=container]').val();
+  let name = $('#container_edit_modal [name=container]').val();
   let d = {
     'action': 'describe',
     'token': $('#db_token').val(),
