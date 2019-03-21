@@ -25,6 +25,11 @@ function describe() {
 }
 
 function display_describe(data) {
-
+  var result_space = $("#container_edit_modal .modal-result").html("");
+  let key_value_btn = $('<button type="button" class="btn btn-block btn-success">').text("Add");
+  key_value_btn.click(function () {
+    add_key_value_field(result_space);
+  })
+  $("#container_edit_modal .modal-result-footer").append(key_value_btn);
 
 }
