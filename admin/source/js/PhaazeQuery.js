@@ -13,7 +13,7 @@ class PhaazeQuery {
   text(string) {
     let string_result = [];
     let mode = 0; // set mode
-    if (string == null) {
+    if (typeof string == "undefined") {
       mode = 1; //get mode
     }
     for (let node of this.result) {
@@ -29,9 +29,27 @@ class PhaazeQuery {
       else if (string_result.length == 0) { return null; }
       else { return string_result; }
     }
-
   }
 
+  value(val) {
+    let val_result = [];
+    let mode = 0; // set mode
+    if (typeof val == "undefined") {
+      mode = 1; //get mode
+    }
+    for (let node of this.result) {
+      if (mode) {
+        val_result.push(node.value);
+      } else {
+        node.value = val;
+      }
+    }
 
+    if (mode) {
+      if (val_result.length == 1) { return val_result[0]; }
+      else if (val_result.length == 0) { return null; }
+      else { return val_result; }
+    }
+  }
 
 }

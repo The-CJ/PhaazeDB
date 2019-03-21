@@ -78,15 +78,13 @@ class DynamicURL {
 
     // reopen modals
     if (this.values.modal != null) {
-      Display.show(this.values.modal);
+      //Display.show(this.values.modal);
     }
 
     // set last viewed container
     if (this.values.container != null) {
-      document.querySelector("#current_container").text = this.values.container;
-
-      // $('[name=of], [name=into], [name=container]').attr('value',curl.container).val(curl.container);
-      // $('#current_container').text(curl.container);
+      _("#current_container").text( this.values.container );
+      _('[name=of], [name=into], [name=container]').value(this.values.container)
     }
     return
     if (curl.limit != null) {
@@ -105,6 +103,9 @@ class DynamicURL {
 document.addEventListener("DOMContentLoaded", function () {
   // init all classes
   DynamicURL = new DynamicURL();
+
+  // restore view
+  DynamicURL.restoreWindow();
 })
 
 
