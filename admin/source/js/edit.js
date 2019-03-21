@@ -81,13 +81,3 @@ function set_default() {
     display_message({content:data.msg, color:"#fa3"});
   })
 }
-
-function isEmpty(o) {
-  if (o == null) { return true; }
-  for (var v in o) {
-    if (o.hasOwnProperty(v)) {
-      return false
-    }
-  }
-  return true;
-}

@@ -280,6 +280,16 @@ function set_window_from_url() {
 
 }
 
+function isEmpty(o) {
+  if (o == null) { return true; }
+  for (var v in o) {
+    if (o.hasOwnProperty(v)) {
+      return false
+    }
+  }
+  return true;
+}
+
 $(document).on('hidden.bs.modal', function (event) {
   curl['modal'] = null;
   update_curl();
