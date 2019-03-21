@@ -48,7 +48,36 @@ function display_describe(data) {
 }
 
 function set_default() {
-  alert("reee")
+  var new_default = {};
+  var fields = $("#container_edit_modal .modal-result .field_key_value");
+  for (field of fields) {
+    field = $(field);
+    let key = field.find('[placeholder=key]').val();
+    let type = field.find('select').val();
+    let value = field.find('[placeholder=value]').val();
+
+    if (key == "") {
+      field.find('[placeholder=key]').addClass('need_correction');
+      display_message({content:"no key can be empty", color:"orange"});
+      return ;
+    }
+
+    new_default[key] = get_value_in_right_type(value, type, key);
+
+  }
+  let d = {
+    'action': 'default',
+    'token': $('#db_token').val(),
+    'default': new_default
+  };
+  $.post('/', d)
+  .done(function (data) {
+    display_message( {content:"Successfull updated default template for "+data.container, color:"#ccc"} );
+  })
+  .fail(function (data) {
+    data = data.responseJSON ? data.responseJSON : {};
+    display_message({content:data.msg, color:"#fa3"});
+  })
 }
 
 function isEmpty(o) {
