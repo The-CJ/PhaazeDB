@@ -1,5 +1,93 @@
+// global vars
 var last_selected_container = "";
 var curl = {};
+
+// global functions
+function isEmpty(o) {
+  // null
+  if (o == null) { return true; }
+  // string
+  if (typeof o == "string") { if (o != "") { return false; } }
+  // number
+  if (typeof o == "number") { if (o != 0) { return false; } }
+  // object
+  for (var v in o) {
+    if (o.hasOwnProperty(v)) {
+      return false
+    }
+  }
+  return true;
+}
+
+// dynamic url
+class DynamicURL {
+  constructor() {
+    this.values = {};
+    this.init()
+  }
+
+  init() {
+    this.values['container'] = this.get('container');
+    this.values['where'] = this.get('where');
+    this.values['limit'] = this.get('limit');
+    this.values['offset'] = this.get('offset');
+    this.values['modal'] = this.get('modal');
+  }
+
+  set(key, value, update=true) {
+    this.values[key] = value;
+    if (update) { this.update(); }
+  }
+
+  get(key) {
+    let value = this.values[key];
+    if (value == null) {
+      value = this.getFromLocation(key);
+    }
+    return value
+  }
+
+  update() {
+    let ucurl = "/admin";
+    let pre = "?";
+
+    for (var key in this.values) {
+      let value = this.values[key];
+      if (value == null) { continue; }
+
+      ucurl = ucurl + pre + key + "=" + value;
+      pre = "&";
+
+    }
+    window.history.pushState('obj', 'newtitle', ucurl);
+  }
+
+  getFromLocation(name) {
+    let url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+}
+
+// on load
+document.addEventListener("DOMContentLoaded", function () {
+  DynamicURL = new DynamicURL();
+})
+
+
+
+
+
+
+
+
+
+
+
 
 $('document').ready(function () {
   extract_curl();
@@ -278,16 +366,6 @@ function set_window_from_url() {
     $('[name=where]').attr('value',curl.where).val(curl.where);
   }
 
-}
-
-function isEmpty(o) {
-  if (o == null) { return true; }
-  for (var v in o) {
-    if (o.hasOwnProperty(v)) {
-      return false
-    }
-  }
-  return true;
 }
 
 $(document).on('hidden.bs.modal', function (event) {
