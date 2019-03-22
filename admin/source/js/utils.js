@@ -20,7 +20,7 @@ function isEmpty(o) {
   return true;
 }
 
-// dynamic url
+// utils classes
 class DynamicURL {
   constructor() {
     this.values = {};
@@ -78,7 +78,7 @@ class DynamicURL {
 
     // reopen modals
     if (this.values.modal != null) {
-      //Display.show(this.values.modal);
+      Display.showModal(this.values.modal);
     }
 
     // set last viewed container
@@ -99,10 +99,31 @@ class DynamicURL {
   }
 }
 
+class Display {
+  constructor() {
+
+  }
+
+  showModal(modal, hold_other_open=false) {
+    if (!hold_other_open) { this.closeModal(); }
+    _("[modal="+modal+"]").addClass("show");
+  }
+
+  closeModal(modal) {
+    if (typeof modal == "undefined") {
+      _("[modal]").removeClass("show");
+    } else {
+      _("[modal="+modal+"]").removeClass("show");
+    }
+  }
+
+}
+
 // events
 document.addEventListener("DOMContentLoaded", function () {
   // init all classes
   DynamicURL = new DynamicURL();
+  Display = new Display();
 
   // restore view
   DynamicURL.restoreWindow();
