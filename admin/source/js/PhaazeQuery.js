@@ -52,4 +52,16 @@ class PhaazeQuery {
     }
   }
 
+  addClass(cssclass) {
+    for (let node of this.result) {
+      node.classList.add(cssclass);
+    }
+  }
+
+  removeClass(cssclass) {
+    for (let node of this.result) {
+      node.classList.remove(cssclass);
+    }
+  }
+
 }
