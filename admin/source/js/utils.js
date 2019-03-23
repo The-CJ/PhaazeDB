@@ -106,15 +106,17 @@ class Display {
 
   showModal(modal, hold_other_open=false) {
     if (!hold_other_open) { this.closeModal(); }
-    _("[modal="+modal+"]").addClass("show");
+    _("[modal="+modal+"], [modal-close]").addClass("show");
+    DynamicURL.set("modal", modal);
   }
 
   closeModal(modal) {
     if (typeof modal == "undefined") {
-      _("[modal]").removeClass("show");
+      _("[modal], [modal-close]").removeClass("show");
     } else {
-      _("[modal="+modal+"]").removeClass("show");
+      _("[modal="+modal+"], [modal-close]").removeClass("show");
     }
+    DynamicURL.set("modal", null);
   }
 
 }

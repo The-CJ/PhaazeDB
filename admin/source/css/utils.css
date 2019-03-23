@@ -22,7 +22,7 @@
   border: 2px solid rgba(255, 0, 0, 1)!important;
 }
 
-.hidden_button {
+.btn-hidden {
   padding: 0;
   background: transparent;
   border: 0;
