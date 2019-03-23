@@ -4,6 +4,15 @@
 .orange {background: #ffb000}
 .orange.dark {background: #db9700}
 
+.red { background: #f20000 }
+.red.dark { background: #c30000}
+
+.blue {background: #008cff}
+.blue.dark {background: #0058b4}
+
+.purple {background: #a600ff}
+.purple.dark {background: #8400cb}
+
 .text-white {
   color:  white;
 }
