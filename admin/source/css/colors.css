@@ -1,0 +1,9 @@
+.green {background: #00d200}
+.green.dark {background: #009200}
+
+.orange {background: #ffb000}
+.orange.dark {background: #db9700}
+
+.text-white {
+  color:  white;
+}
