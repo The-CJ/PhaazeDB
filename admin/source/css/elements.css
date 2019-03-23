@@ -188,29 +188,28 @@
   color: black;
 }
 
-/* modal input fields */
-.field_space .field_key_value {
-  padding: 5px;
+/* button */
+.btn {
+  padding: .3em .7em;
+  border-radius: 5px;
+  border: none;
 }
-.field_space button, .field_space select {
-  margin: 0;
-  padding: 8px;
-}
-.field_space input {
-  text-align: center;
+.btn-block {
+  width: 100%;
 }
 
-/* collapse-modal parts */
-.collapse-modal > form .head {
-  padding: 1em;
-  display: flex;
+/* input */
+input[type=number], input[type=text], input[type=email], input[type=password] {
+  background: transparent;
+  outline: none;
+  margin: 0.25em;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #000;
+  height: 2.2em;
+  padding: 0 1em;
+  transition-duration: .5s;
 }
-.collapse-modal > form .head h4 {
-  width: 100%
-}
-.collapse-modal > form .body {
-  padding: 1em;
-}
-.collapse-modal > form .footer {
-  padding: 1em;
+input[type=number]:focus, input[type=text]:focus, input[type=email]:focus, input[type=password]:focus {
+  border-bottom: 2px solid #05a;
 }
