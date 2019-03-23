@@ -44,6 +44,15 @@
   box-shadow: none!important;
 }
 
+/* footer buttons */
+.footer-buttons {
+  margin-left: auto;
+}
+.footer-buttons .btn {
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
 /* container */
 .supercontainer {
   width: 100%;

@@ -13,6 +13,12 @@
 .purple {background: #a600ff}
 .purple.dark {background: #8400cb}
 
+.grey {background: #696969}
+.grey.dark {background: #525252}
+
 .text-white {
-  color:  white;
+  color: white;
+}
+.text-black {
+  color: black;
 }
