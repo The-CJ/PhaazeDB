@@ -2,6 +2,11 @@
   height: inherit;
 }
 
+.center-item-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .center-item-row {
   display: flex;
   flex-direction: row;
@@ -11,10 +16,14 @@
   white-space: nowrap!important;
 }
 
-.center-item-col {
+.row {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+}
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
 }
 
 .need_correction {

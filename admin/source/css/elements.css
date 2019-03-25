@@ -202,8 +202,9 @@
   padding: .3em .7em;
   border-radius: 5px;
   border: none;
+  text-transform: none;
 }
-.btn-block {
+.btn.btn-block {
   width: 100%;
 }
 
@@ -220,5 +221,5 @@ input[type=number], input[type=text], input[type=email], input[type=password] {
   transition-duration: .5s;
 }
 input[type=number]:focus, input[type=text]:focus, input[type=email]:focus, input[type=password]:focus {
-  border-bottom: 2px solid #05a;
+  box-shadow: #05a 0px 2px 0px;
 }
