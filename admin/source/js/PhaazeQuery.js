@@ -52,6 +52,7 @@ class PhaazeQuery {
     }
   }
 
+  // class managment
   addClass(cssclass) {
     for (let node of this.result) {
       node.classList.add(cssclass);
@@ -63,5 +64,27 @@ class PhaazeQuery {
       node.classList.remove(cssclass);
     }
   }
+
+  // collapse
+  collapse(state) {
+    if (typeof state == "undefined") { state = "toggle"; }
+
+    for (let node of this.result) {
+      if (state == "show") {
+        node.classList.add('show');
+        node.style.maxHeight = node.scrollHeight + "px";
+      }
+      else if (state == "hide") {
+        node.classList.remove('show');
+        node.style.maxHeight = null;
+      }
+      else {
+        node.classList.toggle('show');
+        if (node.style.maxHeight){ node.style.maxHeight = null; }
+        else { node.style.maxHeight = node.scrollHeight + "px"; }
+      }
+    }
+  }
+
 
 }

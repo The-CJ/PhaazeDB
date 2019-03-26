@@ -45,6 +45,12 @@ footer {
 	height: 100%;
 }
 
+/*right next to logo*/
+#main_header {
+	padding: 0;
+	margin: 0;
+}
+
 /* message */
 #message_space {
   bottom: 5vh;
