@@ -50,6 +50,12 @@ footer {
 	padding: 0;
 	margin: 0;
 }
+#current_container {
+	margin-left: .25em;
+}
+#total_entrys {
+	margin-left: .25em;
+}
 
 /* message */
 #message_space {
