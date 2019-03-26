@@ -23,11 +23,8 @@ footer {
 	height: 5vh;
 	overflow: auto;
 }
-footer .btn {
-	height: 90%;
-	margin: 0 0.65em;
-}
-.container-select {
+
+#container_select {
 	border-right: 3px solid black;
 	height: 100%;
 	width: 17.5vw;
@@ -39,6 +36,7 @@ footer .btn {
 	overflow-y: auto;
 	overflow-x: visible;
 }
+
 #select_modal {
 	position: fixed;
 	right: 0;
@@ -53,7 +51,7 @@ footer .btn {
 }
 
 /* message */
-#message-space {
+#message_space {
   bottom: 5vh;
   width: 82.5%;
 	right: 0;
