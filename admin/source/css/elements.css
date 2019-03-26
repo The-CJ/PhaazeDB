@@ -202,7 +202,7 @@
 /* button */
 .btn {
   padding: .3em .7em;
-  border-radius: 5px;
+  border-radius: 0px;
   border: none;
   text-transform: none;
 }

@@ -1,4 +1,4 @@
-// because JQuery is to huge, i want a light wight framework, AND i have a lot of freetime, i made my own
+// because JQuery is to huge, i want a light wight framework, AND i have a lot of freetime, so i made my own
 
 function _(query) {
   return new PhaazeQuery(query);
@@ -67,21 +67,28 @@ class PhaazeQuery {
 
   // collapse
   collapse(state) {
-    if (typeof state == "undefined") { state = "toggle"; }
+    if (state == "show") { state = 1; }
+    else if (state == "hide") { state = 2; }
+    else { state = 3; }
 
-    for (let node of this.result) {
-      if (state == "show") {
+    for (var node of this.result) {
+      node.eventlist = node.eventlist ? node.eventlist : [];
+      // hide
+      if (state == 2 || ( state == 3 && node.style.maxHeight)) {
+        node.style.maxHeight = null;
+        function transitionend() {
+          for (let e of node.eventlist) {
+            node.removeEventListener("transitionend", e);
+          }
+          node.classList.remove('show');
+        };
+        node.addEventListener("transitionend", transitionend);
+        node.eventlist.push(transitionend);
+      }
+      // show
+      else {
         node.classList.add('show');
         node.style.maxHeight = node.scrollHeight + "px";
-      }
-      else if (state == "hide") {
-        node.classList.remove('show');
-        node.style.maxHeight = null;
-      }
-      else {
-        node.classList.toggle('show');
-        if (node.style.maxHeight){ node.style.maxHeight = null; }
-        else { node.style.maxHeight = node.scrollHeight + "px"; }
       }
     }
   }
