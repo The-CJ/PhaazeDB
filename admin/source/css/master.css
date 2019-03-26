@@ -24,25 +24,20 @@ footer {
 	overflow: auto;
 }
 
+/*left next to result_space*/
 #container_select {
 	border-right: 3px solid black;
 	height: 100%;
 	width: 17.5vw;
 	overflow-y: auto;
 }
+
+/*right next to container_select*/
 #result_space {
 	height: 100%;
 	width: 82.5vw;
 	overflow-y: auto;
 	overflow-x: visible;
-}
-
-#select_modal {
-	position: fixed;
-	right: 0;
-	bottom: 5vh;
-	width: 82.5vw;
-	z-index: 1000;
 }
 
 /* logo image */
@@ -59,8 +54,8 @@ footer {
 	z-index: 50000;
 }
 
-/* menu */
-#main-menu {
+/* menus */
+#main_menu {
 	padding: 0.15em;
 	background: rgba(255,255,255, 0.10);
 	border: 1px solid white;
