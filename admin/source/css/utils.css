@@ -37,6 +37,11 @@
   border: 0;
 }
 
+/* text */
+.text-center {
+  text-align: center;
+}
+
 /*selected option*/
 .selected {
   animation-name: selected_ani;
@@ -68,13 +73,13 @@
   }
 }
 
+/* collapse */
 .collapse {
   overflow: hidden;
   transition: max-height 0.2s ease-out;
   max-height: 0;
   display: none;
 }
-
 .collapse.show {
   display: unset;
 }

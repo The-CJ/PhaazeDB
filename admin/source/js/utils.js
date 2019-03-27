@@ -140,7 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-$('document').ready(function () {
   //extract_curl();
 
   //let t = window.sessionStorage.getItem('token');
@@ -153,7 +152,6 @@ $('document').ready(function () {
   //  r['of'] = curl['container'];
   //  select(r, preview=true);
   //}
-});
 
 function edit_select(entry_col) {
   let c = $(entry_col);
@@ -418,13 +416,3 @@ function set_window_from_url() { //REMOVE
   }
 
 }
-
-$(document).on('hidden.bs.modal', function (event) {
-  curl['modal'] = null;
-  update_curl();
-});
-
-$(document).on('hidden.bs.collapse', function (event) {
-  curl['modal'] = null;
-  update_curl();
-});

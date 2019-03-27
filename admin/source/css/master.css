@@ -82,3 +82,6 @@ footer {
 	border: 1px solid white;
 	z-index: 400;
 }
+#col_edit_menu button {
+	margin: 2px;
+}

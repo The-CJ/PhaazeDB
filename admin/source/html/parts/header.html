@@ -1,6 +1,6 @@
-<div id="main_menu" class="collapse text-center">
-  <h2 class="white-text">Menu</h2>
-  <button type="button" class="btn btn-block green text-white" onclick="Display.showModal('create')">Create container</button>
+<div id="main_menu" class="collapse">
+  <h2 class="text-white text-center" style="margin: 0 0 10px 0">Menu</h2>
+  <button type="button" class="btn btn-block green" onclick="Display.showModal('create')">Create container</button>
   <button type="button" class="btn btn-block purple text-white" onclick="Display.showModal('edit')">Describe / Edit container</button>
   <button type="button" class="btn btn-block red text-white" onclick="Display.showModal('drop')">Drop container</button>
   <hr>
@@ -25,26 +25,29 @@
       </div>
     </div>
 
-    <div class="display-block mr-auto ml-auto">
-      <div id="col_edit_menu" class="collapse">
+    <span class="col"></span>
 
-        <div class="text-center">
-          <div class="center-item-row">
-            <h3 style="margin:0;">Change field settings</h3>
-            <i class="material-icons ml-auto waves-effect" onclick="close_all_edit()">close</i>
-          </div>
-          <div class="center-item-row">
-            <button type="button" class="btn typeof_string" onclick="change_col_type('string')">String</button>
-            <button type="button" class="btn typeof_bool" onclick="change_col_type('bool')">Bool</button>
-            <button type="button" class="btn typeof_number" onclick="change_col_type('number')">Number</button>
-            <button type="button" class="btn typeof_none" onclick="change_col_type('none')">None/null</button>
-            <button type="button" class="btn typeof_object" onclick="change_col_type('object')">Object</button>
-            <button type="button" class="btn" onclick="change_col_type('remove')" style="color:#000!important;">Remove</button>
-          </div>
-          <button type="button" class="btn btn-block btn-success" onclick="save_col_changes()">Save Changes</button>
-        </div>
+    <div id="col_edit_menu" class="collapse">
 
+      <div class="center-item-row">
+        <h3 style="margin:auto;">Change field</h3>
+        <button type="button" class="btn btn-hidden text-white" onclick="alert('TODO end selection')">
+          <i class="material-icons">close</i>
+        </button>
       </div>
+      <div class="center-item-row">
+        <button type="button" class="btn typeof_string" onclick="alert('TODO string')">String</button>
+        <button type="button" class="btn typeof_bool" onclick="alert('TODO bool')">Bool</button>
+        <button type="button" class="btn typeof_number" onclick="alert('TODO number')">Number</button>
+        <button type="button" class="btn typeof_none" onclick="alert('TODO none')">None/null</button>
+        <button type="button" class="btn typeof_object" onclick="alert('TODO object')">Object</button>
+        <button type="button" class="btn" onclick="alert('TODO remove')">Remove</button>
+      </div>
+      <hr>
+      <div class="center-item-row">
+        <button type="button" class="btn btn-block green" onclick="alert('TODO save_col')">Save selected column changes</button>
+      </div>
+
     </div>
 
     <span class="col"></span>
