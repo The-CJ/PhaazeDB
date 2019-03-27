@@ -4,6 +4,45 @@ function _(query) {
   return new PhaazeQuery(query);
 }
 
+_.get = function (url, parameter) {
+  if (typeof url == "undefined") {throw "1 arguments 'url' required"}
+  return new PhaazeRequest("GET", url, parameter);
+}
+
+class PhaazeRequest {
+  constructor(method, url, parameter) {
+    this.method = method;
+    this.url = url;
+    this.parameter = parameter;
+    this.status = null;
+    this.formData = null;
+    this.response = null;
+
+    this.call();
+  }
+  done(func) {
+    if (typeof func == "undefined") { throw "1 argument 'func' required" }
+  }
+  fail(func) {
+    if (typeof func == "undefined") { throw "1 argument 'func' required" }
+  }
+  call() {
+    this.formData = new FormData();
+    if (typeof this.parameter == "undefined") {  }
+    else if (typeof this.parameter == "object") {
+      for (var key in this.parameter) { this.formData.append(key, this.parameter[key]); }
+    } else { throw "2 argument 'parameter' must be object or null" }
+    var this2 = this;
+    var r = new XMLHttpRequest();
+    r.onload = function () {
+      this2.status = r.status;
+      this2.response = r;
+    }
+    r.open(this.method, this.url);
+    r.send(this.formData);
+  }
+}
+
 class PhaazeQuery {
   // yeah i actully name it PhaazeQuery, fight me REEEEEEEEEE
   constructor(query) {
@@ -53,7 +92,7 @@ class PhaazeQuery {
   }
 
   attribute(name, val) {
-    if (typeof name == "undefined") { throw TypeError("1 arguments required") }
+    if (typeof name == "undefined") { throw TypeError("1 arguments 'name' required") }
 
     let val_result = [];
     let mode = 0; // set mode
