@@ -2,19 +2,19 @@
   <div class="remain-height center-item-row">
 
     <!-- token -->
-    <form class="token-input center-item-row" action="javascript:save_token()" method="post">
+    <form class="token-input center-item-row" onsubmit="event.preventDefault();alert('TODO save_token')" method="post">
 
       <div class="input-start">
         <i class="material-icons">vpn_key</i>
       </div>
 
-      <input type="password" class="input-field text-white" value="" placeholder="PhaazeDB token" name="db_token" id="db_token">
+      <input type="password" class="input-field text-white" placeholder="PhaazeDB token" id="db_token">
 
-      <div class="input-middle waves-effect" onmousedown="$('#db_token').attr('type', 'text')" onmouseout="$('#db_token').attr('type', 'password')">
+      <div class="input-middle" onmousedown="$('#db_token').attr('type', 'text')" onmouseout="$('#db_token').attr('type', 'password')">
         <i class="material-icons">remove_red_eye</i>
       </div>
 
-      <div class="input-end waves-effect" onclick="save_token()">
+      <div class="input-end" onclick="alert('TODO save_token')">
         <span></span>
         <i class="material-icons">save</i>
       </div>
