@@ -3,6 +3,7 @@ body {
 }
 * {
 	box-sizing: border-box!important;
+	font-family: monospace;
 }
 
 /* window parts */
@@ -51,10 +52,10 @@ footer {
 	margin: 0;
 }
 #current_container {
-	margin-left: .25em;
+	margin-left: 1ch;
 }
 #total_entrys {
-	margin-left: .25em;
+	margin-left: 1ch;
 }
 
 /* message */
