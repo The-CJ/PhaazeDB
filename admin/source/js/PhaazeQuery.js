@@ -15,8 +15,7 @@ class PhaazeRequest {
     this.url = url;
     this.parameter = parameter;
     this.status = null;
-    this.formData = null;
-    this.response = null;
+    this.request = null;
 
     this.call();
   }
@@ -27,19 +26,48 @@ class PhaazeRequest {
     if (typeof func == "undefined") { throw "1 argument 'func' required" }
   }
   call() {
-    this.formData = new FormData();
-    if (typeof this.parameter == "undefined") {  }
+    var param = null;
+
+    // paramether convertion
+    if (typeof this.parameter == "undefined") { /*nothing*/ }
+    else if (typeof this.parameter == "string") {
+        param = this.parameter;
+    }
     else if (typeof this.parameter == "object") {
-      for (var key in this.parameter) { this.formData.append(key, this.parameter[key]); }
-    } else { throw "2 argument 'parameter' must be object or null" }
+      // get
+      if (this.method == "GET") {
+        let li = []
+        for (var key in this.parameter) {
+          li.push( encodeURIComponent(key) + '=' + encodeURIComponent(this.parameter[key]) );
+        }
+        param = li.join("&");
+      }
+      // post and everything else
+      else {
+        param = new FormData();
+        for (var key in this.parameter) { param.append(key, this.parameter[key]); }
+      }
+    }
+
     var this2 = this;
     var r = new XMLHttpRequest();
+
+    // call back function
     r.onload = function () {
+      this2.request = r;
       this2.status = r.status;
-      this2.response = r;
     }
-    r.open(this.method, this.url);
-    r.send(this.formData);
+
+    if (this.method == "GET") {
+      let firstArg = this.url.includes("?") ? "&" : "?"
+      r.open(this.method, this.url + firstArg + param);
+      r.send();
+    }
+    else {
+      r.open(this.method, this.url);
+      r.send(param);
+    }
+
   }
 }
 
