@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // restore view
   DynamicURL.restoreWindow();
+  _.get("/")
 })
 
 

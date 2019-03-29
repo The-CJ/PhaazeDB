@@ -26,9 +26,18 @@ class PhaazeRequest {
   }
   done(func) {
     if (typeof func == "undefined") { throw "1 argument 'func' required" }
+    if (200 <= this.status && this.status <= 299) { return this.always(func) }
+    else {return this}
   }
   fail(func) {
     if (typeof func == "undefined") { throw "1 argument 'func' required" }
+    if (400 <= this.status) { return this.always(func) }
+    else {return this}
+  }
+  always(func) {
+    if (typeof func == "undefined") { throw "1 argument 'func' required" }
+    console.log(this);
+
   }
   call() {
     var param = null;
@@ -65,7 +74,7 @@ class PhaazeRequest {
 
     if (this.method == "GET") {
       let firstArg = this.url.includes("?") ? "&" : "?"
-      r.open(this.method, this.url + firstArg + param);
+      r.open( this.method, param ? (this.url + firstArg + param) : (this.url) );
       r.send();
     }
     else {
@@ -74,6 +83,7 @@ class PhaazeRequest {
     }
 
   }
+
 }
 
 class PhaazeQuery {
