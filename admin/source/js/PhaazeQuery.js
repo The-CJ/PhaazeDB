@@ -9,6 +9,11 @@ _.get = function (url, parameter) {
   return new PhaazeRequest("GET", url, parameter);
 }
 
+_.post = function (url, parameter) {
+  if (typeof url == "undefined") {throw "1 arguments 'url' required"}
+  return new PhaazeRequest("POST", url, parameter);
+}
+
 class PhaazeRequest {
   constructor(method, url, parameter) {
     this.method = method;
