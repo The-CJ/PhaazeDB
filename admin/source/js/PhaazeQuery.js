@@ -197,6 +197,30 @@ class PhaazeQuery {
     }
   }
 
+  css(name, val) {
+    if (typeof name == "undefined") { throw TypeError("1 arguments 'name' required") }
+
+    let val_result = [];
+    let mode = 0; // set mode
+    if (typeof val == "undefined") {
+      mode = 1; //get mode
+    }
+    for (let node of this.result) {
+      var style = getComputedStyle(node);
+      if (mode) {
+        val_result.push(style.getPropertyValue(name));
+      } else {
+        node.style.setProperty(name, val);
+      }
+    }
+
+    if (mode) {
+      if (val_result.length == 1) { return val_result[0]; }
+      else if (val_result.length == 0) { return null; }
+      else { return val_result; }
+    }
+  }
+
   // class managment
   addClass(cssclass) {
     for (let node of this.result) {
