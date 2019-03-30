@@ -269,5 +269,19 @@ class PhaazeQuery {
     }
   }
 
+  // object
+  append(childs) {
+    if (typeof childs == "undefined") { throw TypeError("1 arguments 'childs' required") }
+    for (let node of this.result) {
+      for (let childNode of childs.result) {
+        node.appendChild(childNode);
+      }
+    }
+  }
 
+  remove() {
+    for (let node of this.result) {
+      node.parentNode.removeChild(node);
+    }
+  }
 }

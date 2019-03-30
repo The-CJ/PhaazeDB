@@ -128,22 +128,22 @@ class Display {
     let text_color = msg['text'];
     let time = msg['time'];
 
-    let message = _.create('<div class="message text-center">');
-    message.text(content);
+    let new_message = _.create('<div class="message text-center">');
+    new_message.text(content);
 
     if (color == null) { color = "lightgrey"; }
-    message.css('background', color);
+    new_message.css('background', color);
 
     if (text_color == null) { text_color = "black"; }
-    message.css('color', text_color);
+    new_message.css('color', text_color);
 
-    _('#message_space').append(message);
+    _('#message_space').append(new_message);
 
     if (time == null) { time = 5; }
 
     time = time * 1000
     setTimeout(function () {
-      message.remove();
+      new_message.remove();
     }, time);
 
   }
