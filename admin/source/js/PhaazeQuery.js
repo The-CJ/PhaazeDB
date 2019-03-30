@@ -14,6 +14,13 @@ _.post = function (url, parameter) {
   return new PhaazeRequest("POST", url, parameter);
 }
 
+_.create = function (DOMstring) {
+  var html = new DOMParser().parseFromString(DOMstring, 'text/html');
+  var PQ = new PhaazeQuery()
+  PQ.result = [html.body.firstChild];
+  return PQ;
+}
+
 class PhaazeRequest {
   constructor(method, url, parameter) {
     this.method = method;
