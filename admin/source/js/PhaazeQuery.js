@@ -21,23 +21,33 @@ class PhaazeRequest {
     this.parameter = parameter;
     this.status = null;
     this.request = null;
+    this.data = null;
+
+    this.functions_done = [];
+    this.functions_fail = [];
+    this.functions_always = [];
 
     this.call();
   }
   done(func) {
     if (typeof func == "undefined") { throw "1 argument 'func' required" }
+    if (this.status === null) { this.functions_done.push(func); return this; }
     if (200 <= this.status && this.status <= 299) { return this.always(func) }
     else {return this}
   }
   fail(func) {
     if (typeof func == "undefined") { throw "1 argument 'func' required" }
+    if (this.status === null) { this.functions_fail.push(func); return this; }
     if (400 <= this.status) { return this.always(func) }
     else {return this}
   }
   always(func) {
     if (typeof func == "undefined") { throw "1 argument 'func' required" }
-    console.log(this);
+    if (this.status === null) { this.functions_always.push(func); return this; }
 
+    var data = this.getData();
+    (async function(){func(data)})()
+    return this;
   }
   call() {
     var param = null;
@@ -70,6 +80,19 @@ class PhaazeRequest {
     r.onload = function () {
       this2.request = r;
       this2.status = r.status;
+      // execute stored call backs
+      while (1) {
+        let fd = this2.functions_done.shift();
+        if (fd) { this2.done(fd); } else { break; }
+      }
+      while (1) {
+        let ff = this2.functions_fail.shift();
+        if (ff) { this2.fail(ff); } else { break; }
+      }
+      while (1) {
+        let fa = this2.functions_fail.shift();
+        if (fa) { this2.fail(fa); } else { break; }
+      }
     }
 
     if (this.method == "GET") {
@@ -82,6 +105,10 @@ class PhaazeRequest {
       r.send(param);
     }
 
+  }
+  getData() {
+    if (this.data !== null) { return this.data; }
+    else { return "TODO: make return Object" }
   }
 
 }
