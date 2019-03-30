@@ -130,12 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // restore view
   DynamicURL.restoreWindow();
-  _.get("/")
-  .fail(function (a) { console.log("1"); })
-  .fail(function (a) { console.log("2"); })
-  .fail(function (a) { console.log(a); })
-  .fail(function (a) { console.log("4"); })
-  .fail(function (a) { console.log("5"); })
 })
 
 

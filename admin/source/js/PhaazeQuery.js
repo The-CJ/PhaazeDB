@@ -45,8 +45,8 @@ class PhaazeRequest {
     if (typeof func == "undefined") { throw "1 argument 'func' required" }
     if (this.status === null) { this.functions_always.push(func); return this; }
 
-    var data = this.getData();
-    (async function(){func(data)})()
+    var data = [this.getData(), this.request, this];
+    (async function(){func(data[0], data[1], data[2])})()
     return this;
   }
   call() {
@@ -90,8 +90,8 @@ class PhaazeRequest {
         if (ff) { this2.fail(ff); } else { break; }
       }
       while (1) {
-        let fa = this2.functions_fail.shift();
-        if (fa) { this2.fail(fa); } else { break; }
+        let fa = this2.functions_always.shift();
+        if (fa) { this2.always(fa); } else { break; }
       }
     }
 
@@ -108,7 +108,16 @@ class PhaazeRequest {
   }
   getData() {
     if (this.data !== null) { return this.data; }
-    else { return "TODO: make return Object" }
+    else {
+      var request_data;
+      if (this.request.getResponseHeader("Content-Type") == "Application/json") {
+        try { request_data = JSON.parse(this.request.response); }
+        catch (e) { request_data = this.request.response; }
+      }
+      else { request_data = this.request.response; }
+      this.data = request_data;
+      return request_data
+    }
   }
 
 }
