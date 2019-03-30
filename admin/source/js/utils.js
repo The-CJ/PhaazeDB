@@ -98,15 +98,18 @@ class DynamicURL {
     }
   }
 }
+DynamicURL = new DynamicURL();
 
 class Display {
   constructor() {
-
+    this.color_success = "#afa";
+    this.color_fail = "#fa3";
   }
 
   showModal(modal, hold_other_open=false) {
     if (!hold_other_open) { this.closeModal(); }
     _("[modal="+modal+"], [modal-close]").addClass("show");
+    _("[modal="+modal+"] input").removeClass("need-correction");
     DynamicURL.set("modal", modal);
   }
 
@@ -119,15 +122,36 @@ class Display {
     DynamicURL.set("modal", null);
   }
 
-}
+  message(msg) {
+    let content = msg['content'];
+    let color = msg['color'];
+    let text_color = msg['text'];
+    let time = msg['time'];
 
-var test;
+    let message = _.create('<div class="message text-center">');
+    message.text(content);
+
+    if (color == null) { color = "lightgrey"; }
+    message.css('background', color);
+
+    if (text_color == null) { text_color = "black"; }
+    message.css('color', text_color);
+
+    _('#message_space').append(message);
+
+    if (time == null) { time = 5; }
+
+    time = time * 1000
+    setTimeout(function () {
+      message.remove();
+    }, time);
+
+  }
+}
+Display = new Display();
+
 // events
 document.addEventListener("DOMContentLoaded", function () {
-  // init all classes
-  DynamicURL = new DynamicURL();
-  Display = new Display();
-
   // restore view
   DynamicURL.restoreWindow();
 })
