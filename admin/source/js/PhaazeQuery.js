@@ -284,4 +284,11 @@ class PhaazeQuery {
       node.parentNode.removeChild(node);
     }
   }
+
+  clone() {
+    for (let node of this.result) {
+      node = node.cloneNode(true);
+    }
+  }
+  
 }
