@@ -132,7 +132,12 @@ class PhaazeRequest {
 class PhaazeQuery {
   // yeah i actully name it PhaazeQuery, fight me REEEEEEEEEE
   constructor(query) {
-    this.result = document.querySelectorAll(query);
+    if (query instanceof HTMLElement) {
+      this.result = [query];
+    }
+    else {
+      this.result = document.querySelectorAll(query);
+    }
   }
 
   text(string) {
@@ -300,8 +305,29 @@ class PhaazeQuery {
     for (let node of this.result) {
       new_node_list.push( node.cloneNode(true) );
     }
-    this.result = new_node_list;
-    return this;
+    var nPQ = new PhaazeQuery();
+    nPQ.result = new_node_list;
+    return nPQ;
   }
 
+  // selector
+  find() {}
+
+  siblings(query) {
+    if (typeof query == "undefined") { query = "*" }
+    var new_node_list = [];
+    for (let node of this.result) {
+      let nl = node.parentNode.querySelectorAll(":scope > "+query);
+      for (let nn of nl) { new_node_list.push(nn) }
+    }
+    var finished_list = [];
+    for (var k in new_node_list) {
+      if ( this.result.indexOf(new_node_list[k]) < 0) { finished_list.push(new_node_list[k]) }
+    }
+    var nPQ = new PhaazeQuery();
+    nPQ.result = finished_list;
+    return nPQ;
+  }
+
+  closest() {}
 }
