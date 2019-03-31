@@ -253,12 +253,20 @@ class PhaazeQuery {
   }
 
   // collapse
-  collapse(state) {
+  collapse(state, options) {
+    // .collapse = Close
+    // .collapsing = Opening/Closing
+    // .collapse.show = Open
+
+    options = options || {};
+
     if (state == "show") { state = 1; }
     else if (state == "hide") { state = 2; }
     else { state = 3; }
 
     for (var node of this.result) {
+
+      if (node.classList.contains("collapsing");) { continue; }
       node.classList.add("collapse");
       node.eventlist = node.eventlist ? node.eventlist : [];
       // hide
@@ -278,6 +286,8 @@ class PhaazeQuery {
         node.classList.add('show');
         node.style.maxHeight = node.scrollHeight + "px";
       }
+
+
     }
     return this;
   }
