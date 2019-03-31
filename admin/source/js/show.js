@@ -52,3 +52,24 @@ function show_container(button_obj) {
   })
 
 }
+
+class Show {
+  constructor() {
+
+  }
+  open(html_btn) {
+    html_btn = _(html_btn);
+    if (html_btn.attribute('loaded') == "true") {
+      console.log(html_btn.siblings('.collapse'));
+      html_btn.siblings('.collapse').collapse('hide');
+      html_btn.attribute('loaded', 'false');
+      return ;
+    }
+
+    let path = html_btn.attribute('path');
+    // TODO: make stuff
+    console.log(path);
+  }
+}
+
+Show = new Show;

@@ -259,6 +259,7 @@ class PhaazeQuery {
     else { state = 3; }
 
     for (var node of this.result) {
+      node.classList.add("collapse");
       node.eventlist = node.eventlist ? node.eventlist : [];
       // hide
       if (state == 2 || ( state == 3 && node.style.maxHeight)) {
