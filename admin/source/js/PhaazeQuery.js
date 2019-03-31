@@ -154,6 +154,7 @@ class PhaazeQuery {
       else if (string_result.length == 0) { return null; }
       else { return string_result; }
     }
+    return this;
   }
 
   value(val) {
@@ -175,6 +176,7 @@ class PhaazeQuery {
       else if (val_result.length == 0) { return null; }
       else { return val_result; }
     }
+    return this;
   }
 
   attribute(name, val) {
@@ -202,6 +204,7 @@ class PhaazeQuery {
       else if (val_result.length == 0) { return null; }
       else { return val_result; }
     }
+    return this;
   }
 
   css(name, val) {
@@ -226,6 +229,7 @@ class PhaazeQuery {
       else if (val_result.length == 0) { return null; }
       else { return val_result; }
     }
+    return this;
   }
 
   // class managment
@@ -233,12 +237,14 @@ class PhaazeQuery {
     for (let node of this.result) {
       node.classList.add(cssclass);
     }
+    return this;
   }
 
   removeClass(cssclass) {
     for (let node of this.result) {
       node.classList.remove(cssclass);
     }
+    return this;
   }
 
   // collapse
@@ -267,6 +273,7 @@ class PhaazeQuery {
         node.style.maxHeight = node.scrollHeight + "px";
       }
     }
+    return this;
   }
 
   // object
@@ -277,18 +284,24 @@ class PhaazeQuery {
         node.appendChild(childNode);
       }
     }
+    return this;
   }
 
   remove() {
     for (let node of this.result) {
       node.parentNode.removeChild(node);
     }
+    this.result = [];
+    return this;
   }
 
   clone() {
+    var new_node_list = [];
     for (let node of this.result) {
-      node = node.cloneNode(true);
+      new_node_list.push( node.cloneNode(true) );
     }
+    this.result = new_node_list;
+    return this;
   }
-  
+
 }
