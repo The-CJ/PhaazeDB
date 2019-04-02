@@ -67,12 +67,24 @@
   color: white;
   width: 100%;
   margin: 0;
-  background: rgb(88, 88, 255);
+  background: #5858ff;
 }
-.supercontainer .content-list {
-  width: 100%;
+.content-list > .btn:last-child {
+  margin-bottom: 5px;
+}
+.supercontainer > .content-list {
+  padding-bottom: 1em;
+}
+.supercontainer > .content-list > .supercontainer {
   padding-right: 5%;
-  padding-bottom: 1vh;
+}
+.content-list > .btn {
+  border-top: 1px solid black;
+  width: 100%;
+  margin: 0;
+  background: #4242ff;
+  display: block;
+  color: white;
 }
 .supercontainer > button[loaded=true]::after {
   font-family: "Material Icons";
@@ -81,12 +93,6 @@
 .supercontainer > button:not([loaded=true])::after {
   font-family: "Material Icons";
   content: ' expand_more';
-}
-.container_button {
-  border-top: 1px solid black;
-  width: 100%;
-  margin: 0;
-  background: rgb(66, 66, 255);
 }
 
 /* message's */
