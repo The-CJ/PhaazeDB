@@ -286,47 +286,43 @@ class PhaazeQuery {
     // .collapse.show = Open
 
     options = options || {};
+    var default_collapse_time = 0.75;
 
     if (state == "show") { state = 1; }
     else if (state == "hide") { state = 2; }
     else { state = 3; }
 
+    function collapseEnd(collapsingNode, mode) {
+      collapsingNode.style.maxHeight = "";
+      collapsingNode.style.transitionDuration = "";
+      collapsingNode.style.transitionProperty = "";
+      collapsingNode.style.transitionTimingFunction = "";
+      collapsingNode.classList.remove('collapsing');
+      if (mode) { collapsingNode.classList.add('show'); }
+      else { collapsingNode.classList.remove('show'); }
+    };
+
     for (var node of this.result) {
 
       node.classList.add("collapse");
       if (node.classList.contains("collapsing")) { continue; }
-      node.eventlist = node.eventlist ? node.eventlist : [];
 
+      node.style.transitionDuration = (options.Duration || default_collapse_time)+"s";
+      node.style.transitionProperty = "max-height";
+      node.style.transitionTimingFunction = options.TimingFunction || "ease-out";
       // hide
-      if (state == 2 || ( state == 3 && node.style.maxHeight)) {
+      if (state == 2 || ( state == 3 && node.classList.contains("show"))) {
         node.style.maxHeight = getComputedStyle(node).height;
         node.classList.add('collapsing');
         node.style.maxHeight = "0px";
-        function transitionend() {
-          for (let e of node.eventlist) {
-            node.removeEventListener("transitionend", e);
-            node.style.maxHeight = "";
-          }
-          node.classList.remove('collapsing');
-          node.classList.remove('show');
-        };
-        node.addEventListener("transitionend", transitionend);
-        node.eventlist.push(transitionend);
+        setTimeout( function(){collapseEnd(node, 0)}, (options.Duration || default_collapse_time)*1000);
       }
       // show
       else {
         node.style.maxHeight = "0px";
         node.classList.add('collapsing');
         node.style.maxHeight = node.scrollHeight + "px";
-        function transitionend() {
-          for (let e of node.eventlist) {
-            node.style.maxHeight = "";
-            node.removeEventListener("transitionend", e);
-          }
-          node.classList.remove('collapsing');
-          node.classList.add('show');
-        };
-        node.addEventListener("transitionend", transitionend);
+        setTimeout( function(){collapseEnd(node, 1)}, (options.Duration || default_collapse_time)*1000);
       }
 
     }

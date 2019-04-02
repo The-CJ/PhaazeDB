@@ -73,7 +73,7 @@
   margin-bottom: 5px;
 }
 .supercontainer > .content-list {
-  padding-bottom: 1em;
+  /* padding-bottom: 1em; */
 }
 .supercontainer > .content-list > .supercontainer {
   padding-right: 5%;

@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // restore view
   DynamicURL.restoreWindow();
   setInterval(function () {
-    console.log(_("#container_select > .supercontainer > .collapse").result[0].scrollHeight);
+    console.log(getComputedStyle(_("#main_menu").result[0]).display);
   }, 10);
 })
 
