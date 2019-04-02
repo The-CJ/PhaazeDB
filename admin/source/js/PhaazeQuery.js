@@ -293,16 +293,21 @@ class PhaazeQuery {
 
     for (var node of this.result) {
 
-      if (node.classList.contains("collapsing")) { continue; }
       node.classList.add("collapse");
+      if (node.classList.contains("collapsing")) { continue; }
       node.eventlist = node.eventlist ? node.eventlist : [];
+
       // hide
       if (state == 2 || ( state == 3 && node.style.maxHeight)) {
-        node.style.maxHeight = null;
+        node.style.maxHeight = getComputedStyle(node).height;
+        node.classList.add('collapsing');
+        node.style.maxHeight = "0px";
         function transitionend() {
           for (let e of node.eventlist) {
             node.removeEventListener("transitionend", e);
+            node.style.maxHeight = "";
           }
+          node.classList.remove('collapsing');
           node.classList.remove('show');
         };
         node.addEventListener("transitionend", transitionend);
@@ -310,10 +315,19 @@ class PhaazeQuery {
       }
       // show
       else {
-        node.classList.add('show');
+        node.style.maxHeight = "0px";
+        node.classList.add('collapsing');
         node.style.maxHeight = node.scrollHeight + "px";
+        function transitionend() {
+          for (let e of node.eventlist) {
+            node.style.maxHeight = "";
+            node.removeEventListener("transitionend", e);
+          }
+          node.classList.remove('collapsing');
+          node.classList.add('show');
+        };
+        node.addEventListener("transitionend", transitionend);
       }
-
 
     }
     return this;

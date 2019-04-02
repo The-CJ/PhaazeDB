@@ -81,9 +81,11 @@
 .collapse {
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  max-height: 0;
   display: none;
 }
+.collapse.collapsing {
+  display: block;
+}
 .collapse.show {
-  display: unset;
+  display: block;
 }
