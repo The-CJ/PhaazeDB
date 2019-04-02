@@ -259,16 +259,22 @@ class PhaazeQuery {
   }
 
   // class managment
-  addClass(cssclass) {
+  addClass(cssclasses) {
     for (let node of this.result) {
-      node.classList.add(cssclass);
+      if (typeof cssclasses == "string") { cssclasses = cssclasses.split(" "); }
+      for (let cssclass of cssclasses) {
+        node.classList.add(cssclass);
+      }
     }
     return this;
   }
 
-  removeClass(cssclass) {
+  removeClass(cssclasses) {
     for (let node of this.result) {
-      node.classList.remove(cssclass);
+      if (typeof cssclasses == "string") { cssclasses = cssclasses.split(" "); }
+      for (let cssclass of cssclasses) {
+        node.classList.remove(cssclass);
+      }
     }
     return this;
   }
