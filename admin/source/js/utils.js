@@ -102,8 +102,9 @@ DynamicURL = new DynamicURL();
 
 class Display {
   constructor() {
-    this.color_success = "#afa";
-    this.color_fail = "#fa3";
+    this.color_fail = "#faa631";
+    this.color_warn = "#e9a100";
+    this.color_success = "#74ff74";
   }
 
   showModal(modal, hold_other_open=false) {
@@ -154,6 +155,9 @@ Display = new Display();
 document.addEventListener("DOMContentLoaded", function () {
   // restore view
   DynamicURL.restoreWindow();
+  setInterval(function () {
+    console.log(_("#container_select > .supercontainer > .collapse").result[0].scrollHeight);
+  }, 10);
 })
 
 

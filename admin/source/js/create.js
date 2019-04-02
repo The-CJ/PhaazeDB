@@ -11,12 +11,12 @@ class Create {
     this.execute(new_name);
   }
   execute(name) {
-    let d = {
+    let r = {
       'action': 'create',
       'token': _('#db_token').value(),
       'name': name
     };
-    _.post('/', d)
+    _.post('/', r)
     .done(function (data) {
       Display.closeModal();
       Display.message( {content:"Successfull created '"+name+"'", color:Display.color_success} );
