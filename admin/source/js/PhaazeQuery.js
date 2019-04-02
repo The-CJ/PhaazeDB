@@ -237,6 +237,27 @@ class PhaazeQuery {
     return this;
   }
 
+  html(content) {
+    let html_result = [];
+    let mode = 0; // set mode
+    if (typeof content == "undefined") {
+      mode = 1; //get mode
+    }
+    for (let node of this.result) {
+      if (mode) {
+        html_result.push(node.innerHTML );
+      } else {
+        node.innerHTML  = content;
+      }
+    }
+    if (mode) {
+      if (html_result.length == 1) { return html_result[0]; }
+      else if (html_result.length == 0) { return null; }
+      else { return html_result; }
+    }
+    return this;
+  }
+
   // class managment
   addClass(cssclass) {
     for (let node of this.result) {
@@ -266,7 +287,7 @@ class PhaazeQuery {
 
     for (var node of this.result) {
 
-      if (node.classList.contains("collapsing");) { continue; }
+      if (node.classList.contains("collapsing")) { continue; }
       node.classList.add("collapse");
       node.eventlist = node.eventlist ? node.eventlist : [];
       // hide
