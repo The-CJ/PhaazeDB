@@ -1,29 +1,30 @@
-function start_container_drop() {
-  $('#container_drop_modal').find('[name=container]').val( last_selected_container );
-  $('#container_drop_modal').find('.need_correction').removeClass('need_correction');
-  $('#container_drop_modal').modal('show');
-  curl['modal'] = 'container_drop';
-  update_curl();
+class Drop {
+  constructor() {
+
+  }
+  start() {
+    var field = _("[modal='drop'] [name=container]");
+    let container_name = field.value();
+    if (container_name == false) {
+      field.addClass("need-correction"); return;
+    }
+    this.execute(container_name);
+  }
+  execute(name) {
+    let r = {
+      'action': 'drop',
+      'token': _('#db_token').value(),
+      'name': name
+    };
+    _.post('/', r)
+    .done(function (data) {
+      Display.closeModal();
+      Display.message( {content:"Successfull dropped '"+name+"'", color:Display.color_success} );
+    })
+    .fail(function (data) {
+      Display.message({content:data.msg, color:Display.color_fail});
+    })
+  }
 }
 
-function modal_drop() {
-  let name = $('#container_drop_modal [name=container]').val();
-  return drop(name);
-}
-function drop(name) {
-  let d = {
-    'action': 'drop',
-    'token': $('#db_token').val(),
-    'name': name
-  };
-  $.post('/', d)
-  .done(function (data) {
-    $('#container_drop_modal').modal('hide');
-    display_message({content:"Successfull dropped '"+name+"'", color:"#afa"});
-  })
-  .fail(function (data) {
-    data = data.responseJSON ? data.responseJSON : {};
-    display_message({content:data.msg, color:"#fa3"});
-  })
-
-}
+Drop = new Drop();
