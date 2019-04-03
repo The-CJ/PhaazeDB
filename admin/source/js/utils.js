@@ -155,9 +155,6 @@ Display = new Display();
 document.addEventListener("DOMContentLoaded", function () {
   // restore view
   DynamicURL.restoreWindow();
-  setInterval(function () {
-    console.log(getComputedStyle(_("#main_menu").result[0]).display);
-  }, 10);
 })
 
 

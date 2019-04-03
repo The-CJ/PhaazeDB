@@ -286,7 +286,7 @@ class PhaazeQuery {
     // .collapse.show = Open
 
     options = options || {};
-    var default_collapse_time = 0.75;
+    var default_collapse_time = 0.3;
 
     if (state == "show") { state = 1; }
     else if (state == "hide") { state = 2; }

@@ -18,7 +18,7 @@ class Show {
       "path":path
     };
     var ShowO = this;
-    _.get("/", r)
+    _.post("/", r)
     .done(function (data) {
       ShowO.build(html_btn, data);
     })
