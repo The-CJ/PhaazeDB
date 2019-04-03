@@ -20,17 +20,9 @@ function select(r, preview=false) {
   $.get("/", request)
   .done(function (data) {
 
-    curl['container'] = request["of"];
-    curl['where'] = request["where"];
-    curl['limit'] = request["limit"];
-    curl['offset'] = request["offset"];
-    update_curl();
-
     last_selected_container = request["of"];
     $('input[name=into], input[name=of]').val(last_selected_container);
     $('input[name=where]').val(r.where);
-    $('#current_container').text(last_selected_container);
-    $('#total_entrys').text(data.total);
     if (preview == false) {
       display_message( {content:"Select: Returned: "+data.hits+" entry(s)", color:"#ccc"} );
     }
@@ -52,38 +44,6 @@ function select(r, preview=false) {
       return display_message( {content:"Unknown Server Error", color:"#f00"} );
     }
   })
-}
-
-function start_select() {
-  if ($('#select_modal').is(':visible')) {
-    $('#select_modal').collapse('hide');
-    return ;
-  }
-  $('#modal-space > .collapse').collapse('hide');
-  $('#select_modal').find('[name=of]').val( last_selected_container );
-  $('#select_modal').find('.need_correction').removeClass('need_correction');
-  $('#select_modal').collapse('show');
-  curl['modal'] = 'select';
-  update_curl();
-
-}
-
-function modal_select() {
-  let col_modal = $('#select_modal');
-  let r = {};
-
-  r['of'] = col_modal.find('[name=of]').val();
-  r['where'] = col_modal.find('[name=where]').val();
-  r['limit'] = col_modal.find('[name=limit]').val();
-  r['offset'] = col_modal.find('[name=offset]').val();
-
-  return select(r);
-}
-
-function preview_select(btn) {
-  btn = $(btn);
-  let table_name = btn.attr('path');
-  return select( {"of":table_name, "limit":10}, true );
 }
 
 function fill_entrys(data_list) {
@@ -180,3 +140,75 @@ function generate_remove(key) {
   ob.append( $('<input disabled type="text">').val('Remove') );
   return ob;
 }
+
+class Select {
+  constructor() {
+
+  }
+
+  start() {
+    let request = {};
+
+    request["of"] = _("[modal='select'] [name=of]").value();
+    request["where"] = _("[modal='select'] [name=where]").value();
+    request["limit"] = _("[modal='select'] [name=limit]").value();
+    request["offset"] = _("[modal='select'] [name=offset]").value();
+
+    return this.execute(request);
+  }
+
+  execute(request, preview=false) {
+    if (request == null) { request = {}; }
+    let r = {
+      "action": "select",
+      "token": _('#db_token').value(),
+      "of": request['of']
+    };
+    if ( !isEmpty(request['limit']) ) { r['limit'] = request['limit']; }
+    if ( !isEmpty(request['offset']) ) { r['offset'] = request['offset']; }
+    if ( !isEmpty(request['where']) ) { r['where'] = request['where']; }
+
+    _.post("/", r)
+    .done(function (data) {
+      DynamicURL.set('container', request['of'], false);
+      DynamicURL.set('limit', request['limit'], false);
+      DynamicURL.set('offset', request['offset'], false);
+      DynamicURL.set('where', request['where'], false);
+      DynamicURL.update();
+
+      _('#current_container').text(request['of']);
+      _('#total_entrys').text(data.total);
+
+      if (preview == false) {
+        Display.message( {content:"Select: Returned: "+data.hits+" entry(s)", color:Display.color_neutral} );
+      }
+      if (data.hits == 0) {
+        _('#result_space').html('<div class="center-item-row" style="height:100%;"><div class="no-results"></div></div>');
+        return ;
+      }
+      return this.build(data.data);
+    })
+    .fail(function (data) {
+      if (data.status == "error") {
+        if (data.msg == "unauthorised") {
+          return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+        }
+        return Display.message( {content:data.msg, color:Display.color_fail} );
+      }
+      else {
+        return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+      }
+    })
+
+  }
+
+  preview(btn) {
+    let container_name = _(btn).attribute('path');
+    return this.execute({"of":container_name, "limit":10}, true);
+  }
+
+  build(data) {
+    console.log(data);
+  }
+}
+Select = new Select();
