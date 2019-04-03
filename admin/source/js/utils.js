@@ -86,15 +86,14 @@ class DynamicURL {
       _("#current_container").text( this.values.container );
       _('[name=of], [name=into], [name=container]').value(this.values.container)
     }
-    return
-    if (curl.limit != null) {
-      $('[name=limit]').attr('value',curl.limit).val(curl.limit);
+    if (this.values.limit != null) {
+      _('[name=limit]').value(this.values.limit);
     }
-    if (curl.offset != null) {
-      $('[name=offset]').attr('value',curl.offset).val(curl.offset);
+    if (this.values.offset != null) {
+      _('[name=offset]').value(this.values.offset);
     }
-    if (curl.where != null) {
-      $('[name=where]').attr('value',curl.where).val(curl.where);
+    if (this.values.where != null) {
+      _('[name=where]').value(this.values.where);
     }
   }
 }
@@ -105,6 +104,7 @@ class Display {
     this.color_fail = "#faa631";
     this.color_warn = "#e9a100";
     this.color_success = "#74ff74";
+    this.color_neutral = "#c2c2c2";
   }
 
   showModal(modal, hold_other_open=false) {
