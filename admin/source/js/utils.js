@@ -3,7 +3,6 @@ var last_selected_container = "";
 var curl = {};
 
 // global functions
-
 function isEmpty(o) {
   // null
   if (o == null) { return true; }
@@ -18,6 +17,20 @@ function isEmpty(o) {
     }
   }
   return true;
+}
+
+function getValueInRightType(value, type) {
+  if (typeof type == "undefined") { throw "2 arguments 'value' and 'type' required" }
+
+  if (type == "string") { return String(value); }
+  else if (type == "number") { return Number(value); }
+  else if (type == "bool") { return Boolean(value); }
+  else if (type == "none") { return null; }
+  else if (type == "object") {
+    try { return JSON.parse(value); }
+    catch (e) { throw "invalid json object"; }
+  }
+  else { throw "unknown type for value" }
 }
 
 // utils classes
@@ -165,9 +178,9 @@ class Template {
     let inputs = _.create('<div class="col center-item-row">');
     let controlls = _.create('<div class="center-item-row">');
 
-    inputs.append( _.create('<input key class="col" type="text" placeholder="Key">') );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Key">') );
     inputs.append( _.create('<span>').text("-") );
-    inputs.append( _.create('<input value class="col" type="text" placeholder="Value">') );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Value">') );
 
     let button = _.create('<button type="button" class="btn orange">');
     button.text("X");
@@ -379,35 +392,6 @@ function add_key_value_field(into) {
 }
 
 function get_value_in_right_type(value, type, key) {
-  if (type == "string") {
-    return String(value);
-  }
-  else if (type == "number") {
-    return Number(value);
-  }
-  else if (type == "bool") {
-    return Boolean(value);
-  }
-  else if (type == "none") {
-    return null;
-  }
-  else if (type == "object") {
-    try {
-      let obj = JSON.parse(value);
-      return obj;
-    }
-    catch (e) {
-      var inputfield = $('.modal:visible input').filter(function () {
-          return $(this).val() == value && $(this).closest('.field_key_value').find('select').val() == 'object';
-      });
-      inputfield.addClass('need_correction');
-      display_message({content:"invalid json object", color:"orange"});
-      throw "invalid json object";
-    }
-  }
-  else {
-    alert(value)
-  }
 }
 
 function update_curl() { //REMOVE
