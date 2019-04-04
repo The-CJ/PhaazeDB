@@ -97,6 +97,7 @@ class DynamicURL {
     }
   }
 }
+
 DynamicURL = new DynamicURL();
 
 class Display {
@@ -149,7 +150,46 @@ class Display {
 
   }
 }
+
 Display = new Display();
+
+class Template {
+  constructor() {
+
+  }
+
+  getKeyValueField(key, value, type) {
+    let element = _.create('<div class="center-item-row key-value-field"></div>');
+    let inputs = _.create('<div class="col center-item-row">');
+    let controlls = _.create('<div class="center-item-row">');
+
+    inputs.append( _.create('<input key class="col" type="text" placeholder="Key">') );
+    inputs.append( _.create('<span>').text("-") );
+    inputs.append( _.create('<input value class="col" type="text" placeholder="Value">') );
+
+    let button = _.create('<button type="button" class="btn orange">');
+    button.text("X");
+    button.attribute('onclick', '_(this).closest(".key-value-field").remove()');
+    controlls.append( _.create('<div class="col">').append( this.getTypeSelect(type) ) );
+    controlls.append( _.create('<div class="col">').append( button ) );
+
+    element.append(inputs);
+    element.append(controlls);
+    return element;
+  }
+
+  getTypeSelect() {
+    let ts = _.create('<select class="btn" field-type="string" onchange="alert(\'TODO change typoe\')">');
+    ts.append( _.create('<option value="string">String</option>') );
+    ts.append( _.create('<option value="number">Number</option>') );
+    ts.append( _.create('<option value="bool">Bool</option>') );
+    ts.append( _.create('<option value="object">Object</option>') );
+    ts.append( _.create('<option value="none">None/null</option>') );
+    return ts;
+  }
+}
+
+Template = new Template();
 
 // events
 document.addEventListener("DOMContentLoaded", function () {

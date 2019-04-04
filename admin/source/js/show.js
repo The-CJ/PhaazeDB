@@ -2,6 +2,7 @@ class Show {
   constructor() {
     this.last = "";
   }
+
   open(html_btn) {
     html_btn = _(html_btn);
 
