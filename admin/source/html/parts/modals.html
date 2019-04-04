@@ -102,7 +102,7 @@
   <div modal="insert" class="modal">
     <div class="modal-content">
 
-      <form onsubmit="event.preventDefault();alert('TODO: insert')" method="post" >
+      <form onsubmit="event.preventDefault();Insert.start()" method="post" >
         <div class="modal-header green dark text-white">
           <div class="center-item-row">
             <h2>Insert</h2>
@@ -118,9 +118,12 @@
             <span>Into container:</span>
             <input type="text" name="into" placeholder="Container name">
           </div>
-          <button type="button" class="btn green" onclick="alert('TODO: add field')">Add field</button>
-          <button type="button" class="btn orange" onclick="alert('TODO: clear')">Clear all fields</button>
-          <div class="field_space">
+          <div class="center-item-row">
+            <div class="col"><button type="button" class="btn btn-block green" onclick="Insert.modalAddField()">Add field</button></div>
+            <div class="col"><button type="button" class="btn btn-block orange" onclick="Insert.modalClearFields()">Clear all fields</button></div>
+          </div>
+
+          <div insert-fields>
             <!-- filled with key - value pairs -->
           </div>
         </div>

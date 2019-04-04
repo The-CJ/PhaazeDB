@@ -124,6 +124,10 @@ class Display {
     DynamicURL.set("modal", null);
   }
 
+  changeType(obj, value) {
+    _(obj).attribute("field-type", value);
+  }
+
   message(msg) {
     let content = msg['content'];
     let color = msg['color'];
@@ -179,7 +183,7 @@ class Template {
   }
 
   getTypeSelect() {
-    let ts = _.create('<select class="btn" field-type="string" onchange="alert(\'TODO change typoe\')">');
+    let ts = _.create('<select class="btn" field-type="string" onchange="Display.changeType(this, this.value)">');
     ts.append( _.create('<option value="string">String</option>') );
     ts.append( _.create('<option value="number">Number</option>') );
     ts.append( _.create('<option value="bool">Bool</option>') );
@@ -375,12 +379,6 @@ function add_key_value_field(into) {
   field.append(controlls);
 
   field_space.append(field);
-}
-
-function update_typeof_color(obj, val) {
-  let new_status = val;
-  obj.removeClass('typeof_bool typeof_none typeof_number typeof_object typeof_string');
-  obj.addClass('typeof_'+val)
 }
 
 function get_value_in_right_type(value, type, key) {
