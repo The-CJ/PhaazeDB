@@ -337,7 +337,7 @@ class PhaazeQuery {
         node.appendChild(cloneAppends ? childNode.cloneNode(true) : childNode );
       }
     }
-    return this;
+    return childs;
   }
 
   remove() {
