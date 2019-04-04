@@ -358,7 +358,7 @@ class PhaazeQuery {
     return nPQ;
   }
 
-  // selector
+  // relational selector
   find(query) {
     if (typeof query == "undefined") { query = "*" }
     var new_node_list = [];
@@ -366,12 +366,20 @@ class PhaazeQuery {
       let nl = node.querySelectorAll(query);
       for (let nn of nl) { new_node_list.push(nn) }
     }
-    var finished_list = [];
-    for (var k in new_node_list) {
-      if ( this.result.indexOf(new_node_list[k]) < 0) { finished_list.push(new_node_list[k]) }
+    var nPQ = new PhaazeQuery();
+    nPQ.result = new_node_list;
+    return nPQ;
+  }
+
+  children(query) {
+    if (typeof query == "undefined") { query = "*" }
+    var new_node_list = [];
+    for (let node of this.result) {
+      let nl = node.querySelectorAll(":scope > "+query);
+      for (let nn of nl) { new_node_list.push(nn) }
     }
     var nPQ = new PhaazeQuery();
-    nPQ.result = finished_list;
+    nPQ.result = new_node_list;
     return nPQ;
   }
 
@@ -391,5 +399,22 @@ class PhaazeQuery {
     return nPQ;
   }
 
-  closest() {}
+  parent() {
+    var new_node_list = [];
+    for (let node of this.result) { new_node_list.push(node.parentNode); }
+    var nPQ = new PhaazeQuery();
+    nPQ.result = new_node_list;
+    return nPQ;
+  }
+
+  closest(query) {
+    if (typeof query == "undefined") { query = "*" }
+    var new_node_list = [];
+    for (let node of this.result) {
+      new_node_list.push( node.closest(query) );
+    }
+    var nPQ = new PhaazeQuery();
+    nPQ.result = new_node_list;
+    return nPQ;
+  }
 }
