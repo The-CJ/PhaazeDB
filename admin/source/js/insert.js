@@ -56,22 +56,51 @@ function modal_insert() {
 
 }
 
-function start_insert() {
-  $('#insert_modal').find('[name=into]').val( last_selected_container )
-  $('#insert_modal').find('.need_correction').removeClass('need_correction');
-  $('#insert_modal').modal('show');
-  curl['modal'] = 'insert';
-  update_curl();
+class Insert {
+  constructor() {
+    this.last = "";
+  }
 
+  modalAddField() {
+    let n = Template.getKeyValueField();
+    _('[modal=insert] [insert-fields]').append(n);
+  }
+
+  modalClearFields() {
+    _('[modal=insert] [insert-fields]').html("");
+  }
+
+  start() {
+    let modal = _('[modal=insert]');
+    let container = modal.find('[name=into]').value();
+    if (isEmpty(container)) { return modal.find('[name=into]').addClass('need-correction'); }
+
+    let new_object = {};
+
+    for (let field of modal.find(".key-value-field").result) {
+      field = _(field);
+      let key = field.find("[placeholder=Key]").value();
+      let value = field.find("[placeholder=Value]").value();
+      let type = field.find("select").value();
+
+      if (isEmpty(key)) {
+        field.find("[placeholder=Key]").addClass('need-correction');
+        return Display.message({content:"no key can be empty", color:Display.color_warn});
+      }
+
+      try { new_object[key] = getValueInRightType(value, type); }
+      catch (e) {
+        Display.message( {content:"invalid json object", color:Display.color_warn} );
+        return field.find("[placeholder=Value]").addClass("need-correction");
+      }
+    }
+    return this.execute({"into":container, "content": new_object});
+  }
+
+  execute(request) {
+    console.log(request);
+
+  }
 }
 
-function get_select_with_options() {
-  let x = $('<select class="btn typeof_string" onchange="update_typeof_color($(this), this.value)">');
-  x.append( $('<option value="string">String</option>') );
-  x.append( $('<option value="number">Number</option>') );
-  x.append( $('<option value="bool">Bool</option>') );
-  x.append( $('<option value="object">Object</option>') );
-  x.append( $('<option value="none">None/null</option>') );
-  return x;
-}
-
+Insert = new Insert();
