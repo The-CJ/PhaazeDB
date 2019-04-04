@@ -165,5 +165,4 @@ class Select {
     console.log(data);
   }
 }
-
 Select = new Select();

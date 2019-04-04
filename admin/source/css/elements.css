@@ -98,6 +98,7 @@
 .key-value-field input,
 .key-value-field select,
 .key-value-field button {
+  transition-duration: 0.15s;
   height: 2em;
 }
 

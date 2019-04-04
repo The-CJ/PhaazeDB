@@ -66,5 +66,4 @@ class Show {
   }
 
 }
-
 Show = new Show;

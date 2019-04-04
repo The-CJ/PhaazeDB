@@ -97,7 +97,6 @@ class DynamicURL {
     }
   }
 }
-
 DynamicURL = new DynamicURL();
 
 class Display {
@@ -154,7 +153,6 @@ class Display {
 
   }
 }
-
 Display = new Display();
 
 class Template {
@@ -192,7 +190,6 @@ class Template {
     return ts;
   }
 }
-
 Template = new Template();
 
 // events

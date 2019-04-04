@@ -27,5 +27,4 @@ class Create {
     })
   }
 }
-
 Create = new Create();

@@ -27,5 +27,4 @@ class Drop {
     })
   }
 }
-
 Drop = new Drop();
