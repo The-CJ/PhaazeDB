@@ -122,7 +122,7 @@ class Select {
 
     this.last = request['of'];
 
-    _.post("/", r)
+    _.post("/", JSON.stringify(r))
     .done(function (data) {
       DynamicURL.set('container', request['of'], false);
       DynamicURL.set('limit', request['limit'], false);

@@ -20,7 +20,7 @@ class Show {
     };
     this.last = path;
     var ShowO = this;
-    _.post("/", r)
+    _.post("/", JSON.stringify(r))
     .done(function (data) {
       ShowO.build(html_btn, data);
     })

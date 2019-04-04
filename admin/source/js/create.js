@@ -17,7 +17,7 @@ class Create {
       'name': name
     };
     this.last = name;
-    _.post('/', r)
+    _.post('/', JSON.stringify(r))
     .done(function (data) {
       Display.closeModal();
       Display.message( {content:"Successfull created '"+name+"'", color:Display.color_success} );
