@@ -128,25 +128,25 @@
 }
 
 /* result colors */
-.typeof_id{
+[field-type=id]{
   background: #4285F4;
 }
-.typeof_none{
+[field-type=none]{
   background: #9e9e9e;
 }
-.typeof_string{
+[field-type=string]{
   background: #4CAF50;
 }
-.typeof_number{
+[field-type=number]{
   background: #F44336;
 }
-.typeof_bool{
+[field-type=bool]{
   background: #3F729B;
 }
-.typeof_object{
+[field-type=object]{
   background: #e48800;
 }
-.typeof_remove{
+[field-type=remove]{
   background: #323232;
 }
 
