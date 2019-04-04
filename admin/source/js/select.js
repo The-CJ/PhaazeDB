@@ -95,7 +95,7 @@ function generate_remove(key) {
 
 class Select {
   constructor() {
-
+    this.last = "";
   }
 
   start() {
@@ -119,6 +119,8 @@ class Select {
     if ( !isEmpty(request['limit']) ) { r['limit'] = request['limit']; }
     if ( !isEmpty(request['offset']) ) { r['offset'] = request['offset']; }
     if ( !isEmpty(request['where']) ) { r['where'] = request['where']; }
+
+    this.last = request['of'];
 
     _.post("/", r)
     .done(function (data) {
@@ -163,4 +165,5 @@ class Select {
     console.log(data);
   }
 }
+
 Select = new Select();

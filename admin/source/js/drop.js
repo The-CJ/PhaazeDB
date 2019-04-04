@@ -1,6 +1,6 @@
 class Drop {
   constructor() {
-
+    this.last = "";
   }
   start() {
     var field = _("[modal='drop'] [name=container]");
@@ -16,6 +16,7 @@ class Drop {
       'token': _('#db_token').value(),
       'name': name
     };
+    this.last = name;
     _.post('/', r)
     .done(function (data) {
       Display.closeModal();

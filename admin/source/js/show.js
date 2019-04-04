@@ -1,11 +1,11 @@
 class Show {
   constructor() {
-
+    this.last = "";
   }
   open(html_btn) {
     html_btn = _(html_btn);
+
     if (html_btn.attribute('loaded') == "true") {
-      console.log(html_btn.siblings('.collapse'));
       html_btn.siblings('.collapse').collapse('hide');
       html_btn.attribute('loaded', 'false');
       return ;
@@ -17,6 +17,7 @@ class Show {
       "token":_('#db_token').value(),
       "path":path
     };
+    this.last = path;
     var ShowO = this;
     _.post("/", r)
     .done(function (data) {
