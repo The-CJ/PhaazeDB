@@ -90,24 +90,34 @@ class DynamicURL {
     // restores a window from URL parameters
 
     // reopen modals
-    if (this.values.modal != null) {
+    if ( !isEmpty(this.values.modal) ) {
       Display.showModal(this.values.modal);
     }
 
     // set last viewed container
-    if (this.values.container != null) {
+    if ( !isEmpty(this.values.container) ) {
       _("#current_container").text( this.values.container );
-      _('[name=of], [name=into], [name=container]').value(this.values.container)
+      _('[name=of], [name=into], [name=container]').value(this.values.container);
+
+
+      let r = {
+        "of":this.values.container,
+        "where":this.values.limit,
+        "offset":this.values.offset,
+        "limit":this.values.limit
+      };
+      Select.execute( r, true );
     }
-    if (this.values.limit != null) {
+    if ( !isEmpty(this.values.limit) ) {
       _('[name=limit]').value(this.values.limit);
     }
-    if (this.values.offset != null) {
+    if ( !isEmpty(this.values.offset) ) {
       _('[name=offset]').value(this.values.offset);
     }
-    if (this.values.where != null) {
+    if ( !isEmpty(this.values.where) ) {
       _('[name=where]').value(this.values.where);
     }
+
   }
 }
 DynamicURL = new DynamicURL();
@@ -389,75 +399,4 @@ function add_key_value_field(into) {
   field.append(controlls);
 
   field_space.append(field);
-}
-
-function get_value_in_right_type(value, type, key) {
-}
-
-function update_curl() { //REMOVE
-
-  let ucurl = "/admin";
-  let pre = "?";
-
-  for (var key in curl) {
-    let value = curl[key];
-    if (value == null) {
-      continue;
-    }
-
-    ucurl = ucurl + pre + key + "=" + value;
-    pre = "&";
-
-  }
-  window.history.pushState('obj', 'newtitle', ucurl);
-
-}
-
-function extract_curl() { //REMOVE
-
-  let ncurl = {};
-
-  ncurl['container'] = getParameter('container');
-  ncurl['where'] = getParameter('where');
-  ncurl['limit'] = getParameter('limit');
-  ncurl['offset'] = getParameter('offset');
-  ncurl['modal'] = getParameter('modal');
-
-  curl = ncurl;
-}
-
-function getParameter(name) { //REMOVE
-    let url = window.location.href;
-    name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
-
-function set_window_from_url() { //REMOVE
-
-  if (curl.modal != null) {
-    if (curl.modal == "select") {
-      $('#'+curl.modal+'_modal').collapse('show');
-    }
-    else {
-      $('#'+curl.modal+'_modal').modal('show');
-    }
-  }
-  if (curl.container != null) {
-    $('[name=of], [name=into], [name=container]').attr('value',curl.container).val(curl.container);
-    $('#current_container').text(curl.container);
-  }
-  if (curl.limit != null) {
-    $('[name=limit]').attr('value',curl.limit).val(curl.limit);
-  }
-  if (curl.offset != null) {
-    $('[name=offset]').attr('value',curl.offset).val(curl.offset);
-  }
-  if (curl.where != null) {
-    $('[name=where]').attr('value',curl.where).val(curl.where);
-  }
-
 }
