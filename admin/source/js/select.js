@@ -1,7 +1,7 @@
 function fill_entrys(data_list) {
   var result_space = $('#result_space').html('');
   for (entry of data_list) {
-    var row = $('<div class="center-item-row result_row">');
+    var row = $('<div class="center-item-row result-row">');
     let id_col = generate_id(entry['id']);
     row.append(id_col);
     delete entry['id'];
@@ -41,12 +41,6 @@ function fill_entrys(data_list) {
 
 }
 
-function generate_id(id) {
-  let ob = $('<div class="result_col typeof_id"></div>');
-  ob.append( $('<div class="key">').text("id") );
-  ob.append( $('<input readonly type="number">').val(id) );
-  return ob;
-}
 function generate_none(key) {
   let ob = $('<div class="result_col typeof_none" ondblclick="edit_select(this)"></div>');
   ob.attr('object_type', 'none');
@@ -109,6 +103,11 @@ class Select {
     return this.execute(request);
   }
 
+  preview(btn) {
+    let container_name = _(btn).attribute('path');
+    return this.execute({"of":container_name, "limit":10}, true);
+  }
+
   execute(request, preview=false) {
     if (request == null) { request = {}; }
     let r = {
@@ -122,6 +121,7 @@ class Select {
 
     this.last = request['of'];
 
+    var SelectO = this;
     _.post("/", JSON.stringify(r))
     .done(function (data) {
       DynamicURL.set('container', request['of'], false);
@@ -140,7 +140,7 @@ class Select {
         _('#result_space').html('<div class="center-item-row" style="height:100%;"><div class="no-results"></div></div>');
         return ;
       }
-      return this.build(data.data);
+      return SelectO.build(data.data);
     })
     .fail(function (data) {
       if (data.status == "error") {
@@ -156,12 +156,15 @@ class Select {
 
   }
 
-  preview(btn) {
-    let container_name = _(btn).attribute('path');
-    return this.execute({"of":container_name, "limit":10}, true);
-  }
-
   build(data) {
+    var result_space = _('#result_space').html('');
+    for (var entry of data) {
+      var row = _.create('<div class="center-item-row result-row">');
+      row.append( Template.generateResultColID(entry['id']) );
+
+
+      result_space.append(row);
+    }
     console.log(data);
   }
 }

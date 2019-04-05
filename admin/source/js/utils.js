@@ -212,6 +212,14 @@ class Template {
     ts.append( _.create('<option value="none">None/null</option>') );
     return ts;
   }
+
+  generateResultColID(value) {
+    let obj = _.create('<div class="result-col" field-type="id"></div>');
+    obj.append( _.create('<div class="key">').text("ID") );
+    obj.append( _.create('<input class="value" readonly type="number">').value(value) );
+    return obj;
+  }
+
 }
 Template = new Template();
 

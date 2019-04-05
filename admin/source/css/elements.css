@@ -161,41 +161,41 @@
   background: #323232;
 }
 
-/* result entry col's */
-.result_row {
+/* result entry's */
+.result-row {
   height: 8.5%;
   margin: 3px;
 }
-.result_col {
+.result-col {
   width: fit-content;
   color: white;
   height: 100%;
   border: 1px solid black;
-  margin: 3px;
-  padding: 4px;
   position: relative;
   transition: 0.3s;
 }
-.result_col div.key {
+.result-col > .key {
   text-align: left;
   height: 50%;
+  display: flex;
+  align-items: center;
+  position: relative;
 }
-.result_col input[type=text], .result_col input[type=number], .result_col .switch, .result_col textarea {
+.result-col > .value {
   text-align: left;
+  height: 50%;
   padding: 0;
   margin: 0;
+  width: 150px;
   background: white;
   border: none;
-  height: 50%;
-  width: 150px;
-  transition: all 0.3s;
   resize: none;
   position: relative;
 }
-.result_col input[type=text]:focus, .result_col input[type=number]:focus, .result_col textarea:focus {
+.result-col > .value:focus {
   width: 450px;
 }
-.result_col textarea:focus {
+.result_col textarea.value:focus {
   height: 250px;
   z-index: 100;
 }
