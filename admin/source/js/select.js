@@ -1,84 +1,3 @@
-function fill_entrys(data_list) {
-  var result_space = $('#result_space').html('');
-  for (entry of data_list) {
-    var row = $('<div class="center-item-row result-row">');
-    let id_col = generate_id(entry['id']);
-    row.append(id_col);
-    delete entry['id'];
-
-    let sorted_entry = {};
-    Object.keys(entry).sort(function(a, b) {
-      let keya = a.toLowerCase();
-      let keyb = b.toLowerCase();
-      return (keya < keyb) ? -1 : (keya > keyb) ? 1 : 0;
-    }).forEach(function(key) { sorted_entry[key] = entry[key] });
-    for (entry_key in sorted_entry) {
-
-      entry_value = sorted_entry[entry_key];
-      let col_object = null;
-
-      if (entry_value == null) {
-        col_object = generate_none(entry_key);
-      }
-      else if (typeof entry_value == "string") {
-        col_object = generate_string(entry_key, entry_value);
-      }
-      else if (typeof entry_value == "number") {
-        col_object = generate_number(entry_key, entry_value);
-      }
-      else if (typeof entry_value == "boolean") {
-        col_object = generate_bool(entry_key, entry_value);
-      }
-      else if (typeof entry_value == "object") {
-        col_object = generate_object(entry_key, entry_value);
-      }
-      if (col_object != null) {
-        row.append(col_object);
-      }
-    }
-    result_space.append(row);
-  }
-
-}
-
-function generate_none(key) {
-  let ob = $('<div class="result_col typeof_none" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'none');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input disabled type="text">').val('None/null') );
-  return ob;
-}
-function generate_string(key, value) {
-  let ob = $('<div class="result_col typeof_string" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'string');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input type="text">').val(value) );
-  return ob;
-}
-function generate_number(key, value) {
-  let ob = $('<div class="result_col typeof_number" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'number');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input type="number">').val(value) );
-  return ob;
-}
-function generate_bool(key, value) {
-  let ob = $('<div class="result_col typeof_bool" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'bool');
-  ob.append( $('<div class="key">').text(key) );
-  let s = $('<div class="switch">');
-  s.attr('state', String(value));
-  s.attr('onclick', 'if ($(this).attr("state") == "true") {$(this).attr("state", "false")} else {$(this).attr("state", "true")}');
-  ob.append(s);
-  return ob;
-}
-function generate_object(key, value) {
-  let ob = $('<div class="result_col typeof_object" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'object');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<textarea>').val(JSON.stringify(value)) );
-  return ob;
-}
 function generate_remove(key) {
   let ob = $('<div class="result_col typeof_remove" ondblclick="edit_select(this)"></div>');
   ob.attr('object_type', 'remove');
@@ -161,11 +80,24 @@ class Select {
     for (var entry of data) {
       var row = _.create('<div class="center-item-row result-row">');
       row.append( Template.generateResultColID(entry['id']) );
+      delete entry['id'];
 
+      let sorted_keys = Object.keys(entry).sort(function(a,b){
+        a=a.toLowerCase();b=b.toLowerCase();
+        return (a<b) ? -1 : (a>b) ? 1 : 0;
+      });
 
+      for (var key of sorted_keys) {
+        let value = entry[key];
+        if (value === null) { row.append(Template.generateResultColNone(key)) }
+        else if (typeof value == "string") { row.append(Template.generateResultColString(key, value)) }
+        else if (typeof value == "number") { row.append(Template.generateResultColNumber(key, value)) }
+        else if (typeof value == "boolean") { row.append(Template.generateResultColBool(key, value)) }
+        else if (typeof value == "object") { row.append(Template.generateResultColObject(key, value)) }
+        else { row.append(Template.generateResultColUnknown(key, value)) }
+      }
       result_space.append(row);
     }
-    console.log(data);
   }
 }
 Select = new Select();

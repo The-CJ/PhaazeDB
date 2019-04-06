@@ -220,6 +220,44 @@ class Template {
     return obj;
   }
 
+  generateResultColNone(key) {
+    let obj = _.create('<div class="result-col" field-type="none"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input class="value" disabled type="text">').value('None/null') );
+    return obj;
+  }
+
+  generateResultColString(key, value) {
+    let obj = _.create('<div class="result-col" field-type="string"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input class="value" type="text">').value(value) );
+    return obj;
+  }
+
+  generateResultColNumber(key, value) {
+    let obj = _.create('<div class="result-col" field-type="number"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input class="value" type="number">').value(value) );
+    return obj;
+  }
+
+  generateResultColObject(key, value) {
+    let obj = _.create('<div class="result-col" field-type="object"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<textarea class="value">').value(JSON.stringify(value)) );
+    return obj;
+  }
+
+  generateResultColBool(key, value) {
+   let obj = _.create('<div class="result-col" field-type="bool"></div>');
+   obj.append( _.create('<div class="key">').text(key) );
+   let s = _.create('<div class="switch value">');
+   s.attribute('state', String(value));
+   s.attribute('onclick', 'let t = _(this); t.attribute("state") == "true" ? t.attribute("state", "false") : t.attribute("state", "true")');
+   obj.append(s);
+   return obj;
+ }
+
 }
 Template = new Template();
 

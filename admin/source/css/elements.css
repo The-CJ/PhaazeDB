@@ -163,7 +163,7 @@
 
 /* result entry's */
 .result-row {
-  height: 8.5%;
+  height: 6%;
   margin: 3px;
 }
 .result-col {
@@ -195,26 +195,26 @@
 .result-col > .value:focus {
   width: 450px;
 }
-.result_col textarea.value:focus {
+.result-col textarea.value:focus {
   height: 250px;
   z-index: 100;
 }
-.result_col .switch {
+.result-col .switch {
   display: flex;
   align-items: center;
 }
-.result_col .switch[state=false] {
+.result-col .switch[state=false] {
   background: red;
 }
-.result_col .switch[state=true] {
+.result-col .switch[state=true] {
   background: lime;
 }
-.result_col .switch[state=false]::after {
+.result-col .switch[state=false]::after {
   content: "False";
   margin: auto;
   color: white;
 }
-.result_col .switch[state=true]::after {
+.result-col .switch[state=true]::after {
   content: "True";
   margin: auto;
   color: black;
