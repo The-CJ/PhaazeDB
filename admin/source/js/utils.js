@@ -46,6 +46,7 @@ class DynamicURL {
     this.values['limit'] = this.get('limit');
     this.values['offset'] = this.get('offset');
     this.values['modal'] = this.get('modal');
+    this.values['fields'] = this.get('fields');
   }
 
   set(key, value, update=true) {
@@ -67,7 +68,7 @@ class DynamicURL {
 
     for (var key in this.values) {
       let value = this.values[key];
-      if (value == null) { continue; }
+      if (isEmpty(value)) { continue; }
 
       ucurl = ucurl + pre + key + "=" + value;
       pre = "&";
@@ -104,8 +105,10 @@ class DynamicURL {
         "of":this.values.container,
         "where":this.values.limit,
         "offset":this.values.offset,
-        "limit":this.values.limit
+        "limit":this.values.limit,
+        "fields":this.values.fields
       };
+      console.log(r);
       Select.execute( r, true );
     }
     if ( !isEmpty(this.values.limit) ) {
@@ -116,6 +119,9 @@ class DynamicURL {
     }
     if ( !isEmpty(this.values.where) ) {
       _('[name=where]').value(this.values.where);
+    }
+    if ( !isEmpty(this.values.fields) ) {
+      _('[name=fields]').value(this.values.fields);
     }
 
   }
