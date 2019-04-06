@@ -11,6 +11,11 @@ class Select {
     this.last = "";
   }
 
+  showFieldSelect() {
+    _("[modal=select] [select-fields-btn]").hide();
+    _("[modal=select] [select-fields]").show();
+  }
+
   start() {
     let request = {};
 
@@ -18,6 +23,7 @@ class Select {
     request["where"] = _("[modal='select'] [name=where]").value();
     request["limit"] = _("[modal='select'] [name=limit]").value();
     request["offset"] = _("[modal='select'] [name=offset]").value();
+    request["fields"] = _("[modal='select'] [name=fields]").value();
 
     return this.execute(request);
   }
@@ -37,6 +43,7 @@ class Select {
     if ( !isEmpty(request['limit']) ) { r['limit'] = request['limit']; }
     if ( !isEmpty(request['offset']) ) { r['offset'] = request['offset']; }
     if ( !isEmpty(request['where']) ) { r['where'] = request['where']; }
+    if ( !isEmpty(request['fields']) ) { r['fields'] = request['fields'].split("|"); }
 
     this.last = request['of'];
 
@@ -47,6 +54,7 @@ class Select {
       DynamicURL.set('limit', request['limit'], false);
       DynamicURL.set('offset', request['offset'], false);
       DynamicURL.set('where', request['where'], false);
+      DynamicURL.set('fields', request['fields'], false);
       DynamicURL.update();
 
       _('#current_container').text(request['of']);
@@ -80,8 +88,11 @@ class Select {
     var result_space = _('#result_space').html('');
     for (var entry of data) {
       var row = _.create('<div class="center-item-row result-row">');
-      row.append( Template.generateResultColID(entry['id']) );
-      delete entry['id'];
+      // id first, if therer
+      if (!isEmpty(entry['id'])) {
+        row.append( Template.generateResultColID(entry['id']) );
+        delete entry['id'];
+      }
 
       let sorted_keys = Object.keys(entry).sort(function(a,b){
         a=a.toLowerCase();b=b.toLowerCase();

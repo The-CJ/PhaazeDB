@@ -267,14 +267,21 @@
             <input type="text" name="of" placeholder="Container name">
           </div>
           <div class="center-item-row">
-            <span>Where statement</span>
+            <span>Where statement:</span>
             <input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
           </div>
           <div class="center-item-row">
-            <span>Limit</span>
+            <span>Limit:</span>
             <input type="number" name="limit" placeholder="Infinite">
-            <span>Offset</span>
+            <span>Offset:</span>
             <input type="number" name="offset" placeholder="0">
+          </div>
+          <div class="center-item-col" select-fields-btn>
+            <button type="button" class="btn btn-block blue text-white" onclick="Select.showFieldSelect()">Change Selected Fields (Default: all)</button>
+          </div>
+          <div class="center-item-row" style="display: none" select-fields>
+            <span>Select fields:</span>
+            <input type="text" name="fields" placeholder="Field names sepperated by  |">
           </div>
         </div>
 
