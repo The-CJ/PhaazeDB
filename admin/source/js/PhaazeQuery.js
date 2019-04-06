@@ -269,6 +269,16 @@ class PhaazeQuery {
     return this;
   }
 
+  toggleClass(cssclasses) {
+    for (let node of this.result) {
+      if (typeof cssclasses == "string") { cssclasses = cssclasses.split(" "); }
+      for (let cssclass of cssclasses) {
+        node.classList.toggle(cssclass);
+      }
+    }
+    return this;
+  }
+
   removeClass(cssclasses) {
     for (let node of this.result) {
       if (typeof cssclasses == "string") { cssclasses = cssclasses.split(" "); }
@@ -356,6 +366,18 @@ class PhaazeQuery {
     var nPQ = new PhaazeQuery();
     nPQ.result = new_node_list;
     return nPQ;
+  }
+
+  hide() {
+    for (let node of this.result) {
+      node.style.setProperty("display", "none");
+    }
+  }
+
+  show() {
+    for (let node of this.result) {
+      node.style.setProperty("display", "");
+    }
   }
 
   // relational selector
