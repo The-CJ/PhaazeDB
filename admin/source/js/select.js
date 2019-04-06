@@ -1,11 +1,3 @@
-function generate_remove(key) {
-  let ob = $('<div class="result_col typeof_remove" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'remove');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input disabled type="text">').val('Remove') );
-  return ob;
-}
-
 class Select {
   constructor() {
     this.last = "";

@@ -103,7 +103,7 @@ class DynamicURL {
 
       let r = {
         "of":this.values.container,
-        "where":this.values.limit,
+        "where":this.values.where,
         "offset":this.values.offset,
         "limit":this.values.limit,
         "fields":this.values.fields
@@ -263,6 +263,13 @@ class Template {
    s.attribute('onclick', 'let t = _(this); t.attribute("state") == "true" ? t.attribute("state", "false") : t.attribute("state", "true")');
    obj.append(s);
    return obj;
+ }
+
+  generateResultColRemove(key) {
+    let obj = $('<div class="result-col" field-type="remove"></div>');
+    obj.append( $('<div class="key">').text(key) );
+    obj.append( $('<input disabled class="value" type="text">').value('Remove') );
+    return obj;
  }
 
 }
