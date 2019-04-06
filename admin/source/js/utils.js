@@ -122,6 +122,7 @@ class DynamicURL {
     }
     if ( !isEmpty(this.values.fields) ) {
       _('[name=fields]').value(this.values.fields);
+      Select.showFieldSelect();
     }
 
   }
