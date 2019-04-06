@@ -50,6 +50,7 @@ class Select {
       DynamicURL.update();
 
       _('#current_container').text(request['of']);
+      _('[name=of], [name=into], [name=container]').value(request['of']);
       _('#total_entrys').text(data.total);
 
       if (preview == false) {

@@ -261,9 +261,28 @@ class Template {
 }
 Template = new Template();
 
+class Utils {
+  constructor() {
+
+  }
+  saveToken() {
+    let x = _('#db_token').value();
+    window.sessionStorage.setItem('token', x);
+    _('.token-input > .input-end').addClass('green').find('span').text('Saved for this session');
+    setTimeout(function () { _('.token-input > .input-end').removeClass('green').find('span').text(''); }, 3000);
+  }
+
+  loadToken() {
+    let x = window.sessionStorage.getItem('token');
+    if (x != null) { _('#db_token').value(x); }
+  }
+}
+Utils = new Utils();
+
 // events
 document.addEventListener("DOMContentLoaded", function () {
   // restore view
+  Utils.loadToken();
   DynamicURL.restoreWindow();
 })
 
@@ -372,48 +391,6 @@ function save_col_changes() {
 
 }
 
-function save_token() {
-  let x = $('#db_token').val();
-  window.sessionStorage.setItem('token', x);
-  $('.token-input > .input-end').addClass('success-color').find('span').text('Saved for this session');
-  setTimeout(function () {
-    $('.token-input > .input-end').removeClass('success-color').find('span').text('');
-  }, 3000);
-}
-
-function display_message(message_obj) {
-
-  content = message_obj['content'];
-  color = message_obj['color'];
-  text_color = message_obj['text_color'];
-  time = message_obj['time'];
-
-  let message = $('<div class="message text-center">');
-  message.text(content);
-
-  if (color == null) {
-    color = "lightgrey";
-  }
-  message.css('background', color);
-
-  if (text_color == null) {
-    text_color = "black";
-  }
-  message.css('color', text_color);
-
-  $('#message-space').append(message);
-
-  if (time == null) {
-    time = 5;
-  }
-
-  time = time * 1000
-  setTimeout(function () {
-    message.remove();
-  }, time);
-
-}
-
 function notify_incorrect_token() {
   $('#db_token').focus();
   $('#db_token').css('background', '#fa0');
@@ -426,23 +403,4 @@ function notify_incorrect_token() {
   setTimeout(function () {
     $('#db_token').css('background', 'none');
   }, 1500);
-}
-
-function add_key_value_field(into) {
-  let field_space = into;
-  let field = $('<div class="center-item-row field_key_value">');
-  let inputs = $('<div class="col">').append( $('<div class="center-item-row">') );
-  let controlls = $('<div class="center-item-row">');
-
-  inputs.children('div').append( $('<input class="col" type="text" placeholder="key">') );
-  inputs.children('div').append( $('<span class="text-center">').text('-')  );
-  inputs.children('div').append( $('<input class="col" type="text" placeholder="value">') );
-  field.append(inputs);
-
-  controlls.append( $('<div class="col">').append( get_select_with_options() ) );
-  controlls.append( $('<div class="col">').append( $('<button type="button" class="btn btn-warning">').text("X") ) );
-  controlls.find('button').attr('onclick', '$(this).closest(".field_key_value").remove()');
-  field.append(controlls);
-
-  field_space.append(field);
 }

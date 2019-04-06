@@ -175,6 +175,7 @@
 }
 .result-col > .key {
   text-align: left;
+  padding-left: 5px;
   height: 50%;
   display: flex;
   align-items: center;
