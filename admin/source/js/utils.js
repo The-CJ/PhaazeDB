@@ -100,7 +100,6 @@ class DynamicURL {
       _("#current_container").text( this.values.container );
       _('[name=of], [name=into], [name=container]').value(this.values.container);
 
-
       let r = {
         "of":this.values.container,
         "where":this.values.where,
@@ -108,7 +107,6 @@ class DynamicURL {
         "limit":this.values.limit,
         "fields":this.values.fields
       };
-      console.log(r);
       Select.execute( r, true );
     }
     if ( !isEmpty(this.values.limit) ) {

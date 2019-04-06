@@ -88,26 +88,6 @@ function modal_update() {
   }
 
 }
-
-function start_update() {
-  $('#update_modal').find('[name=into]').val( last_selected_container )
-  $('#update_modal').find('.need_correction').removeClass('need_correction');
-  $('#update_modal').modal('show');
-  curl['modal'] = 'update';
-  update_curl();
-}
-
-function switch_entry_type(entry_type) {
-  $('#update_modal [method]').val(entry_type);
-
-  $('[entry-type-button]').removeClass('selected');
-  $('[entry-type-button='+entry_type+']').addClass('selected');
-
-  $('[entry-type]').hide();
-  $('[entry-type='+entry_type+']').show();
-
-}
-
 class Update {
   constructor() {
     this.last = "";
@@ -140,9 +120,55 @@ class Update {
     else if (m == "fields") { return this.startMethodFields() }
   }
 
-  startMethodFields() {}
+  startMethodFields() {
+    let request = {};
 
-  startMethodString() {}
+    request["of"] = _("[modal=update] [name=of]").value();
+    if (isEmpty(request["of"])) { return _("[modal='update'] [name=of]").addClass('need-correction'); }
+    request["where"] = _("[modal=update] [name=where]").value();
+    request["limit"] = _("[modal=update] [name=limit]").value();
+    request["offset"] = _("[modal=update] [name=offset]").value();
 
+    let content = {};
+    for (let field of _("[modal=update] [update-fields] .key-value-field").result) {
+      field = _(field);
+      let key = field.find("[placeholder=Key]").value();
+      let value = field.find("[placeholder=Value]").value();
+      let type = field.find("select").value();
+
+      if (isEmpty(key)) {
+        field.find("[placeholder=Key]").addClass('need-correction');
+        return Display.message({content:"no key can be empty", color:Display.color_warn});
+      }
+
+      try { content[key] = getValueInRightType(value, type); }
+      catch (e) {
+        Display.message( {content:"invalid json object", color:Display.color_warn} );
+        return field.find("[placeholder=Value]").addClass("need-correction");
+      }
+    }
+
+    if (isEmpty(content)) { return _("[modal=update] [method=fields] .green").addClass('need-correction'); }
+
+    request["content"] = content;
+    return this.execute(request);
+  }
+
+  startMethodString() {
+    let request = {};
+
+    request["of"] = _("[modal='update'] [name=of]").value();
+    if (isEmpty(request["of"])) { return _("[modal='update'] [name=of]").addClass('need-correction'); }
+    request["where"] = _("[modal='update'] [name=where]").value();
+    request["limit"] = _("[modal='update'] [name=limit]").value();
+    request["offset"] = _("[modal='update'] [name=offset]").value();
+    request["content"] = _("[modal='update'] [name=content]").value();
+
+    return this.execute(request);
+  }
+
+  execute(request) {
+    console.log(request);
+  }
 }
 Update = new Update();
