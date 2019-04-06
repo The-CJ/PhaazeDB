@@ -107,3 +107,42 @@ function switch_entry_type(entry_type) {
   $('[entry-type='+entry_type+']').show();
 
 }
+
+class Update {
+  constructor() {
+    this.last = "";
+  }
+
+  setMethod(method) {
+    _("[modal=update] button[method]").removeClass("selected");
+    _("[modal=update] div[method]").hide();
+
+    _("[modal=update] button[method="+method+"]").addClass("selected");
+    _("[modal=update] div[method="+method+"]").show();
+
+    _("[modal=update] data[method]").value(method);
+  }
+
+  modalAddField() {
+    let n = Template.getKeyValueField();
+    _('[modal=update] [update-fields]').append(n);
+  }
+
+  modalClearFields() {
+    _('[modal=update] [update-fields]').html("");
+  }
+
+  start() {
+    let m = _("[modal=update] data[method]").value();
+    if (isEmpty(m)) { return _("[modal=update] data[method]").parent().addClass("need-correction"); }
+
+    if (m == "string") { return this.startMethodString() }
+    else if (m == "fields") { return this.startMethodFields() }
+  }
+
+  startMethodFields() {}
+
+  startMethodString() {}
+
+}
+Update = new Update();

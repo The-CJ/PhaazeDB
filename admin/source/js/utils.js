@@ -140,7 +140,7 @@ class Display {
   showModal(modal, hold_other_open=false) {
     if (!hold_other_open) { this.closeModal(); }
     _("[modal="+modal+"], [modal-close]").addClass("show");
-    _("[modal="+modal+"] input").removeClass("need-correction");
+    _("[modal="+modal+"] .need-correction").removeClass("need-correction");
     DynamicURL.set("modal", modal);
   }
 

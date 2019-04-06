@@ -141,7 +141,7 @@
   <div modal="update" class="modal">
     <div class="modal-content">
 
-      <form onsubmit="event.preventDefault();alert('TODO: update');" method="post" >
+      <form onsubmit="event.preventDefault();Update.start();" method="post" >
         <div class="modal-header orange dark text-white">
           <div class="center-item-row">
             <h2>Update</h2>
@@ -169,28 +169,29 @@
             <input type="number" name="offset" placeholder="0">
           </div>
           <hr>
-          <div class="row">
+          <div class="center-item-row">
+            <data method value=""></data>
             <div class="col" style="padding-right:0.5em">
-              <button type="button" class="btn btn-block orange" onclick="alert('TODO: field_content')">Field Method</button>
+              <button type="button" class="btn btn-block orange" method="fields" onclick="Update.setMethod('fields')">Field Method</button>
             </div>
             <div class="col" style="padding-left:0.5em">
-              <button type="button" class="btn btn-block orange" onclick="alert('TODO: string_content')">exec() Method</button>
+              <button type="button" class="btn btn-block orange" method="string" onclick="Update.setMethod('string')">exec() Method</button>
             </div>
           </div>
-          <div entry-type="fields" style="display: none">
+          <div method="fields" style="display: none">
             <hr>
-            <button type="button" class="btn btn-success" onclick="add_key_value_field($('#update_modal').find('.field_space'))">Add field</button>
-            <button type="button" class="btn btn-warning ml-auto" onclick="$(this).siblings('.field_space').html('')">Clear all fields</button>
-            <div class="field_space">
-              <!-- filed with key - value pairs -->
+            <div class="center-item-row">
+              <div class="col"><button type="button" class="btn btn-block green" onclick="Update.modalAddField()">Add field</button></div>
+              <div class="col"><button type="button" class="btn btn-block orange" onclick="Update.modalClearFields()">Clear all fields</button></div>
+            </div>
+            <div update-fields>
+              <!-- filled with key - value pairs -->
             </div>
           </div>
-          <div entry-type="string" style="display: none">
+          <div method="string" style="display: none">
             <hr>
-            <div class="row">
-              <div class="col">
-                <input type="text" name="content" placeholder="data['name1'] = 'something'; data['aNumber'] += 3;">
-              </div>
+            <div class="center-item-row">
+              <input type="text" name="content" placeholder="data['name1'] = 'something'; data['aNumber'] += 3;">
             </div>
           </div>
 
