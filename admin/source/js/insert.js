@@ -64,6 +64,7 @@ class Insert {
       } else {
         return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
       }
-    })  }
+    })
+  }
 }
 Insert = new Insert();
