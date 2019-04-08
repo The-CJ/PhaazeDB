@@ -319,6 +319,7 @@ class PhaazeQuery {
 
       node.classList.add("collapse");
       if (node.classList.contains("collapsing")) { continue; }
+      if (node.classList.contains("show") && (state == 1)) { continue; }
 
       node.style.transitionDuration = (options.Duration || default_collapse_time)+"s";
       node.style.transitionProperty = "max-height";
@@ -443,6 +444,7 @@ class PhaazeQuery {
     return nPQ;
   }
 
+  // event
   on(name, func) {
     if (typeof name != "string") { throw TypeError("1st argument 'name' must be string") }
     if (typeof func != "function") { throw TypeError("2nd argument 'func' must be function") }
