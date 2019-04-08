@@ -163,10 +163,11 @@
 
 /* result entry's */
 .result-row {
-  height: 4em;
-  margin: 3px;
+  height: 4.5em;
+  padding: 3px;
 }
 .result-col {
+  margin: 0 1px;
   width: fit-content;
   color: white;
   height: 100%;
