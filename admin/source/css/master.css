@@ -70,7 +70,6 @@ footer {
 /* menus */
 #main_menu {
 	padding: 0.15em;
-	background: rgba(255,255,255, 0.10);
 	border: 1px solid white;
 	position: fixed;
   top: 15vh;
