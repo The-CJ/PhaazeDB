@@ -12,6 +12,11 @@ class Select {
     let request = {};
 
     request["of"] = _("[modal='select'] [name=of]").value();
+
+    if (isEmpty(request['of'])) {
+      field.addClass("need-correction"); return;
+    }
+
     request["where"] = _("[modal='select'] [name=where]").value();
     request["limit"] = _("[modal='select'] [name=limit]").value();
     request["offset"] = _("[modal='select'] [name=offset]").value();

@@ -5,7 +5,7 @@ class Create {
   start() {
     var field = _("[modal='create'] [name=container]");
     let new_name = field.value();
-    if (new_name == false) {
+    if (isEmpty(new_name)) {
       field.addClass("need-correction"); return;
     }
     this.execute(new_name);
