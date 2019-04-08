@@ -260,6 +260,7 @@ class PhaazeQuery {
 
   // class managment
   addClass(cssclasses) {
+    if (typeof name == "undefined") { throw TypeError("1 argument 'cssclasses' required") }
     for (let node of this.result) {
       if (typeof cssclasses == "string") { cssclasses = cssclasses.split(" "); }
       for (let cssclass of cssclasses) {
@@ -270,6 +271,7 @@ class PhaazeQuery {
   }
 
   toggleClass(cssclasses) {
+    if (typeof name == "undefined") { throw TypeError("1 argument 'cssclasses' required") }
     for (let node of this.result) {
       if (typeof cssclasses == "string") { cssclasses = cssclasses.split(" "); }
       for (let cssclass of cssclasses) {
@@ -280,6 +282,7 @@ class PhaazeQuery {
   }
 
   removeClass(cssclasses) {
+    if (typeof name == "undefined") { throw TypeError("1 argument 'cssclasses' required") }
     for (let node of this.result) {
       if (typeof cssclasses == "string") { cssclasses = cssclasses.split(" "); }
       for (let cssclass of cssclasses) {
@@ -341,7 +344,7 @@ class PhaazeQuery {
 
   // object
   append(childs, cloneAppends=false) {
-    if (typeof childs == "undefined") { throw TypeError("1 arguments 'childs' required") }
+    if (typeof childs == "undefined") { throw TypeError("1 argument 'childs' required") }
     for (let node of this.result) {
       for (let childNode of childs.result) {
         node.appendChild(cloneAppends ? childNode.cloneNode(true) : childNode );
@@ -438,5 +441,14 @@ class PhaazeQuery {
     var nPQ = new PhaazeQuery();
     nPQ.result = new_node_list;
     return nPQ;
+  }
+
+  on(name, func) {
+    if (typeof name != "string") { throw TypeError("1st argument 'name' must be string") }
+    if (typeof func != "function") { throw TypeError("2nd argument 'func' must be function") }
+    for (let node of this.result) {
+      node.addEventListener(name, func);
+    }
+    return this;
   }
 }
