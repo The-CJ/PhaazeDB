@@ -13,9 +13,7 @@ class Select {
 
     request["of"] = _("[modal='select'] [name=of]").value();
 
-    if (isEmpty(request['of'])) {
-      field.addClass("need-correction"); return;
-    }
+    if (isEmpty(request['of'])) { field.addClass("need-correction"); return; }
 
     request["where"] = _("[modal='select'] [name=where]").value();
     request["limit"] = _("[modal='select'] [name=limit]").value();
@@ -85,7 +83,7 @@ class Select {
     var result_space = _('#result_space').html('');
     for (var entry of data) {
       var row = _.create('<div class="center-item-row result-row">');
-      // id first, if therer
+      // id first, if there
       if (!isEmpty(entry['id'])) {
         row.append( Template.generateResultColID(entry['id']) );
         delete entry['id'];
@@ -107,6 +105,8 @@ class Select {
       }
       result_space.append(row);
     }
+    // add edit event listener
+    _("#result_space .result-col").on("dblclick", function () { Edit.selectCol(this) });
   }
 }
 Select = new Select();

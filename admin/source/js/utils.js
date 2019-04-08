@@ -1,6 +1,5 @@
 // global vars
 var last_selected_container = "";
-var curl = {};
 
 // global functions
 function isEmpty(o) {
@@ -277,6 +276,7 @@ class Utils {
   constructor() {
 
   }
+
   saveToken() {
     let x = _('#db_token').value();
     window.sessionStorage.setItem('token', x);
@@ -291,6 +291,24 @@ class Utils {
 }
 Utils = new Utils();
 
+class Edit {
+  constructor() {
+
+  }
+  selectCol(entry_col) {
+    let c = _(entry_col);
+    _('#result_space .selected').removeClass("selected");
+    c.addClass("selected");
+    _('#col_edit_menu').collapse('show');
+  }
+
+  stopEdit() {
+    _('#result_space .selected').removeClass("selected");
+    _('#col_edit_menu').collapse('hide');
+  }
+
+}
+Edit = new Edit();
 // events
 document.addEventListener("DOMContentLoaded", function () {
   // restore view
