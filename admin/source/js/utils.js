@@ -295,6 +295,29 @@ class Edit {
   constructor() {
 
   }
+
+  changeCol(type) {
+    if (type == null) { type = "string" }
+    let field = _('#result_space .selected');
+    if (isEmpty(field.result)) {return ;}
+
+    let key = field.find(".key").text();
+    let value = field.find(".value").value();
+
+    let new_field = null;
+
+    if (type === null) { new_field = Template.generateResultColNone(key) }
+    else if (type == "string") { new_field = Template.generateResultColString(key, value) }
+    else if (type == "number") { new_field = Template.generateResultColNumber(key, value) }
+    else if (type == "boolean") { new_field = Template.generateResultColBool(key, value) }
+    else if (type == "object") { new_field = Template.generateResultColObject(key, value) }
+    else { new_field = Template.generateResultColUnknown(key, value) }
+
+    if (new_field == null) { throw "Could not generate field"; }
+
+    // TODO: replace old field with new field
+  }
+
   selectCol(entry_col) {
     let c = _(entry_col);
     _('#result_space .selected').removeClass("selected");
