@@ -372,6 +372,16 @@ class PhaazeQuery {
     return nPQ;
   }
 
+  replaceWith(replace) {
+    if (typeof replace == "undefined") { throw "1 argument 'replace' required" }
+    let for_replacement = null;
+    if (replace instanceof HTMLElement) { for_replacement = replace; }
+    else if (!isEmpty(replace.result)) { for_replacement = replace.result[0]; }
+    else { throw "1st argument 'replace' must be PhaazeQuery with one object or HTMLElement" }
+    for (let node of this.result) { node.replaceWith(for_replacement); }
+    return this;
+  }
+
   hide() {
     for (let node of this.result) {
       node.style.setProperty("display", "none");
