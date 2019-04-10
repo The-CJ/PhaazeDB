@@ -238,14 +238,14 @@ class Template {
     return obj;
   }
 
-  generateResultColNumber(key, value="") {
+  generateResultColNumber(key, value="0") {
     let obj = _.create('<div class="result-col" field-type="number"></div>');
     obj.append( _.create('<div class="key">').text(key) );
     obj.append( _.create('<input class="value" type="number">').value(value) );
     return obj;
   }
 
-  generateResultColObject(key, value="") {
+  generateResultColObject(key, value="{}") {
     let obj = _.create('<div class="result-col" field-type="object"></div>');
     obj.append( _.create('<div class="key">').text(key) );
     obj.append( _.create('<textarea class="value">').value(JSON.stringify(value)) );
@@ -253,21 +253,21 @@ class Template {
   }
 
   generateResultColBool(key, value="false") {
-   let obj = _.create('<div class="result-col" field-type="bool"></div>');
-   obj.append( _.create('<div class="key">').text(key) );
-   let s = _.create('<div class="switch value">');
-   s.attribute('state', String(value));
-   s.attribute('onclick', 'let t = _(this); t.attribute("state") == "true" ? t.attribute("state", "false") : t.attribute("state", "true")');
-   obj.append(s);
-   return obj;
- }
+    let obj = _.create('<div class="result-col" field-type="bool"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    let s = _.create('<div class="switch value">');
+    s.attribute('state', String(value));
+    s.attribute('onclick', 'let t = _(this); t.attribute("state") == "true" ? t.attribute("state", "false") : t.attribute("state", "true")');
+    obj.append(s);
+    return obj;
+  }
 
   generateResultColRemove(key) {
-    let obj = $('<div class="result-col" field-type="remove"></div>');
-    obj.append( $('<div class="key">').text(key) );
-    obj.append( $('<input disabled class="value" type="text">').value('Remove') );
+    let obj = _.create('<div class="result-col" field-type="remove"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input disabled class="value" type="text">').value('Will be removed') );
     return obj;
- }
+  }
 
 }
 Template = new Template();
