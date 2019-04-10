@@ -345,7 +345,7 @@ class PhaazeQuery {
 
   // object
   append(childs, cloneAppends=false) {
-    if (typeof childs == "undefined") { throw TypeError("1 argument 'childs' required") }
+    if (childs == null) { throw TypeError("1 argument 'childs' required") }
     for (let node of this.result) {
       for (let childNode of childs.result) {
         node.appendChild(cloneAppends ? childNode.cloneNode(true) : childNode );

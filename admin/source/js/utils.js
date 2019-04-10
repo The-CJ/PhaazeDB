@@ -231,28 +231,28 @@ class Template {
     return obj;
   }
 
-  generateResultColString(key, value) {
+  generateResultColString(key, value="") {
     let obj = _.create('<div class="result-col" field-type="string"></div>');
     obj.append( _.create('<div class="key">').text(key) );
     obj.append( _.create('<input class="value" type="text">').value(value) );
     return obj;
   }
 
-  generateResultColNumber(key, value) {
+  generateResultColNumber(key, value="") {
     let obj = _.create('<div class="result-col" field-type="number"></div>');
     obj.append( _.create('<div class="key">').text(key) );
     obj.append( _.create('<input class="value" type="number">').value(value) );
     return obj;
   }
 
-  generateResultColObject(key, value) {
+  generateResultColObject(key, value="") {
     let obj = _.create('<div class="result-col" field-type="object"></div>');
     obj.append( _.create('<div class="key">').text(key) );
     obj.append( _.create('<textarea class="value">').value(JSON.stringify(value)) );
     return obj;
   }
 
-  generateResultColBool(key, value) {
+  generateResultColBool(key, value="false") {
    let obj = _.create('<div class="result-col" field-type="bool"></div>');
    obj.append( _.create('<div class="key">').text(key) );
    let s = _.create('<div class="switch value">');
@@ -306,16 +306,17 @@ class Edit {
 
     let new_field = null;
 
-    if (type === null) { new_field = Template.generateResultColNone(key) }
+    if (type == "none") { new_field = Template.generateResultColNone(key) }
     else if (type == "string") { new_field = Template.generateResultColString(key, value) }
     else if (type == "number") { new_field = Template.generateResultColNumber(key, value) }
-    else if (type == "boolean") { new_field = Template.generateResultColBool(key, value) }
+    else if (type == "bool") { new_field = Template.generateResultColBool(key, value) }
     else if (type == "object") { new_field = Template.generateResultColObject(key, value) }
+    else if (type == "remove") { new_field = Template.generateResultColRemove(key) }
     else { new_field = Template.generateResultColUnknown(key, value) }
 
     if (new_field == null) { throw "Could not generate field"; }
 
-    // TODO: replace old field with new field
+    field.replaceWith(new_field.addClass("selected"));
   }
 
   selectCol(entry_col) {
