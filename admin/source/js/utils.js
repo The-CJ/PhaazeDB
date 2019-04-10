@@ -316,7 +316,11 @@ class Edit {
 
     if (new_field == null) { throw "Could not generate field"; }
 
-    field.replaceWith(new_field.addClass("selected"));
+    var EditO = this;
+    new_field.addClass("selected");
+    new_field.on("dblclick", function () { EditO.selectCol(this) });
+
+    field.replaceWith(new_field);
   }
 
   selectCol(entry_col) {
@@ -361,54 +365,6 @@ document.addEventListener("DOMContentLoaded", function () {
   //  r['of'] = curl['container'];
   //  select(r, preview=true);
   //}
-
-function edit_select(entry_col) {
-  let c = $(entry_col);
-  if (c.hasClass("selected")) {
-    $('#result_space').find(".selected").removeClass("selected");
-    $('#col_edit_menu').collapse('hide');
-    return ;
-  }
-  $('#result_space').find(".selected").removeClass("selected");
-  c.addClass("selected");
-  $('#col_edit_menu').collapse('show');
-}
-
-function close_all_edit() {
-  $('#result_space').find(".selected").removeClass("selected");
-  $('#col_edit_menu').collapse('hide');
-}
-
-function change_col_type(type) {
-  let C = $('#result_space .selected');
-  let key = C.find('.key').text();
-
-  let x = null;
-
-  if (type == "string") {
-    x = generate_string(key);
-  }
-  else if (type == "none") {
-    x = generate_none(key);
-  }
-  else if (type == "number") {
-    x = generate_number(key);
-  }
-  else if (type == "bool") {
-    x = generate_bool(key);
-  }
-  else if (type == "object") {
-    x = generate_object(key);
-  }
-  else if (type == "remove") {
-    x = generate_remove(key);
-  }
-  else {
-    alert('Error');
-  }
-  x.addClass('selected');
-  C.replaceWith(x);
-}
 
 function save_col_changes() {
   let selected_col = $('#result_space .selected');
