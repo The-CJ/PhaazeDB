@@ -296,6 +296,13 @@ class Edit {
 
   }
 
+  save() {
+    let row = _('#result_space .selected').closest(".result-row");
+    let entry_id = row.find("[field-type=id] .value").value();
+    console.log(entry_id);
+    // TODO: save stuff     
+  }
+
   changeCol(type) {
     if (type == null) { type = "string" }
     let field = _('#result_space .selected');
