@@ -299,8 +299,18 @@ class Edit {
   save() {
     let row = _('#result_space .selected').closest(".result-row");
     let entry_id = row.find("[field-type=id] .value").value();
-    console.log(entry_id);
-    // TODO: save stuff     
+    if (isEmpty(entry_id)) { return Display.message( { content:"Could not find a ID Field in this row, can't quick edit", color:Display.color_warn } ); }
+
+    let container = _("#current_container").text();
+
+    let request = {
+      "of": container,
+      "where": "data['id'] == "+entry_id,
+      "limit": 1,
+      "content": {}
+    }
+
+    console.log(request);
   }
 
   changeCol(type) {
