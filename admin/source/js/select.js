@@ -1,6 +1,7 @@
 class Select {
   constructor() {
     this.last = "";
+    this.max_fields = 200;
   }
 
   showFieldSelect() {
@@ -61,8 +62,18 @@ class Select {
         Display.message( {content:"Select: Returned: "+data.hits+" entry(s)", color:Display.color_neutral} );
       }
       if (data.hits == 0) {
-        _('#result_space').html('<div class="center-item-row" style="height:100%;"><div class="no-results"></div></div>');
-        return ;
+        return _('#result_space').html('<div class="center-item-row" style="height:100%;"><div class="no-results"></div></div>');
+      }
+      if (data.hits_field > SelectO.max_fields) {
+        let mes = [
+          "Warning!",
+          "Select returned "+data.hits+" entry(s) with a total of",
+          data.hits_field+" different fields to display.",
+          "This way cause lag or slow down the browser.",
+          "Continue?"
+        ]
+        let c = confirm( mes.join("\n") );
+        if (!c){return;}
       }
       return SelectO.build(data.data);
     })
