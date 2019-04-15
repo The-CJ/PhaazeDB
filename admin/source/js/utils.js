@@ -297,20 +297,40 @@ class Edit {
   }
 
   save() {
-    let row = _('#result_space .selected').closest(".result-row");
+    let selected = _('#result_space .selected');
+    let row = selected.closest(".result-row");
     let entry_id = row.find("[field-type=id] .value").value();
     if (isEmpty(entry_id)) { return Display.message( { content:"Could not find a ID Field in this row, can't quick edit", color:Display.color_warn } ); }
 
-    let container = _("#current_container").text();
+    let container = Select.last;
+    let content = {};
+
+    let selected_type = selected.attribute("field-type");
+    let selected_key = selected.find(".key").text();
+    let selected_value;
+
+    if (selected_type == "bool") {
+      selected_value = selected.find(".value").attribute("state") == "true" ? true : false ;
+    }
+    else {
+      selected_value = selected.find(".value").value();
+    }
+
+    try {
+      content[selected_key] = getValueInRightType(selected_value, selected_type);
+    }
+    catch (e) {
+      return Display.message( {content:e, color:Display.color_warn} );
+    }
 
     let request = {
       "of": container,
       "where": "data['id'] == "+entry_id,
       "limit": 1,
-      "content": {}
+      "content": content
     }
 
-    console.log(request);
+    return Update.execute(request);
   }
 
   changeCol(type) {
