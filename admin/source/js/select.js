@@ -55,6 +55,7 @@ class Select {
       _('#current_container').text(request['of']);
       _('[name=of], [name=into], [name=container]').value(request['of']);
       _('#total_entrys').text(data.total);
+      Edit.stopEdit();
 
       if (preview == false) {
         Display.message( {content:"Select: Returned: "+data.hits+" entry(s)", color:Display.color_neutral} );
