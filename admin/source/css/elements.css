@@ -166,7 +166,7 @@
 
 /* result entry's */
 .result-row {
-  height: 4.5em;
+  height: 4em;
   padding: 3px;
 }
 .result-col {
@@ -184,6 +184,7 @@
   display: flex;
   align-items: center;
   position: relative;
+  font-size: 13px;
 }
 .result-col > .value {
   text-align: left;
@@ -196,6 +197,7 @@
   resize: none;
   position: relative;
   transition: 0.3s;
+  font-size: 13px;
 }
 .result-col > .value:focus {
   width: 450px;
