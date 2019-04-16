@@ -160,7 +160,11 @@ class Display {
     let text_color = msg['text'];
     let time = msg['time'];
 
+    var msg_id = (Math.random()*500).toFixed();
+
     let new_message = _.create('<div class="message text-center">');
+
+    new_message.attribute("msg_id", "MSG"+msg_id);
     new_message.text(content);
 
     if (color == null) { color = "lightgrey"; }
@@ -169,13 +173,13 @@ class Display {
     if (text_color == null) { text_color = "black"; }
     new_message.css('color', text_color);
 
-    _('#message_space').append(new_message);
+    _('#message_space, .message-space').append(new_message, true);
 
     if (time == null) { time = 5; }
 
     time = time * 1000
     setTimeout(function () {
-      new_message.remove();
+      _(".message[msg_id=MSG"+msg_id+"]").remove();
     }, time);
 
   }
