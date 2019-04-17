@@ -1,0 +1,3 @@
+[submodule "PhaazeQuery"]
+	path = PhaazeQuery
+	url = https://github.com/The-CJ/PhaazeQuery.git
