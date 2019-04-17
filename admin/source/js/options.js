@@ -1,42 +1,49 @@
-function option_change(option, value) {
-  if (option == null) { option = "" }
-  if (value == null) { value = "" }
+class Option {
+  constructor() {
+    this.last = "";
+  }
 
-  let request = {
-    "action":"option",
-    "token": $('#db_token').val(),
-    "option": option,
-    "value": value
-  };
-  $.post('/', request)
-  .done(function (data) {
-    if (option == "shutdown") {
-      display_message( {content:"DB is shutting down", color:"#ff8d55"} );
-      setTimeout(function () {
-        display_message( {content:"3", color:"#fa5"} );
-      }, 1000);
-      setTimeout(function () {
-        display_message( {content:"2", color:"#fa5"} );
-      }, 2000);
-      setTimeout(function () {
-        display_message( {content:"1", color:"#fa5"} );
-      }, 3000);
-      setTimeout(function () {
-        var t = $('body');
-        t.css('padding', '25%');
-        t.addClass('text-center white-text');
-        t.html('<h1>DB has been shut down</h1>');
-        t.append('<h2>Restart required</h2>');
-      }, 4000);
-    }
-    else {
-      display_message( {content:data.msg, color:"#ddd"} );
-    }
+  notifyShutdown() {
+    Display.message( {content:"PhaazeDB got a shutdown event", color:Display.color_warn} );
+    setTimeout(function () {
+      var t = _('body');
+      t.css('padding', '25%');
+      t.addClass('text-center text-white');
+      t.html("");
+      t.append( _.create('<h1>DB has been shut down</h1>') );
+      t.append( _.create('<h2>Restart required</h2>') );
+    }, 4000);
+  }
 
-  })
-  .fail(function (data) {
-    data = data.responseJSON ? data.responseJSON : {};
-    display_message( {content:"Error", color:"#f44"} );
-  })
+  optionLogging(state) {
+    if (isEmpty(state)) { state = "" }
+    return this.execute("log", state);
+  }
 
+  optionShutdown() {
+    if (confirm("Shut down PhaazeDB?")) { this.execute("shutdown"); }
+  }
+
+  execute(name, value) {
+    if (name == null) { name = "" }
+    if (value == null) { value = "" }
+
+    let r = {
+      'action': 'option',
+      'token': _('#db_token').value(),
+      "option": name,
+      "value": value
+    };
+    this.last = {name: value};
+    var OptionO = this;
+    _.post('/', JSON.stringify(r))
+    .done(function (data) {
+      if (name == "shutdown") { OptionO.notifyShutdown() }
+      else { Display.message({content:data.msg, color:Display.color_success}); }
+    })
+    .fail(function (data) {
+      Display.message({content:data.msg, color:Display.color_fail});
+    })
+  }
 }
+Option = new Option();

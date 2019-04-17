@@ -4,6 +4,6 @@
 	"auth_token": "example!!!_..,",
 	"allowed_ips": ["127.0.0.1"],
 
-	"logging": false,
+	"logging": false
 
 }

@@ -44,6 +44,8 @@ class DATABASE(object):
 	from functions.select import select as select
 	from functions.option import option as option
 	from functions.show import show as show
+	from functions.describe import describe
+	from functions.default import default
 	# TODO: add functions.config : to edit configs on the fly without restart
 
 	#website interface
@@ -165,26 +167,32 @@ class DATABASE(object):
 		if action == None:
 			return await self.missing_function()
 
-		elif action == "create":
-			return await self.create(request, _INFO)
+		elif action == "select":
+			return await self.select(request, _INFO)
 
-		elif action == "delete":
-			return await self.delete(request, _INFO)
-
-		elif action == "drop":
-			return await self.drop(request, _INFO)
+		elif action == "update":
+			return await self.update(request, _INFO)
 
 		elif action == "insert":
 			return await self.insert(request, _INFO)
 
-		elif action == "select":
-			return await self.select(request, _INFO)
+		elif action == "delete":
+			return await self.delete(request, _INFO)
+
+		elif action == "create":
+			return await self.create(request, _INFO)
+
+		elif action == "drop":
+			return await self.drop(request, _INFO)
 
 		elif action == "show":
 			return await self.show(request, _INFO)
 
-		elif action == "update":
-			return await self.update(request, _INFO)
+		elif action == "default":
+			return await self.default(request, _INFO)
+
+		elif action == "describe":
+			return await self.describe(request, _INFO)
 
 		elif action == "option":
 			return await self.option(request, _INFO)

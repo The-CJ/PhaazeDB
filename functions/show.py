@@ -3,6 +3,8 @@ import asyncio, json, os
 async def show(self, request, _INFO):
 	""" Shows container hierarchy from 'name' or all if not defined """
 
+	#get required vars (GET -> JSON -> POST based)
+
 	#get recursive path
 	recursive = _INFO.get('_GET', {}).get('recursive', None)
 	if recursive == None:

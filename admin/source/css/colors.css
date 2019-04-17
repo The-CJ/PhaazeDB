@@ -1,0 +1,24 @@
+.green {background: #00d200}
+.green.dark {background: #009200}
+
+.orange {background: #ffb000}
+.orange.dark {background: #db9700}
+
+.red { background: #f20000 }
+.red.dark { background: #c30000}
+
+.blue {background: #008cff}
+.blue.dark {background: #0058b4}
+
+.purple {background: #a600ff}
+.purple.dark {background: #8400cb}
+
+.grey {background: #696969}
+.grey.dark {background: #525252}
+
+.text-white {
+  color: white;
+}
+.text-black {
+  color: black;
+}

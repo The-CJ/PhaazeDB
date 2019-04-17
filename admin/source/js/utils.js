@@ -1,250 +1,82 @@
+// global vars
 var last_selected_container = "";
-var curl = {};
 
-$('document').ready(function () {
-  extract_curl();
-
-  let t = window.sessionStorage.getItem('token');
-  if (t != null) { $('#db_token').val(t) }
-
-  set_window_from_url();
-
-  if (curl['container'] != "" && curl['container'] != null) {
-    let r = curl;
-    r['of'] = curl['container'];
-    select(r, preview=true);
+// global functions
+function isEmpty(o) {
+  // null
+  if (o == null) { return true; }
+  // string
+  if (typeof o == "string") { if (o != "") { return false; } }
+  // number
+  if (typeof o == "number") { if (o != 0) { return false; } }
+  // object
+  for (var v in o) {
+    if (o.hasOwnProperty(v)) {
+      return false
+    }
   }
-});
-
-function edit_select(entry_col) {
-  let c = $(entry_col);
-  if (c.hasClass("selected")) {
-    $('#result_space').find(".selected").removeClass("selected");
-    $('#col_edit_menu').collapse('hide');
-    return ;
-  }
-  $('#result_space').find(".selected").removeClass("selected");
-  c.addClass("selected");
-  $('#col_edit_menu').collapse('show');
+  return true;
 }
 
-function close_all_edit() {
-  $('#result_space').find(".selected").removeClass("selected");
-  $('#col_edit_menu').collapse('hide');
-}
+function getValueInRightType(value, type) {
+  if (typeof type == "undefined") { throw "2 arguments 'value' and 'type' required" }
 
-function change_col_type(type) {
-  let C = $('#result_space .selected');
-  let key = C.find('.key').text();
-
-  let x = null;
-
-  if (type == "string") {
-    x = generate_string(key);
-  }
-  else if (type == "none") {
-    x = generate_none(key);
-  }
-  else if (type == "number") {
-    x = generate_number(key);
-  }
-  else if (type == "bool") {
-    x = generate_bool(key);
-  }
+  if (type == "string") { return String(value); }
+  else if (type == "number") { return Number(value); }
+  else if (type == "bool") { return Boolean(value); }
+  else if (type == "none") { return null; }
   else if (type == "object") {
-    x = generate_object(key);
+    try { return JSON.parse(value); }
+    catch (e) { throw "invalid json object"; }
   }
-  else if (type == "remove") {
-    x = generate_remove(key);
-  }
-  else {
-    alert('Error');
-  }
-  x.addClass('selected');
-  C.replaceWith(x);
+  else { throw "unknown type for value" }
 }
 
-function save_col_changes() {
-  let selected_col = $('#result_space .selected');
-  let entry_key = selected_col.find('.key').text();
-
-  let entry_val = selected_col.find('input, textarea').val();
-  if (entry_val == null) {
-    entry_val = selected_col.find('.switch').attr('state');
-    if (entry_val == "true") {
-      entry_val = true;
-    } else {
-      entry_val = false;
-    }
+// utils classes
+class DynamicURL {
+  constructor() {
+    this.values = {};
+    this.init()
   }
 
-  let entry_row = selected_col.closest('.result_row');
-  let entry_id = entry_row.find('.typeof_id').find('input').val();
-  let type = selected_col.attr('object_type');
-
-  let r = {};
-  r['of'] = $('#current_container').text();
-  if (type != "remove") {
-    r['content'] = {};
-    r['content'][entry_key] = get_value_in_right_type(entry_val, type);
-  }
-  else {
-    r['content'] = "del data['"+entry_key+"']";
-    selected_col.remove();
-  }
-  r['where'] = "data['id'] == "+entry_id;
-  r['limit'] = 1;
-
-  update(r);
-
-}
-
-function save_token() {
-  let x = $('#db_token').val();
-  window.sessionStorage.setItem('token', x);
-  $('.token-input > .input-end').addClass('success-color').find('span').text('Saved for this session');
-  setTimeout(function () {
-    $('.token-input > .input-end').removeClass('success-color').find('span').text('');
-  }, 3000);
-}
-
-function display_message(message_obj) {
-
-  content = message_obj['content'];
-  color = message_obj['color'];
-  text_color = message_obj['text_color'];
-  time = message_obj['time'];
-
-  let message = $('<div class="message text-center">');
-  message.text(content);
-
-  if (color == null) {
-    color = "lightgrey";
-  }
-  message.css('background', color);
-
-  if (text_color == null) {
-    text_color = "black";
-  }
-  message.css('color', text_color);
-
-  $('#message-space').append(message);
-
-  if (time == null) {
-    time = 5;
+  init() {
+    this.values['container'] = this.get('container');
+    this.values['where'] = this.get('where');
+    this.values['limit'] = this.get('limit');
+    this.values['offset'] = this.get('offset');
+    this.values['modal'] = this.get('modal');
+    this.values['fields'] = this.get('fields');
   }
 
-  time = time * 1000
-  setTimeout(function () {
-    message.remove();
-  }, time);
-
-}
-
-function notify_incorrect_token() {
-  $('#db_token').focus();
-  $('#db_token').css('background', '#fa0');
-  setTimeout(function () {
-    $('#db_token').css('background', 'none');
-  }, 500);
-  setTimeout(function () {
-    $('#db_token').css('background', '#fa0');
-  }, 1000);
-  setTimeout(function () {
-    $('#db_token').css('background', 'none');
-  }, 1500);
-}
-
-function add_key_value_field(into) {
-  let field_space = into;
-  let field = $('<div class="center-item-row field_key_value">');
-  let inputs = $('<div class="col">').append( $('<div class="center-item-row">') );
-  let controlls = $('<div class="center-item-row">');
-
-  inputs.children('div').append( $('<input class="col" type="text" placeholder="key">') );
-  inputs.children('div').append( $('<span class="text-center">').text('-')  );
-  inputs.children('div').append( $('<input class="col" type="text" placeholder="value">') );
-  field.append(inputs);
-
-  controlls.append( $('<div class="col">').append( get_select_with_options() ) );
-  controlls.append( $('<div class="col">').append( $('<button type="button" class="btn btn-warning">').text("X") ) );
-  controlls.find('button').attr('onclick', '$(this).closest(".field_key_value").remove()');
-  field.append(controlls);
-
-  field_space.append(field);
-}
-
-function update_typeof_color(obj, val) {
-  let new_status = val;
-  obj.removeClass('typeof_bool typeof_none typeof_number typeof_object typeof_string');
-  obj.addClass('typeof_'+val)
-}
-
-function get_value_in_right_type(value, type, key) {
-  if (type == "string") {
-    return String(value);
+  set(key, value, update=true) {
+    this.values[key] = value;
+    if (update) { this.update(); }
   }
-  else if (type == "number") {
-    return Number(value);
-  }
-  else if (type == "bool") {
-    return Boolean(value);
-  }
-  else if (type == "none") {
-    return null;
-  }
-  else if (type == "object") {
-    try {
-      let obj = JSON.parse(value);
-      return obj;
-    }
-    catch (e) {
-      var inputfield = $('.modal:visible input').filter(function () {
-          return $(this).val() == value && $(this).closest('.field_key_value').find('select').val() == 'object';
-      });
-      inputfield.addClass('need_correction');
-      display_message({content:"invalid json object", color:"orange"});
-      throw "invalid json object";
-    }
-  }
-  else {
-    alert(value)
-  }
-}
 
-function update_curl() {
-
-  let ucurl = "/admin";
-  let pre = "?";
-
-  for (var key in curl) {
-    let value = curl[key];
+  get(key) {
+    let value = this.values[key];
     if (value == null) {
-      continue;
+      value = this.getFromLocation(key);
     }
-
-    ucurl = ucurl + pre + key + "=" + value;
-    pre = "&";
-
+    return value
   }
-  window.history.pushState('obj', 'newtitle', ucurl);
 
-}
+  update() {
+    let ucurl = "/admin";
+    let pre = "?";
 
-function extract_curl() {
+    for (var key in this.values) {
+      let value = this.values[key];
+      if (isEmpty(value)) { continue; }
 
-  let ncurl = {};
+      ucurl = ucurl + pre + key + "=" + value;
+      pre = "&";
 
-  ncurl['container'] = getParameter('container');
-  ncurl['where'] = getParameter('where');
-  ncurl['limit'] = getParameter('limit');
-  ncurl['offset'] = getParameter('offset');
-  ncurl['modal'] = getParameter('modal');
+    }
+    window.history.pushState('obj', 'newtitle', ucurl);
+  }
 
-  curl = ncurl;
-}
-
-function getParameter(name) {
+  getFromLocation(name) {
     let url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
     var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
@@ -252,40 +84,314 @@ function getParameter(name) {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+
+  restoreWindow() {
+    // restores a window from URL parameters
+
+    // reopen modals
+    if ( !isEmpty(this.values.modal) ) {
+      Display.showModal(this.values.modal);
+    }
+
+    // set last viewed container
+    if ( !isEmpty(this.values.container) ) {
+      _("#current_container").text( this.values.container );
+      _('[name=of], [name=into], [name=container]').value(this.values.container);
+
+      let r = {
+        "of":this.values.container,
+        "where":this.values.where,
+        "offset":this.values.offset,
+        "limit":this.values.limit,
+        "fields":this.values.fields
+      };
+      Select.execute( r, true );
+    }
+    if ( !isEmpty(this.values.limit) ) {
+      _('[name=limit]').value(this.values.limit);
+    }
+    if ( !isEmpty(this.values.offset) ) {
+      _('[name=offset]').value(this.values.offset);
+    }
+    if ( !isEmpty(this.values.where) ) {
+      _('[name=where]').value(this.values.where);
+    }
+    if ( !isEmpty(this.values.fields) ) {
+      _('[name=fields]').value(this.values.fields);
+      Select.showFieldSelect();
+    }
+
+  }
 }
+DynamicURL = new DynamicURL();
 
-function set_window_from_url() {
+class Display {
+  constructor() {
+    this.color_fail = "#faa631";
+    this.color_warn = "#e9a100";
+    this.color_success = "#74ff74";
+    this.color_neutral = "#c2c2c2";
+  }
 
-  if (curl.modal != null) {
-    if (curl.modal == "select") {
-      $('#'+curl.modal+'_modal').collapse('show');
+  showModal(modal, hold_other_open=false) {
+    if (!hold_other_open) { this.closeModal(); }
+    _("[modal="+modal+"], [modal-close]").addClass("show");
+    _("[modal="+modal+"] .need-correction").removeClass("need-correction");
+    DynamicURL.set("modal", modal);
+  }
+
+  closeModal(modal) {
+    if (typeof modal == "undefined") {
+      _("[modal], [modal-close]").removeClass("show");
+    } else {
+      _("[modal="+modal+"], [modal-close]").removeClass("show");
+    }
+    DynamicURL.set("modal", null);
+  }
+
+  changeType(obj, value) {
+    _(obj).attribute("field-type", value);
+  }
+
+  message(msg) {
+    let content = msg['content'];
+    let color = msg['color'];
+    let text_color = msg['text'];
+    let time = msg['time'];
+
+    var msg_id = (Math.random()*500).toFixed();
+
+    let new_message = _.create('<div class="message text-center">');
+
+    new_message.attribute("msg_id", "MSG"+msg_id);
+    new_message.text(content);
+
+    if (color == null) { color = "lightgrey"; }
+    new_message.css('background', color);
+
+    if (text_color == null) { text_color = "black"; }
+    new_message.css('color', text_color);
+
+    _('#message_space, .message-space').append(new_message, true);
+
+    if (time == null) { time = 5; }
+
+    time = time * 1000
+    setTimeout(function () {
+      _(".message[msg_id=MSG"+msg_id+"]").remove();
+    }, time);
+
+  }
+}
+Display = new Display();
+
+class Template {
+  constructor() {
+
+  }
+
+  getKeyValueField(key, value, type) {
+    let element = _.create('<div class="center-item-row key-value-field"></div>');
+    let inputs = _.create('<div class="col center-item-row">');
+    let controlls = _.create('<div class="center-item-row">');
+
+    inputs.append( _.create('<input class="col" type="text" placeholder="Key">') );
+    inputs.append( _.create('<span>').text("-") );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Value">') );
+
+    let button = _.create('<button type="button" class="btn orange">');
+    button.text("X");
+    button.attribute('onclick', '_(this).closest(".key-value-field").remove()');
+    controlls.append( _.create('<div class="col">').append( this.getTypeSelect(type) ) );
+    controlls.append( _.create('<div class="col">').append( button ) );
+
+    element.append(inputs);
+    element.append(controlls);
+    return element;
+  }
+
+  getTypeSelect() {
+    let ts = _.create('<select class="btn" field-type="string" onchange="Display.changeType(this, this.value)">');
+    ts.append( _.create('<option value="string">String</option>') );
+    ts.append( _.create('<option value="number">Number</option>') );
+    ts.append( _.create('<option value="bool">Bool</option>') );
+    ts.append( _.create('<option value="object">Object</option>') );
+    ts.append( _.create('<option value="none">None/null</option>') );
+    return ts;
+  }
+
+  generateResultColID(value) {
+    let obj = _.create('<div class="result-col" field-type="id"></div>');
+    obj.append( _.create('<div class="key">').text("ID") );
+    obj.append( _.create('<input class="value" readonly type="number">').value(value) );
+    return obj;
+  }
+
+  generateResultColNone(key) {
+    let obj = _.create('<div class="result-col" field-type="none"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input class="value" disabled type="text">').value('None/null') );
+    return obj;
+  }
+
+  generateResultColString(key, value="") {
+    let obj = _.create('<div class="result-col" field-type="string"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input class="value" type="text">').value(value) );
+    return obj;
+  }
+
+  generateResultColNumber(key, value="0") {
+    let obj = _.create('<div class="result-col" field-type="number"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input class="value" type="number">').value(value) );
+    return obj;
+  }
+
+  generateResultColObject(key, value="{}") {
+    let obj = _.create('<div class="result-col" field-type="object"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<textarea class="value">').value(JSON.stringify(value)) );
+    return obj;
+  }
+
+  generateResultColBool(key, value="false") {
+    let obj = _.create('<div class="result-col" field-type="bool"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    let s = _.create('<div class="switch value">');
+    s.attribute('state', String(value));
+    s.attribute('onclick', 'let t = _(this); t.attribute("state") == "true" ? t.attribute("state", "false") : t.attribute("state", "true")');
+    obj.append(s);
+    return obj;
+  }
+
+  generateResultColRemove(key) {
+    let obj = _.create('<div class="result-col" field-type="remove"></div>');
+    obj.append( _.create('<div class="key">').text(key) );
+    obj.append( _.create('<input disabled class="value" type="text">').value('Save to remove') );
+    return obj;
+  }
+
+}
+Template = new Template();
+
+class Utils {
+  constructor() {
+
+  }
+
+  saveToken() {
+    let x = _('#db_token').value();
+    window.sessionStorage.setItem('token', x);
+    _('.token-input > .input-end').addClass('green').find('span').text('Saved for this session');
+    setTimeout(function () { _('.token-input > .input-end').removeClass('green').find('span').text(''); }, 3000);
+  }
+
+  loadToken() {
+    let x = window.sessionStorage.getItem('token');
+    if (x != null) { _('#db_token').value(x); }
+  }
+}
+Utils = new Utils();
+
+class Edit {
+  constructor() {
+    this.last = {};
+  }
+
+  save() {
+    let selected = _('#result_space .selected');
+    let row = selected.closest(".result-row");
+    let entry_id = row.find("[field-type=id] .value").value();
+    if (isEmpty(entry_id)) { return Display.message( { content:"Could not find a ID Field in this row, can't quick edit", color:Display.color_warn } ); }
+
+    let container = Select.last;
+    let content = {};
+
+    let selected_type = selected.attribute("field-type");
+    let selected_key = selected.find(".key").text();
+    let selected_value;
+    let need_convert = true;
+
+    if (selected_type == "bool") {
+      selected_value = selected.find(".value").attribute("state") == "true" ? true : false ;
+    }
+    else if (selected_type == "remove") {
+      selected_value = "del data["+JSON.stringify(selected_key)+"]";
+      selected.remove();
+      need_convert = false;
     }
     else {
-      $('#'+curl.modal+'_modal').modal('show');
+      selected_value = selected.find(".value").value();
     }
+
+    if (need_convert) {
+      try {
+        content[selected_key] = getValueInRightType(selected_value, selected_type);
+      }
+      catch (e) {
+        return Display.message( {content:e, color:Display.color_warn} );
+      }
+    }
+    else {
+      content = selected_value;
+    }
+
+    let request = {
+      "of": container,
+      "where": "data['id'] == "+entry_id,
+      "limit": 1,
+      "content": content
+    }
+    this.last = request;
+    return Update.execute(request);
   }
-  if (curl.container != null) {
-    $('[name=of], [name=into], [name=container]').attr('value',curl.container).val(curl.container);
-    $('#current_container').text(curl.container);
+
+  changeCol(type) {
+    if (type == null) { type = "string" }
+    let field = _('#result_space .selected');
+    if (isEmpty(field.result)) {return ;}
+
+    let key = field.find(".key").text();
+    let value = field.find(".value").value();
+
+    let new_field = null;
+
+    if (type == "none") { new_field = Template.generateResultColNone(key) }
+    else if (type == "string") { new_field = Template.generateResultColString(key, value) }
+    else if (type == "number") { new_field = Template.generateResultColNumber(key, value) }
+    else if (type == "bool") { new_field = Template.generateResultColBool(key, value) }
+    else if (type == "object") { new_field = Template.generateResultColObject(key, value) }
+    else if (type == "remove") { new_field = Template.generateResultColRemove(key) }
+    else { new_field = Template.generateResultColUnknown(key, value) }
+
+    if (new_field == null) { throw "Could not generate field"; }
+
+    var EditO = this;
+    new_field.addClass("selected");
+    new_field.on("dblclick", function () { EditO.selectCol(this) });
+
+    field.replaceWith(new_field);
   }
-  if (curl.limit != null) {
-    $('[name=limit]').attr('value',curl.limit).val(curl.limit);
+
+  selectCol(entry_col) {
+    let c = _(entry_col);
+    _('#result_space .selected').removeClass("selected");
+    c.addClass("selected");
+    _('#col_edit_menu').collapse('show');
   }
-  if (curl.offset != null) {
-    $('[name=offset]').attr('value',curl.offset).val(curl.offset);
-  }
-  if (curl.where != null) {
-    $('[name=where]').attr('value',curl.where).val(curl.where);
+
+  stopEdit() {
+    _('#result_space .selected').removeClass("selected");
+    _('#col_edit_menu').collapse('hide');
   }
 
 }
-
-$(document).on('hidden.bs.modal', function (event) {
-  curl['modal'] = null;
-  update_curl();
-});
-
-$(document).on('hidden.bs.collapse', function (event) {
-  curl['modal'] = null;
-  update_curl();
-});
+Edit = new Edit();
+// events
+document.addEventListener("DOMContentLoaded", function () {
+  // restore view
+  Utils.loadToken();
+  DynamicURL.restoreWindow();
+})

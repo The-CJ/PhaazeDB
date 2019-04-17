@@ -1,182 +1,127 @@
-function select(r, preview=false) {
-  if (r == null) {
-    r = {};
+class Select {
+  constructor() {
+    this.last = "";
+    this.max_fields = 200;
   }
 
-  let request = {
-    "action": "select",
-    "of": r['of'],
-    "token": $('#db_token').val()
-  };
-  if (r.limit != null) {
-    request['limit'] = r.limit;
+  askTooManyFields(data) {
+    let mes = [
+      "Warning!",
+      "Select returned "+data.hits+" entry(s) with a total of",
+      data.hits_field+" different fields to display.",
+      "This may cause lag or slow down the browser.",
+      "Continue?"
+    ]
+    return confirm( mes.join("\n") );
   }
-  if (r.offset != null) {
-    request['offset'] = r.offset;
-  }
-  if (r.where != null) {
-    request['where'] = r.where;
-  }
-  $.get("/", request)
-  .done(function (data) {
 
-    curl['container'] = request["of"];
-    curl['where'] = request["where"];
-    curl['limit'] = request["limit"];
-    curl['offset'] = request["offset"];
-    update_curl();
+  showFieldSelect() {
+    _("[modal=select] [select-fields-btn]").hide();
+    _("[modal=select] [select-fields]").show();
+  }
 
-    last_selected_container = request["of"];
-    $('input[name=into], input[name=of]').val(last_selected_container);
-    $('input[name=where]').val(r.where);
-    $('#current_container').text(last_selected_container);
-    $('#total_entrys').text(data.total);
-    if (preview == false) {
-      display_message( {content:"Select: Returned: "+data.hits+" entry(s)", color:"#ccc"} );
+  start() {
+    let request = {};
+
+    request["of"] = _("[modal='select'] [name=of]").value();
+
+    if (isEmpty(request['of'])) { field.addClass("need-correction"); return; }
+
+    request["where"] = _("[modal='select'] [name=where]").value();
+    request["limit"] = _("[modal='select'] [name=limit]").value();
+    request["offset"] = _("[modal='select'] [name=offset]").value();
+    request["fields"] = _("[modal='select'] [name=fields]").value();
+
+    return this.execute(request);
+  }
+
+  preview(btn) {
+    let container_name = _(btn).attribute('path');
+    return this.execute({"of":container_name, "limit":10}, true);
+  }
+
+  execute(request, preview=false) {
+    if (request == null) { request = {}; }
+    let r = {
+      "action": "select",
+      "token": _('#db_token').value(),
+      "of": request['of']
+    };
+    if ( !isEmpty(request['limit']) ) { r['limit'] = request['limit']; }
+    if ( !isEmpty(request['offset']) ) { r['offset'] = request['offset']; }
+    if ( !isEmpty(request['where']) ) { r['where'] = request['where']; }
+    if ( !isEmpty(request['fields']) ) { r['fields'] = request['fields'].split("|"); }
+
+    this.last = request['of'];
+
+    var SelectO = this;
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      DynamicURL.set('container', request['of'], false);
+      DynamicURL.set('limit', request['limit'], false);
+      DynamicURL.set('offset', request['offset'], false);
+      DynamicURL.set('where', request['where'], false);
+      DynamicURL.set('fields', request['fields'], false);
+      DynamicURL.update();
+
+      _('#current_container').text(request['of']);
+      _('[name=of], [name=into], [name=container]').value(request['of']);
+      _('#total_entrys').text(data.total);
+      Edit.stopEdit();
+
+      if (preview == false) {
+        Display.message( {content:"Select: Returned: "+data.hits+" entry(s)", color:Display.color_neutral} );
+      }
+      if (data.hits == 0) {
+        return _('#result_space').html('<div class="center-item-row" style="height:100%;"><div class="no-results"></div></div>');
+      }
+      if (data.hits_field > SelectO.max_fields) {
+        if (!SelectO.askTooManyFields(data)){return;}
+      }
+      return SelectO.build(data.data);
+    })
+    .fail(function (data) {
+      if (data.status == "error") {
+        if (data.msg == "unauthorised") {
+          return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+        }
+        return Display.message( {content:data.msg, color:Display.color_fail} );
+      }
+      else {
+        return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+      }
+    })
+
+  }
+
+  build(data) {
+    var result_space = _('#result_space').html('');
+    for (var entry of data) {
+      var row = _.create('<div class="center-item-row result-row">');
+      // id first, if there
+      if (!isEmpty(entry['id'])) {
+        row.append( Template.generateResultColID(entry['id']) );
+        delete entry['id'];
+      }
+
+      let sorted_keys = Object.keys(entry).sort(function(a,b){
+        a=a.toLowerCase();b=b.toLowerCase();
+        return (a<b) ? -1 : (a>b) ? 1 : 0;
+      });
+
+      for (var key of sorted_keys) {
+        let value = entry[key];
+        if (value === null) { row.append(Template.generateResultColNone(key)) }
+        else if (typeof value == "string") { row.append(Template.generateResultColString(key, value)) }
+        else if (typeof value == "number") { row.append(Template.generateResultColNumber(key, value)) }
+        else if (typeof value == "boolean") { row.append(Template.generateResultColBool(key, value)) }
+        else if (typeof value == "object") { row.append(Template.generateResultColObject(key, value)) }
+        else { row.append(Template.generateResultColUnknown(key, value)) }
+      }
+      result_space.append(row);
     }
-    if (data.hits == 0) {
-      $('#result_space').html('<div class="center-item-row" style="height:100%;"><div class="no-results"></div></div>');
-      return ;
-    }
-    return fill_entrys(data.data);
-  })
-  .fail(function (data) {
-    data = data.responseJSON ? data.responseJSON : {};
-    if (data.status == "error") {
-      if (data.msg == "unauthorised") {
-        display_message( {content:"Unauthorised, please check token", color:"#fa3"} );
-        return notify_incorrect_token();
-      }
-      return display_message( {content:data.msg, color:"#fa3"} );
-    } else {
-      return display_message( {content:"Unknown Server Error", color:"#f00"} );
-    }
-  })
-}
-
-function start_select() {
-  if ($('#select_modal').is(':visible')) {
-    $('#select_modal').collapse('hide');
-    return ;
+    // add edit event listener
+    _("#result_space .result-col").on("dblclick", function () { Edit.selectCol(this) });
   }
-  $('#modal-space > .collapse').collapse('hide');
-  $('#select_modal').find('[name=of]').val( last_selected_container );
-  $('#select_modal').find('.need_correction').removeClass('need_correction');
-  $('#select_modal').collapse('show');
-  curl['modal'] = 'select';
-  update_curl();
-
 }
-
-function modal_select() {
-  let col_modal = $('#select_modal');
-  let r = {};
-
-  r['of'] = col_modal.find('[name=of]').val();
-  r['where'] = col_modal.find('[name=where]').val();
-  r['limit'] = col_modal.find('[name=limit]').val();
-  r['offset'] = col_modal.find('[name=offset]').val();
-
-  return select(r);
-}
-
-function preview_select(btn) {
-  btn = $(btn);
-  let table_name = btn.attr('path');
-  return select( {"of":table_name, "limit":10}, true );
-}
-
-function fill_entrys(data_list) {
-  var result_space = $('#result_space').html('');
-  for (entry of data_list) {
-    var row = $('<div class="center-item-row result_row">');
-    let id_col = generate_id(entry['id']);
-    row.append(id_col);
-    delete entry['id'];
-
-    let sorted_entry = {};
-    Object.keys(entry).sort(function(a, b) {
-      let keya = a.toLowerCase();
-      let keyb = b.toLowerCase();
-      return (keya < keyb) ? -1 : (keya > keyb) ? 1 : 0;
-    }).forEach(function(key) { sorted_entry[key] = entry[key] });
-    for (entry_key in sorted_entry) {
-
-      entry_value = sorted_entry[entry_key];
-      let col_object = null;
-
-      if (entry_value == null) {
-        col_object = generate_none(entry_key);
-      }
-      else if (typeof entry_value == "string") {
-        col_object = generate_string(entry_key, entry_value);
-      }
-      else if (typeof entry_value == "number") {
-        col_object = generate_number(entry_key, entry_value);
-      }
-      else if (typeof entry_value == "boolean") {
-        col_object = generate_bool(entry_key, entry_value);
-      }
-      else if (typeof entry_value == "object") {
-        col_object = generate_object(entry_key, entry_value);
-      }
-      if (col_object != null) {
-        row.append(col_object);
-      }
-    }
-    result_space.append(row);
-  }
-
-}
-
-function generate_id(id) {
-  let ob = $('<div class="result_col typeof_id"></div>');
-  ob.append( $('<div class="key">').text("id") );
-  ob.append( $('<input readonly type="number">').val(id) );
-  return ob;
-}
-function generate_none(key) {
-  let ob = $('<div class="result_col typeof_none" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'none');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input disabled type="text">').val('None/null') );
-  return ob;
-}
-function generate_string(key, value) {
-  let ob = $('<div class="result_col typeof_string" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'string');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input type="text">').val(value) );
-  return ob;
-}
-function generate_number(key, value) {
-  let ob = $('<div class="result_col typeof_number" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'number');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input type="number">').val(value) );
-  return ob;
-}
-function generate_bool(key, value) {
-  let ob = $('<div class="result_col typeof_bool" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'bool');
-  ob.append( $('<div class="key">').text(key) );
-  let s = $('<div class="switch">');
-  s.attr('state', String(value));
-  s.attr('onclick', 'if ($(this).attr("state") == "true") {$(this).attr("state", "false")} else {$(this).attr("state", "true")}');
-  ob.append(s);
-  return ob;
-}
-function generate_object(key, value) {
-  let ob = $('<div class="result_col typeof_object" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'object');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<textarea>').val(JSON.stringify(value)) );
-  return ob;
-}
-function generate_remove(key) {
-  let ob = $('<div class="result_col typeof_remove" ondblclick="edit_select(this)"></div>');
-  ob.attr('object_type', 'remove');
-  ob.append( $('<div class="key">').text(key) );
-  ob.append( $('<input disabled type="text">').val('Remove') );
-  return ob;
-}
+Select = new Select();

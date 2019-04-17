@@ -1,79 +1,67 @@
-function delete_(r) {
-  if (r == null) {
-    r = {};
+class Delete {
+  constructor() {
+    this.last = "";
   }
 
-  let request = {
-    "action": "delete",
-    "of": r['of'],
-    "token": $('#db_token').val()
-  };
-  if (r.limit != null) {
-    request['limit'] = r.limit;
+  askEmptyWhere() {
+    let mes = [
+      "Warning!",
+      "Your 'Where' statement is empty!",
+      "It will delete all entrys,",
+      "if not limited by 'limit' or 'offset'",
+      "Continue?"
+    ]
+    return confirm( mes.join("\n") );
   }
-  if (r.offset != null) {
-    request['offset'] = r.offset;
+
+  start() {
+    let request = {};
+
+    request["of"] = _("[modal=delete] [name=of]").value();
+
+    if (isEmpty(request['of'])) {
+      _("[modal=delete] [name=of]").addClass("need-correction"); return;
+    }
+
+    request["where"] = _("[modal=delete] [name=where]").value();
+    request["limit"] = _("[modal=delete] [name=limit]").value();
+    request["offset"] = _("[modal=delete] [name=offset]").value();
+
+    return this.execute(request);
   }
-  if (r.where != null) {
-    request['where'] = r.where;
-  }
-  $.post("/", request)
-  .done(function (data) {
-    last_selected_container = request["of"];
-    $('input[name=into], input[name=of]').val(last_selected_container);
-    $('input[name=where]').val(r.where);
-    $('input[name=limit]').val(r.limit);
-    $('input[name=offset]').val(r.offset);
-    $('#current_container').text(last_selected_container);
-    $('#total_entrys').text(data.total);
-    $('#delete_modal').modal('hide');
-    display_message( {content:"Delete: Removed: "+data.hits+" entry(s)", color:"#ccc"} );
-  })
-  .fail(function (data) {
-    data = data.responseJSON ? data.responseJSON : {};
-    if (data.status == "error") {
-      if (data.msg == "unauthorised") {
-        display_message( {content:"Unauthorised, please check token", color:"#fa3"} );
-        return notify_incorrect_token();
+
+  execute(request) {
+    if (request == null) { request = {}; }
+    let r = {
+      "action": "delete",
+      "token": _('#db_token').value(),
+      "of": request['of']
+    };
+    if ( !isEmpty(request['limit']) ) { r['limit'] = request['limit']; }
+    if ( !isEmpty(request['offset']) ) { r['offset'] = request['offset']; }
+    if ( !isEmpty(request['where']) ) { r['where'] = request['where']; }
+    else {
+      if ( !this.askEmptyWhere() ) {return _("[modal=delete] [name=where]").addClass("need-correction");}
+    }
+
+    this.last = request['of'];
+
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      Display.closeModal();
+      Display.message( {content:"Successfull deleted "+data.hits+" entry(s) of "+request['of'], color:Display.color_success} );
+    })
+    .fail(function (data) {
+      if (data.status == "error") {
+        if (data.msg == "unauthorised") {
+          return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+        }
+        return Display.message( {content:data.msg, color:Display.color_fail} );
       }
-      return display_message( {content:data.msg, color:"#fa3"} );
-    } else {
-      return display_message( {content:"Unknown Server Error", color:"#f00"} );
-    }
-  })
-}
-
-function start_delete() {
-  $('#delete_modal').find('[name=into]').val( last_selected_container )
-  $('#delete_modal').find('.need_correction').removeClass('need_correction');
-  $('#delete_modal').modal('show');
-  curl['modal'] = 'delete';
-  update_curl();
-
-}
-
-function modal_delete() {
-  let col_modal = $('#delete_modal');
-  let r = {};
-  let table_name = col_modal.find('[name=of]').val();
-  if (table_name == "") {
-    col_modal.find('[name=of]').addClass('need_correction').focus();
-    return ;
+      else {
+        return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+      }
+    })
   }
-
-  r['of'] = table_name;
-  r['where'] = col_modal.find('[name=where]').val();
-  r['limit'] = col_modal.find('[name=limit]').val();
-  r['offset'] = col_modal.find('[name=offset]').val();
-
-  let t = false;
-  if (r.where == "" || r.where == null) {
-    t = confirm("WARNING\nYour 'where' field is empty. that will erase all entrys if not hold by\nlimit or offset.\n\nSure you wanna do this?");
-    if (t) {
-      return delete_(r);
-    }
-  }
-  return delete_(r);
-  
 }
-
+Delete = new Delete();

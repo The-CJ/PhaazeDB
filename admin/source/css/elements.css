@@ -20,6 +20,7 @@
   flex-direction: row;
   align-items: center;
   padding:0.5em;
+  cursor: help;
 }
 .token-input > .input-end {
   height: 100%;
@@ -30,8 +31,10 @@
   flex-direction: row;
   align-items: center;
   padding:0.5em;
+  cursor: pointer;
 }
 .token-input > .input-field {
+  margin: 0;
   height: 100%;
   text-align: center;
   width: 15vw;
@@ -44,20 +47,44 @@
   box-shadow: none!important;
 }
 
+/* footer buttons */
+.footer-buttons {
+  margin-left: auto;
+}
+.footer-buttons .btn {
+  padding-left: 2em;
+  padding-right: 2em;
+  height: 90%;
+  margin: 0 0.65em;
+}
+
 /* container */
 .supercontainer {
   width: 100%;
 }
 .supercontainer > .btn {
   border-top: 1px solid black;
+  color: white;
   width: 100%;
   margin: 0;
-  background: rgb(88, 88, 255);
+  background: #5858ff;
 }
-.supercontainer .content-list {
-  width: 100%;
+.content-list > .btn:last-child {
+  margin-bottom: 5px;
+}
+.supercontainer > .content-list {
+  /* padding-bottom: 1em; */
+}
+.supercontainer > .content-list > .supercontainer {
   padding-right: 5%;
-  padding-bottom: 1vh;
+}
+.content-list > .btn {
+  border-top: 1px solid black;
+  width: 100%;
+  margin: 0;
+  background: #4242ff;
+  display: block;
+  color: white;
 }
 .supercontainer > button[loaded=true]::after {
   font-family: "Material Icons";
@@ -67,18 +94,18 @@
   font-family: "Material Icons";
   content: ' expand_more';
 }
-.container_button {
-  border-top: 1px solid black;
-  width: 100%;
-  margin: 0;
-  background: rgb(66, 66, 255);
+
+.key-value-field input,
+.key-value-field select,
+.key-value-field button {
+  transition-duration: 0.15s;
+  height: 2em;
 }
 
 /* message's */
 .message {
   width: 100%;
   font-size: 120%;
-
 }
 .no-results {
   text-align: center;
@@ -107,110 +134,121 @@
 }
 
 /* result colors */
-.typeof_id{
+[field-type=id]{
   background: #4285F4;
+  color: #000;
 }
-.typeof_none{
+[field-type=none]{
   background: #9e9e9e;
+  color: #000;
 }
-.typeof_string{
+[field-type=string]{
   background: #4CAF50;
+  color: #000;
 }
-.typeof_number{
+[field-type=number]{
   background: #F44336;
+  color: #000;
 }
-.typeof_bool{
+[field-type=bool]{
   background: #3F729B;
+  color: #fff;
 }
-.typeof_object{
+[field-type=object]{
   background: #e48800;
+  color: #000;
 }
-.typeof_remove{
+[field-type=remove]{
   background: #323232;
+  color: #fff;
 }
 
-/* result entry col's */
-.result_row {
-  height: 8.5%;
-  margin: 3px;
+/* result entry's */
+.result-row {
+  height: 4em;
+  padding: 3px;
 }
-.result_col {
+.result-col {
+  margin: 0 1px;
   width: fit-content;
   color: white;
   height: 100%;
   border: 1px solid black;
-  margin: 3px;
-  padding: 4px;
   position: relative;
-  transition: 0.3s;
 }
-.result_col div.key {
+.result-col > .key {
+  text-align: left;
+  padding-left: 5px;
+  height: 50%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  font-size: 13px;
+}
+.result-col > .value {
   text-align: left;
   height: 50%;
-}
-.result_col input[type=text], .result_col input[type=number], .result_col .switch, .result_col textarea {
-  text-align: left;
   padding: 0;
   margin: 0;
+  width: 150px;
   background: white;
   border: none;
-  height: 50%;
-  width: 150px;
-  transition: all 0.3s;
   resize: none;
   position: relative;
+  transition: 0.3s;
+  font-size: 13px;
 }
-.result_col input[type=text]:focus, .result_col input[type=number]:focus, .result_col textarea:focus {
+.result-col > .value:focus {
   width: 450px;
 }
-.result_col textarea:focus {
+.result-col textarea.value:focus {
   height: 250px;
   z-index: 100;
 }
-.result_col .switch {
+.result-col .switch {
   display: flex;
   align-items: center;
 }
-.result_col .switch[state=false] {
+.result-col .switch[state=false] {
   background: red;
 }
-.result_col .switch[state=true] {
+.result-col .switch[state=true] {
   background: lime;
 }
-.result_col .switch[state=false]::after {
+.result-col .switch[state=false]::after {
   content: "False";
   margin: auto;
   color: white;
 }
-.result_col .switch[state=true]::after {
+.result-col .switch[state=true]::after {
   content: "True";
   margin: auto;
   color: black;
 }
 
-/* modal input fields */
-.field_space .field_key_value {
-  padding: 5px;
+/* button */
+.btn {
+  padding: .3em .7em;
+  border-radius: 0px;
+  border: none;
+  text-transform: none;
 }
-.field_space button, .field_space select {
-  margin: 0;
-  padding: 8px;
-}
-.field_space input {
-  text-align: center;
+.btn.btn-block {
+  width: 100%;
 }
 
-/* collapse-modal parts */
-.collapse-modal > form .head {
-  padding: 1em;
-  display: flex;
+/* input */
+input[type=number], input[type=text], input[type=email], input[type=password] {
+  background: transparent;
+  outline: none;
+  margin: 0.25em;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #000;
+  height: 2.2em;
+  padding: 0 1em;
+  transition-duration: .5s;
 }
-.collapse-modal > form .head h4 {
-  width: 100%
-}
-.collapse-modal > form .body {
-  padding: 1em;
-}
-.collapse-modal > form .footer {
-  padding: 1em;
+input[type=number]:focus, input[type=text]:focus, input[type=email]:focus, input[type=password]:focus {
+  box-shadow: #05a 0px 2px 0px;
 }

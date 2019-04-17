@@ -1,32 +1,32 @@
-<footer class="stylish-color-dark">
+<footer class="grey dark">
   <div class="remain-height center-item-row">
 
     <!-- token -->
-    <form class="token-input center-item-row" action="javascript:save_token()" method="post">
+    <form class="token-input center-item-row" onsubmit="event.preventDefault();Utils.saveToken()" method="post">
 
       <div class="input-start">
         <i class="material-icons">vpn_key</i>
       </div>
 
-      <input type="password" class="input-field text-white" value="" placeholder="PhaazeDB token" name="db_token" id="db_token">
+      <input type="password" class="input-field text-white" placeholder="PhaazeDB token" id="db_token">
 
-      <div class="input-middle waves-effect" onmousedown="$('#db_token').attr('type', 'text')" onmouseout="$('#db_token').attr('type', 'password')">
+      <div class="input-middle" onmousedown="_('#db_token').attribute('type', 'text')" onmouseout="_('#db_token').attribute('type', 'password')">
         <i class="material-icons">remove_red_eye</i>
       </div>
 
-      <div class="input-end waves-effect" onclick="save_token()">
-        <span></span>
+      <div class="input-end" onclick="Utils.saveToken()">
+        <span><!-- Success text after save --></span>
         <i class="material-icons">save</i>
       </div>
 
     </form>
 
     <!-- buttons -->
-    <div class="remain-height ml-auto center-item-row">
-      <button type="button" class="btn btn-primary" onclick="start_select()">Select</button>
-      <button type="button" class="btn btn-success" onclick="start_insert()">Insert</button>
-      <button type="button" class="btn btn-warning" onclick="start_update()">Update</button>
-      <button type="button" class="btn btn-danger" onclick="start_delete()">Delete</button>
+    <div class="remain-height center-item-row footer-buttons">
+      <button type="button" class="btn blue text-white" onclick="Display.showModal('select')">Select</button>
+      <button type="button" class="btn green" onclick="Display.showModal('insert')">Insert</button>
+      <button type="button" class="btn orange" onclick="Display.showModal('update')">Update</button>
+      <button type="button" class="btn red text-white" onclick="Display.showModal('delete')">Delete</button>
     </div>
 
   </div>

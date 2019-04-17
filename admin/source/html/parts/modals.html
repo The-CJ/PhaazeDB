@@ -1,86 +1,105 @@
-<div id="modal-space">
+<div id="modal_space">
 
-  <div id="container_create_modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
+  <div modal="create" class="modal">
+    <div class="modal-content">
 
-      <form class="" onsubmit="event.preventDefault();modal_create();" method="post" >
-        <div class="modal-content">
-          <div class="modal-header success-color-dark text-white">
-            <h4 class="modal-title">Create</h4>
-            <button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+      <form onsubmit="event.preventDefault();Create.start();" method="post" >
+        <div class="modal-header green dark text-white">
+          <div class="center-item-row">
+            <h2>Create</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
               <i class="material-icons text-white">close</i>
             </button>
           </div>
-          <div class="modal-body" style="max-height: 50vh; overflow-y: auto">
-            <div class="center-item-row">
-              <span>New&nbsp;container:&nbsp;</span>
-              <input type="text" name="container" placeholder="Container name">
-            </div>
-          </div>
-          <div class="modal-footer success-color-dark">
-            <div class="center-item-col" style="width: 100%">
-              <button type="submit" class="btn btn-block success-color" style="box-shadow: none">Submit create</button>
-              <div class="message_space" style="width: 100%"></div>
-            </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>New container:</span>
+            <input type="text" name="container" placeholder="Container name">
           </div>
         </div>
+
+        <div class="modal-footer green dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block green text-white">Submit create</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
       </form>
 
     </div>
   </div>
 
-  <div id="container_edit_modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="max-width:unset;width:75vw;">
+  <div modal="edit" class="modal">
+    <div class="modal-content">
 
-      <div class="modal-content">
-        <div class="modal-header secondary-color-dark text-white">
-          <h4 class="modal-title">Describe / Edit</h4>
-          <button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+      <div class="modal-header purple dark text-white">
+        <div class="center-item-row">
+          <h2>Describe / Edit</h2>
+          <span style="width: 100%"></span>
+          <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
             <i class="material-icons text-white">close</i>
           </button>
         </div>
-        <div class="modal-body" style="max-height: 50vh; overflow-y: auto">
-          <div class="center-item-row">
-            <span>Inspect&nbsp;container:&nbsp;</span>
-            <input type="text" name="container" placeholder="Container name">
-          </div>
-          <hr>
-          <button type="button" class="btn btn-block btn-secondary" onclick="describe()">Inspect</button>
-          <div class="modal-result">
+      </div>
 
-          </div>
+      <div class="modal-body">
+        <div class="center-item-row">
+          <span>Describe container:</span>
+          <input type="text" name="container" placeholder="Container name">
         </div>
-        <div class="modal-footer secondary-color-dark">
+        <hr>
+        <button type="button" class="btn btn-block purple text-white" onclick="alert('TODO describe')">Describe</button>
+        <hr>
+        <div class="modal-result">
+          <!-- filled with key - value pairs -->
+        </div>
+        <div class="modal-result-footer">
+          <!-- gets filled with a button when a valid contaner is described -->
         </div>
       </div>
+
+      <div class="modal-footer purple dark">
+      </div>
+
+      <div class="message-space"></div>
 
     </div>
   </div>
 
-  <div id="container_drop_modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
+  <div modal="drop" class="modal">
+    <div class="modal-content">
 
-      <form class="" onsubmit="event.preventDefault();modal_drop();" method="post" >
-        <div class="modal-content">
-          <div class="modal-header warning-color-dark text-white">
-            <h4 class="modal-title">Drop</h4>
-            <button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+      <form onsubmit="event.preventDefault();Drop.start();" method="post">
+        <div class="modal-header red dark text-white">
+          <div class="center-item-row">
+            <h2>Drop</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
               <i class="material-icons text-white">close</i>
             </button>
           </div>
-          <div class="modal-body" style="max-height: 50vh; overflow-y: auto">
-            <div class="center-item-row">
-              <span>Container&nbsp;name:&nbsp;</span>
-              <input type="text" name="container" placeholder="Container name">
-            </div>
-          </div>
-          <div class="modal-footer warning-color-dark">
-            <div class="center-item-col" style="width: 100%">
-              <button type="submit" class="btn btn-block warning-color" style="box-shadow: none">Submit drop</button>
-              <div class="message_space" style="width: 100%"></div>
-            </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>Container name:</span>
+            <input type="text" name="container" placeholder="Container name">
           </div>
         </div>
+
+        <div class="modal-footer red dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block red text-white">Submit drop</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
       </form>
 
     </div>
@@ -88,224 +107,215 @@
 
   <!-- // -->
 
-  <div id="insert_modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
+  <div modal="insert" class="modal">
+    <div class="modal-content">
 
-      <form class="" onsubmit="event.preventDefault();modal_insert();" method="post" >
-        <div class="modal-content">
-          <div class="modal-header success-color-dark text-white">
-            <h4 class="modal-title">Insert</h4>
-            <button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+      <form onsubmit="event.preventDefault();Insert.start()" method="post" >
+        <div class="modal-header green dark text-white">
+          <div class="center-item-row">
+            <h2>Insert</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn-hidden" onclick="Display.closeModal()">
               <i class="material-icons text-white">close</i>
             </button>
           </div>
-          <div class="modal-body" style="max-height: 50vh; overflow-y: auto">
-            <div class="center-item-row">
-              <span>Into&nbsp;container:&nbsp;</span>
-              <input type="text" name="into" placeholder="Container name">
-            </div>
-            <button type="button" class="btn btn-success" onclick="add_key_value_field($('#insert_modal').find('.field_space'))">Add field</button>
-            <button type="button" class="btn btn-warning ml-auto" onclick="$(this).siblings('.field_space').html('')">Clear all fields</button>
-            <div class="field_space">
-              <!-- filed with key - value pairs -->
-            </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>Into container:</span>
+            <input type="text" name="into" placeholder="Container name">
           </div>
-          <div class="modal-footer success-color-dark">
-            <div class="center-item-col" style="width: 100%">
-              <button type="submit" class="btn btn-block success-color" style="box-shadow: none">Submit insert</button>
-              <div class="message_space" style="width: 100%"></div>
-            </div>
+          <div class="center-item-row">
+            <div class="col"><button type="button" class="btn btn-block green" onclick="Insert.modalAddField()">Add field</button></div>
+            <div class="col"><button type="button" class="btn btn-block orange" onclick="Insert.modalClearFields()">Clear all fields</button></div>
+          </div>
+
+          <div insert-fields>
+            <!-- filled with key - value pairs -->
           </div>
         </div>
+
+        <div class="modal-footer green dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block green text-black">Submit insert</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
       </form>
 
     </div>
   </div>
 
-  <div id="update_modal" class="modal fade" tabindex="-1" role="dialog">
+  <div modal="update" class="modal">
+    <div class="modal-content">
 
-    <div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
-
-      <input type="hidden" name="method" value="field_content">
-      <form class="" onsubmit="event.preventDefault();modal_update();" method="post" >
-        <div class="modal-content">
-          <div class="modal-header warning-color text-white">
-            <h4 class="modal-title">Update</h4>
-            <button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
+      <form onsubmit="event.preventDefault();Update.start();" method="post" >
+        <div class="modal-header orange dark text-white">
+          <div class="center-item-row">
+            <h2>Update</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
               <i class="material-icons text-white">close</i>
             </button>
           </div>
-          <div class="modal-body" style="max-height: 50vh; overflow-y: auto">
-            <div class="center-item-row">
-              <span>In&nbsp;container:&nbsp;</span>
-              <input type="text" name="of" placeholder="Container name">
-            </div>
-            <hr>
-            <div class="center-item-row">
-              <div class="col-2">
-                <span>Where&nbsp;statement</span>
-              </div>
-              <div class="col">
-                <input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
-              </div>
-            </div>
-            <div class="center-item-row">
-              <div class="col-2">
-                <span>Limit</span>
-              </div>
-              <div class="col">
-                <input type="number" name="limit" placeholder="Infinite">
-              </div>
-              <div class="col-2">
-                <span>Offset</span>
-              </div>
-              <div class="col">
-                <input type="number" name="offset" placeholder="0">
-              </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col">
-                <button entry-type-button="field_content" type="button" class="btn btn-block warning-color-dark" onclick="switch_entry_type('field_content')">Field Method</button>
-              </div>
-              <div class="col">
-                <button entry-type-button="string_content" type="button" class="btn btn-block warning-color-dark" onclick="switch_entry_type('string_content')">exec() Method</button>
-              </div>
-            </div>
-            <div entry-type="field_content" style="display: none">
-              <hr>
-              <button type="button" class="btn btn-success" onclick="add_key_value_field($('#update_modal').find('.field_space'))">Add field</button>
-              <button type="button" class="btn btn-warning ml-auto" onclick="$(this).siblings('.field_space').html('')">Clear all fields</button>
-              <div class="field_space">
-                <!-- filed with key - value pairs -->
-              </div>
-            </div>
-            <div entry-type="string_content" style="display: none">
-              <hr>
-              <div class="row">
-                <div class="col">
-                  <input type="text" name="content" placeholder="data['name1'] = 'something'; data['aNumber'] += 3;">
-                </div>
-              </div>
-            </div>
-
-          </div>
-          <div class="modal-footer warning-color">
-            <div class="center-item-col" style="width: 100%">
-              <button type="submit" class="btn btn-block warning-color-dark" style="box-shadow: none">Submit update</button>
-              <div class="message_space" style="width: 100%"></div>
-            </div>
-          </div>
         </div>
-      </form>
 
-    </div>
-  </div>
-
-  <div id="delete_modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="max-width:unset;width:50vw;">
-
-      <form class="" onsubmit="event.preventDefault();modal_delete();" method="post" >
-        <div class="modal-content">
-          <div class="modal-header danger-color-dark text-white">
-            <h4 class="modal-title">Delete</h4>
-            <button type="button" class="hidden_button" data-dismiss="modal" aria-label="Close">
-              <i class="material-icons text-white">close</i>
-            </button>
-          </div>
-          <div class="modal-body" style="max-height: 50vh; overflow-y: auto">
-            <div class="center-item-row">
-              <div class="col-2">
-                <span>In container:</span>
-              </div>
-              <div class="col">
-                <input type="text" name="of" placeholder="Container name">
-              </div>
-            </div>
-            <div class="center-item-row">
-              <div class="col-2">
-                <span>Where statement</span>
-              </div>
-              <div class="col">
-                <input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
-              </div>
-            </div>
-            <div class="center-item-row">
-              <div class="col-2">
-                <span>Limit</span>
-              </div>
-              <div class="col">
-                <input type="number" name="limit" placeholder="Infinite">
-              </div>
-              <div class="col-2">
-                <span>Offset</span>
-              </div>
-              <div class="col">
-                <input type="number" name="offset" placeholder="0">
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer danger-color-dark">
-            <div class="center-item-col" style="width: 100%">
-              <button type="submit" class="btn btn-block danger-color" style="box-shadow: none">Submit delete</button>
-              <div class="message_space" style="width: 100%"></div>
-            </div>
-          </div>
-        </div>
-      </form>
-
-    </div>
-  </div>
-
-  <div id="select_modal" class="collapse collapse-modal">
-
-    <form onsubmit="event.preventDefault();modal_select();" method="post" >
-      <div class="head primary-color-dark text-white">
-        <h4>Select</h4>
-        <button type="button" class="hidden_button" onclick="$('#select_modal').collapse('hide')">
-          <i class="material-icons text-white">close</i>
-        </button>
-      </div>
-      <div class="body white" style="max-height: 50vh; overflow-y: auto">
-        <div class="center-item-row">
-          <div class="col-2">
-            <span>From container:</span>
-          </div>
-          <div class="col">
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>In container:</span>
             <input type="text" name="of" placeholder="Container name">
           </div>
-        </div>
-        <div class="center-item-row">
-          <div class="col-2">
-            <span>Where statement</span>
-          </div>
-          <div class="col">
+          <hr>
+          <div class="center-item-row">
+            <span>Where statement:</span>
             <input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
           </div>
-        </div>
-        <div class="center-item-row">
-          <div class="col-2">
+          <div class="center-item-row">
             <span>Limit</span>
-          </div>
-          <div class="col">
             <input type="number" name="limit" placeholder="Infinite">
-          </div>
-          <div class="col-2">
             <span>Offset</span>
+            <input type="number" name="offset" placeholder="0">
           </div>
-          <div class="col">
+          <hr>
+          <div class="center-item-row">
+            <data method value=""></data>
+            <div class="col" style="padding-right:0.5em">
+              <button type="button" class="btn btn-block orange" method="fields" onclick="Update.setMethod('fields')">Field Method</button>
+            </div>
+            <div class="col" style="padding-left:0.5em">
+              <button type="button" class="btn btn-block orange" method="string" onclick="Update.setMethod('string')">exec() Method</button>
+            </div>
+          </div>
+          <div method="fields" style="display: none">
+            <hr>
+            <div class="center-item-row">
+              <div class="col"><button type="button" class="btn btn-block green" onclick="Update.modalAddField()">Add field</button></div>
+              <div class="col"><button type="button" class="btn btn-block orange" onclick="Update.modalClearFields()">Clear all fields</button></div>
+            </div>
+            <div update-fields>
+              <!-- filled with key - value pairs -->
+            </div>
+          </div>
+          <div method="string" style="display: none">
+            <hr>
+            <div class="center-item-row">
+              <input type="text" name="content" placeholder="data['name1'] = 'something'; data['aNumber'] += 3;">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer orange dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block orange text-black">Submit update</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div modal="delete" class="modal">
+    <div class="modal-content">
+
+      <form onsubmit="event.preventDefault();Delete.start();" method="post" >
+        <div class="modal-header red dark text-white">
+          <div class="center-item-row">
+            <h2>Delete</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
+              <i class="material-icons text-white">close</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>In container:</span>
+            <input type="text" name="of" placeholder="Container name">
+          </div>
+          <div class="center-item-row">
+            <span>Where statement:</span>
+            <input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
+          </div>
+          <div class="center-item-row">
+            <span>Limit:</span>
+            <input type="number" name="limit" placeholder="Infinite">
+            <span>Offset:</span>
             <input type="number" name="offset" placeholder="0">
           </div>
         </div>
-      </div>
-      <div class="footer primary-color-dark">
-        <div class="center-item-col" style="width: 100%">
-          <button type="submit" class="btn btn-block primary-color" style="box-shadow: none">Submit select</button>
-          <div class="message_space" style="width: 100%"></div>
-        </div>
-      </div>
-    </form>
 
+        <div class="modal-footer red dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block red text-white">Submit delete</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
   </div>
+
+  <div modal="select" class="modal">
+    <div class="modal-content">
+
+      <form onsubmit="event.preventDefault();Select.start();" method="post" >
+        <div class="modal-header blue dark text-white">
+          <div class="center-item-row">
+            <h2>Select</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
+              <i class="material-icons text-white">close</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>From container:</span>
+            <input type="text" name="of" placeholder="Container name">
+          </div>
+          <div class="center-item-row">
+            <span>Where statement:</span>
+            <input type="text" name="where" placeholder="data['id'] in [1337, 69, 42] or data['aString'] == 'hello'">
+          </div>
+          <div class="center-item-row">
+            <span>Limit:</span>
+            <input type="number" name="limit" placeholder="Infinite">
+            <span>Offset:</span>
+            <input type="number" name="offset" placeholder="0">
+          </div>
+          <div class="center-item-col" select-fields-btn>
+            <button type="button" class="btn btn-block blue text-white" onclick="Select.showFieldSelect()">Change Selected Fields (Default: all)</button>
+          </div>
+          <div class="center-item-row" style="display: none" select-fields>
+            <span>Select fields:</span>
+            <input type="text" name="fields" placeholder="Field names sepperated by  |">
+          </div>
+        </div>
+
+        <div class="modal-footer blue dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block blue text-white">Submit select</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div modal-close class="modal-closer" onclick="Display.closeModal()"></div>
 
 </div>

@@ -1,0 +1,50 @@
+.modal {
+  display: none;
+  position: fixed;
+  top: 10em;
+  left: 25vw;
+  right: 25vw;
+  z-index: 1000000;
+}
+.modal.show {
+  display: block;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 50vw;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  background: white;
+}
+
+.modal-header {
+  padding: 1em;
+}
+
+.modal-body {
+  padding: 1em;
+  max-height: 50vh;
+  overflow-y: auto
+}
+
+.modal-footer {
+  padding: 1em;
+}
+
+.modal-closer {
+  display: none;
+  position: fixed;
+  background: rgba(0,0,0,0.7);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999999;
+}
+.modal-closer.show {
+  display: block;
+}

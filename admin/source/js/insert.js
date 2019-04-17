@@ -1,77 +1,70 @@
-function insert(r) {
-  if (r == null) {
-    r = {};
+class Insert {
+  constructor() {
+    this.last = "";
   }
 
-  let request = {
-    "action": "insert",
-    "into": r['into'],
-    "token": $('#db_token').val(),
-    "content": r['content']
-  };
-  $.post("/", JSON.stringify(request))
-  .done(function (result) {
-    $('#insert_modal').modal('hide');
-    display_message({content:"Successfull inserted into '"+request.into+"' - ID: "+result.data.id, color:"#afa"});
-  })
-  .fail(function (data) {
-    data = data.responseJSON ? data.responseJSON : {};
-    if (data.status == "error") {
-      if (data.msg == "unauthorised") {
-        display_message( {content:"Unauthorised, please check token", color:"#fa3"} );
-        return notify_incorrect_token();
+  modalAddField() {
+    let n = Template.getKeyValueField();
+    _('[modal=insert] [insert-fields]').append(n);
+  }
+
+  modalClearFields() {
+    _('[modal=insert] [insert-fields]').html("");
+  }
+
+  start() {
+    let modal = _('[modal=insert]');
+    let container = modal.find('[name=into]').value();
+    if (isEmpty(container)) { return modal.find('[name=into]').addClass('need-correction'); }
+
+    let new_object = {};
+
+    for (let field of modal.find(".key-value-field").result) {
+      field = _(field);
+      let key = field.find("[placeholder=Key]").value();
+      let value = field.find("[placeholder=Value]").value();
+      let type = field.find("select").value();
+
+      if (isEmpty(key)) {
+        field.find("[placeholder=Key]").addClass('need-correction');
+        return Display.message({content:"no key can be empty", color:Display.color_warn});
       }
-      return display_message( {content:data.msg, color:"#fa3"} );
-    } else {
-      return display_message( {content:"Unknown Server Error", color:"#f00"} );
-    }
-  })
-}
 
-function modal_insert() {
-  let modal = $('#insert_modal');
-  let table_name = modal.find('[name=into]').val();
-  if (table_name == "") {
-    modal.find('[name=into]').addClass('need_correction').focus();
-    return ;
+      try { new_object[key] = getValueInRightType(value, type); }
+      catch (e) {
+        Display.message( {content:"invalid json object", color:Display.color_warn} );
+        return field.find("[placeholder=Value]").addClass("need-correction");
+      }
+    }
+    return this.execute({"into":container, "content": new_object});
   }
 
-  let new_object = {};
-  for (field of $('#insert_modal').find('.field_key_value') ) {
-    field = $(field);
-    let key = field.find('[placeholder=key]').val();
-    let type = field.find('select').val();
-    let value = field.find('[placeholder=value]').val();
+  execute(request) {
+    if (request == null) { request = {}; }
+    let r = {
+      "action": "insert",
+      "token": _('#db_token').value(),
+      "into": request['into'],
+      "content": request['content']
+    };
 
-    if (key == "") {
-      field.find('[placeholder=key]').addClass('need_correction');
-      display_message({content:"no key can be empty", color:"orange"});
-      return ;
-    }
+    this.last = request['into'];
 
-    new_object[key] = get_value_in_right_type(value, type, key);
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      Display.closeModal();
+      Display.message( {content:"Successfull inserted into '"+request.into+"' - ID: "+data.data.id, color:Display.color_success} );
+    })
+    .fail(function (data) {
+      if (data.status == "error") {
+        if (data.msg == "unauthorised") {
+          return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+        }
+        return Display.message( {content:data.msg, color:Display.color_fail} );
+      } else {
+        return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+      }
+    })
   }
-
-  return insert({"into":table_name, "content": new_object});
-
 }
-
-function start_insert() {
-  $('#insert_modal').find('[name=into]').val( last_selected_container )
-  $('#insert_modal').find('.need_correction').removeClass('need_correction');
-  $('#insert_modal').modal('show');
-  curl['modal'] = 'insert';
-  update_curl();
-
-}
-
-function get_select_with_options() {
-  let x = $('<select class="btn typeof_string" onchange="update_typeof_color($(this), this.value)">');
-  x.append( $('<option value="string">String</option>') );
-  x.append( $('<option value="number">Number</option>') );
-  x.append( $('<option value="bool">Bool</option>') );
-  x.append( $('<option value="object">Object</option>') );
-  x.append( $('<option value="none">None/null</option>') );
-  return x;
-}
-
+Insert = new Insert();

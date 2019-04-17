@@ -2,6 +2,11 @@
   height: inherit;
 }
 
+.center-item-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .center-item-row {
   display: flex;
   flex-direction: row;
@@ -11,30 +16,43 @@
   white-space: nowrap!important;
 }
 
-.center-item-col {
+.row {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+}
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
 }
 
-.need_correction {
+.need-correction {
   background-color: rgba(255, 0, 0, 0.3)!important;
-  border: 2px solid rgba(255, 0, 0, 1)!important;
+  box-shadow:
+  2px 2px 0px 0 red,
+  -2px 2px 0px 0 red,
+  2px -2px 0px 0 red,
+  -2px -2px 0px 0 red!important;
 }
 
-.hidden_button {
+.btn-hidden {
   padding: 0;
   background: transparent;
   border: 0;
 }
 
+/* text */
+.text-center {
+  text-align: center;
+}
+
+/*selected option*/
 .selected {
   animation-name: selected_ani;
   animation-duration: 1s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
-
 @keyframes selected_ani {
   0% {
     box-shadow:
@@ -57,4 +75,17 @@
     5px -5px 0px 0 rgb(100, 125, 200),
     -5px -5px 0px 0 rgb(100, 125, 200);
   }
+}
+
+/* collapse */
+.collapse {
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  display: none;
+}
+.collapse.collapsing {
+  display: block;
+}
+.collapse.show {
+  display: block;
 }

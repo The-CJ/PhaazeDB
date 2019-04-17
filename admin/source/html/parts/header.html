@@ -1,47 +1,63 @@
-<header class="stylish-color-dark">
+<div id="main_menu" class="collapse grey dark">
+  <h2 class="text-white text-center" style="margin: 0 0 10px 0">Menu</h2>
+  <button type="button" class="btn btn-block green" onclick="Display.showModal('create')">Create container</button>
+  <button type="button" class="btn btn-block purple text-white" onclick="Display.showModal('edit')">Describe / Edit container</button>
+  <button type="button" class="btn btn-block red text-white" onclick="Display.showModal('drop')">Drop container</button>
+  <hr>
+  <button type="button" class="btn btn-block blue text-white" onclick="Option.optionLogging()">Toggle logging</button>
+  <hr>
+  <button type="button" class="btn btn-block red text-white" onclick="Option.optionShutdown()">Shutdown</button>
+</div>
+
+<header class="grey dark">
   <div class="remain-height center-item-row">
-    <img src="admin/source/PhaazeDB.png" alt="PhaazeDD_img" id="db_logo">
-    <div class="display-block">
-      <h1>PhaazeDB - Administration Interface</h1>
-      <div class="row center-item-row">
-        <span class="col-3">Current&nbsp;container:&nbsp;</span>
+    <img src="admin/source/PhaazeDB.png" alt="PhaazeDB_img" id="db_logo">
+
+    <div>
+      <h1 id="main_header">PhaazeDB - Administration Interface</h1>
+      <div class="center-item-row">
+        <span>Current container:</span>
         <span class="col" id="current_container">None</span>
       </div>
-      <div class="row center-item-row">
-        <span class="col-3">Entry's&nbsp;in&nbsp;Container:&nbsp;</span>
+      <div class="center-item-row">
+        <span>Entry's in Container:</span>
         <span class="col" id="total_entrys">None</span>
       </div>
     </div>
-    <div class="display-block mr-auto ml-auto">
-      <div id="col_edit_menu" class="collapse">
 
-        <div class="text-center">
-          <div class="center-item-row">
-            <h3 style="margin:0;">Change field settings</h3>
-            <i class="material-icons ml-auto waves-effect" onclick="close_all_edit()">close</i>
-          </div>
-          <div class="center-item-row">
-            <button type="button" class="btn typeof_string" onclick="change_col_type('string')">String</button>
-            <button type="button" class="btn typeof_bool" onclick="change_col_type('bool')">Bool</button>
-            <button type="button" class="btn typeof_number" onclick="change_col_type('number')">Number</button>
-            <button type="button" class="btn typeof_none" onclick="change_col_type('none')">None/null</button>
-            <button type="button" class="btn typeof_object" onclick="change_col_type('object')">Object</button>
-            <button type="button" class="btn" onclick="change_col_type('remove')" style="color:#000!important;">Remove</button>
-          </div>
-          <button type="button" class="btn btn-block btn-success" onclick="save_col_changes()">Save Changes</button>
-        </div>
+    <span class="col"></span>
 
-      </div>
-    </div>
-    <div class="display-block ml-auto">
-      <div class="center-item-col">
-        <button type="button" class="btn btn-primary btn-block" onclick="$('#main-menu').collapse('toggle')">
-          <div class="center-item-row">
-            <i class="material-icons">menu</i>
-            <span>Menu</span>
-          </div>
+    <div id="col_edit_menu" class="collapse">
+
+      <div class="center-item-row">
+        <h3 style="margin:auto;">Change field</h3>
+        <button type="button" class="btn btn-hidden text-white" onclick="Edit.stopEdit()">
+          <i class="material-icons">close</i>
         </button>
       </div>
+      <div class="center-item-row">
+        <button type="button" class="btn" field-type="string" onclick="Edit.changeCol('string')">String</button>
+        <button type="button" class="btn" field-type="number" onclick="Edit.changeCol('number')">Number</button>
+        <button type="button" class="btn" field-type="bool" onclick="Edit.changeCol('bool')">Bool</button>
+        <button type="button" class="btn" field-type="object" onclick="Edit.changeCol('object')">Object</button>
+        <button type="button" class="btn" field-type="none" onclick="Edit.changeCol('none')">None/null</button>
+        <button type="button" class="btn" field-type="remove" onclick="Edit.changeCol('remove')">Remove</button>
+      </div>
+      <hr>
+      <div class="center-item-row">
+        <button type="button" class="btn btn-block green" onclick="Edit.save()">Save selected column changes</button>
+      </div>
+
     </div>
+
+    <span class="col"></span>
+
+    <button type="button" class="btn blue text-white" onclick="_('#main_menu').collapse('toggle')">
+      <div class="center-item-row">
+        <i class="material-icons">menu</i>
+        <span>Menu</span>
+      </div>
+    </button>
+
   </div>
 </header>
