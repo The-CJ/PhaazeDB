@@ -3,6 +3,17 @@ class Delete {
     this.last = "";
   }
 
+  askEmptyWhere() {
+    let mes = [
+      "Warning!",
+      "Your 'Where' statement is empty!",
+      "It will delete all entrys,",
+      "if not limited by 'limit' or 'offset'",
+      "Continue?"
+    ]
+    return confirm( mes.join("\n") );
+  }
+
   start() {
     let request = {};
 
@@ -29,6 +40,9 @@ class Delete {
     if ( !isEmpty(request['limit']) ) { r['limit'] = request['limit']; }
     if ( !isEmpty(request['offset']) ) { r['offset'] = request['offset']; }
     if ( !isEmpty(request['where']) ) { r['where'] = request['where']; }
+    else {
+      if ( !this.askEmptyWhere() ) {return _("[modal=delete] [name=where]").addClass("need-correction");}
+    }
 
     this.last = request['of'];
 

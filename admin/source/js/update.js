@@ -3,6 +3,17 @@ class Update {
     this.last = "";
   }
 
+  askEmptyWhere() {
+    let mes = [
+      "Warning!",
+      "Your 'Where' statement is empty!",
+      "It will effect all entrys,",
+      "if not limited by 'limit' or 'offset'",
+      "Continue?"
+    ]
+    return confirm( mes.join("\n") );
+  }
+
   setMethod(method) {
     _("[modal=update] button[method]").removeClass("selected");
     _("[modal=update] div[method]").hide();
@@ -88,6 +99,9 @@ class Update {
     if ( !isEmpty(request['limit']) ) { r['limit'] = request['limit']; }
     if ( !isEmpty(request['offset']) ) { r['offset'] = request['offset']; }
     if ( !isEmpty(request['where']) ) { r['where'] = request['where']; }
+    else {
+      if ( !this.askEmptyWhere() ) {return _("[modal=update] [name=where]").addClass("need-correction");;}
+    }
 
     this.last = request['of'];
     _.post("/", JSON.stringify(r))
