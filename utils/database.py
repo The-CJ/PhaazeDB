@@ -1,32 +1,16 @@
-import asyncio, logging, sys
+import asyncio
 import json
 
-from utils.cli import CliArgs
 from aiohttp import web
-
-try: from systemd.journal import JournalHandler
-except ImportError:	pass
 
 class Database(object):
 	def __init__(self, config=dict()):
 		self.config = config
 		self.log = config.get('logging', False)
-		self.logger = logging.getLogger('PhaazeDB')
 		self.version = (2, 0, 1)
 		self.active = True
 		self.db = dict()
 		self.response = self.sendBackResponse
-		if self.logger != False:
-			self.logger.setLevel(logging.DEBUG)
-			SHF = logging.Formatter("[%(levelname)s]: %(message)s")
-			if CliArgs.get('logging', 'console') == "systemd" and 'systemd' in sys.modules:
-				JH = JournalHandler()
-				JH.setFormatter(SHF)
-				self.logger.addHandler(JH)
-			else:
-				SH = logging.StreamHandler()
-				SH.setFormatter(SHF)
-				self.logger.addHandler(SH)
 
 	#functions
 	from functions.create import create as create

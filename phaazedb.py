@@ -1,8 +1,11 @@
-import json, os
+import json, sys, os, logging
 
 from utils.cli import CliArgs
 from utils.database import Database
 from aiohttp import web
+
+try: from systemd.journal import JournalHandler
+except ImportError:	pass
 
 class PhaazeDBServer(object):
 	"""Contains all main parts: DB, main service and web interface"""
@@ -13,6 +16,7 @@ class PhaazeDBServer(object):
 		self.config = None
 
 		self.loadConfig()
+		self.loadLogging()
 
 	def loadConfig(self):
 		config_file = CliArgs.get("config", "config.json")
@@ -28,6 +32,19 @@ class PhaazeDBServer(object):
 		finally:
 			self.config = c
 
+	def loadLogging(self):
+		self.Logger = logging.getLogger('PhaazeDB')
+		self.Logger.setLevel(logging.DEBUG)
+		SHF = logging.Formatter("[%(levelname)s]: %(message)s")
+		if CliArgs.get('logging', 'console') == "systemd" and 'systemd' in sys.modules:
+			JH = JournalHandler()
+			JH.setFormatter(SHF)
+			self.Logger.addHandler(JH)
+		else:
+			SH = logging.StreamHandler()
+			SH.setFormatter(SHF)
+			self.Logger.addHandler(SH)
+
 	def start(self):
 		pass
 
@@ -35,14 +52,6 @@ class PhaazeDBServer(object):
 		pass
 
 def startServer():
-
-	try:
-		configs = open("config.json", "rb").read()
-		configs = json.loads(configs.decode("UTF-8"))
-	except:
-		print("`config.json` could not be found, or not read -> Using defaults WARNING: No PassToken.")
-		configs = dict()
-
 	#check for DATABASE folder
 	try:
 		f = os.listdir('DATABASE/')
