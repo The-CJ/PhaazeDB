@@ -13,17 +13,20 @@ class PhaazeDBServer(object):
 		self.config = None
 
 		self.loadConfig()
-		print(self.config)
 
 	def loadConfig(self):
 		config_file = CliArgs.get("config", "config.json")
-		if ""=="":#try:
+		try:
 			configs = open(config_file, "rb").read()
-			self.config = json.loads(configs.decode("UTF-8"))
-		#except Exception as e:
-		#	print(e)
-		#	exit(e)
-
+			c = json.loads(configs.decode("UTF-8"))
+		except FileNotFoundError:
+			print(f"file '{config_file}' could not be found")
+			c = dict()
+		except json.decoder.JSONDecodeError:
+			print(f"file '{config_file}' could not be loaded as a config file")
+			c = dict()
+		finally:
+			self.config = c
 
 	def start(self):
 		pass
