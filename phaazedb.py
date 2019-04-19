@@ -1,3 +1,5 @@
+__version__ = "2.0.1"
+
 import json, sys, os, logging
 
 from utils.cli import CliArgs
@@ -15,8 +17,15 @@ class PhaazeDBServer(object):
 		self.Logger = None
 		self.config = None
 
+		self.adress = "0.0.0.0"
+		self.port = 2000
+		self.action_logging = False
+		self.allowed_ips = []
+
 		self.loadConfig()
 		self.loadLogging()
+		self.loadDatabase()
+		self.loadServer()
 
 	def loadConfig(self):
 		config_file = CliArgs.get("config", "config.json")
@@ -32,6 +41,11 @@ class PhaazeDBServer(object):
 		finally:
 			self.config = c
 
+			self.adress = c.get("adress", "0.0.0.0")
+			self.port = c.get("port", 2000)
+			self.action_logging = c.get("logging", False)
+			self.allowed_ips = c.get("allowed_ips", [])
+
 	def loadLogging(self):
 		self.Logger = logging.getLogger('PhaazeDB')
 		self.Logger.setLevel(logging.DEBUG)
@@ -45,43 +59,31 @@ class PhaazeDBServer(object):
 			SH.setFormatter(SHF)
 			self.Logger.addHandler(SH)
 
+	def loadDatabase(self):
+		self.Database = Database(config=self.config)
+
+	def loadServer(self):
+		self.Server = web.Application()
+
+		self.Server.router.add_route('GET', '/admin{x:.*}', self.Database.interface)
+		self.Server.router.add_route('GET', '/favicon.ico', self.Database.interface)
+		self.Server.router.add_route('*', '/{x:.*}', self.Database.process)
+
 	def start(self):
-		pass
+		self.Logger.info(f"Starting PhaazeDB v{__version__}")
+		self.Logger.info(f"Running on port: {self.port}")
+		if self.allowed_ips: self.Logger.info(f"Allowed IP's: {self.allowed_ips}")
+		self.Logger.info(f"Action Logging: {self.action_logging}")
 
-	def stop(self):
-		pass
+		web.run_app(self.Server, port=self.port, print=False)
 
-def startServer():
-	#check for DATABASE folder
-	try:
-		f = os.listdir('DATABASE/')
-	except:
-		os.mkdir('DATABASE')
-
-	#make app
-	DB = Database(config=configs)
-	SERVER = web.Application()
-
-	#web interface route
-	SERVER.router.add_route('GET', '/admin{useless:.*}', DB.interface)
-	SERVER.router.add_route("GET", "/favicon.ico", DB.interface)
-	#main route
-	SERVER.router.add_route('*', '/{useless:.*}', DB.process)
-
-	#start
-	DB.logger.info(f"Starting PhaazeDB v{DB.version}")
-	DB.logger.info(f"Running on port: {configs.get('port', 3000)}")
-	if configs.get("allowed_ips", []) != []:
-		ips = configs.get("allowed_ips", [])
-		ips_str = ", ".join("["+ip+"]" for ip in ips)
-	else:
-		ips_str = "--ALL--"
-	DB.logger.info(f"Allowed IP's: {ips_str}")
-	DB.logger.info(f"Action Logging: {DB.log}")
-
-	web.run_app(SERVER, port=configs.get('port', 3000), print=False)
+	async def stop(self):
+		self.Logger.info(f"Shutdown finished")
+		await self.Server.shutdown()
+		await self.Database.cleanup()
+		self.Logger.info(f"Shutdown finished")
+		exit(1)
 
 if __name__ == '__main__':
 	PhaazeDB = PhaazeDBServer()
 	PhaazeDB.start()
-	input("e")
