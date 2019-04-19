@@ -1,3 +1,4 @@
-[submodule "PhaazeQuery"]
-	path = PhaazeQuery
+
+[submodule "admin/source/js/PhaazeQuery"]
+	path = admin/source/js/PhaazeQuery
 	url = https://github.com/The-CJ/PhaazeQuery.git
