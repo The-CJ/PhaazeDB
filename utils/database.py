@@ -46,15 +46,9 @@ class Database(object):
 
 		return web.Response(**kwargs)
 
-	async def shutdown(self):
-		global SERVER
-
-		self.logger.info(f"Preparing shutdown -> 3sec")
-		await asyncio.sleep(3)
-		await SERVER.shutdown()
-		await SERVER.cleanup()
-		self.logger.info(f"Shutdown finished")
-		exit(1)
+	async def cleanup(self):
+		pass
+		# TODO: CLEANUP
 
 	#accessable via web - /admin
 	async def interface(self, request):

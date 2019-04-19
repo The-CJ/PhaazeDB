@@ -18,5 +18,3 @@ class CliArgs(object):
 			else: return self.args.get(arg[0])
 
 CliArgs = CliArgs()
-
-print("ee")
