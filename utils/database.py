@@ -1,16 +1,17 @@
-import asyncio
 import json
 
 from aiohttp import web
 
 class Database(object):
-	def __init__(self, config=dict()):
-		self.config = config
-		self.log = config.get('logging', False)
-		self.version = (2, 0, 1)
+	def __init__(self, server):
+		self.Server = server
+		self.config = self.Server.config #REMOVE THIS
+		self.log = self.Server.action_logging #REMOVE THIS
 		self.active = True
-		self.db = dict()
 		self.response = self.sendBackResponse
+
+		# main db
+		self.db = dict()
 
 	#functions
 	from functions.create import create as create
@@ -39,14 +40,14 @@ class Database(object):
 	def sendBackResponse(self, **kwargs):
 		already_set_header = kwargs.get('headers', dict())
 		kwargs['headers'] = already_set_header
-		kwargs['headers']['server'] =f"PhaazeDB v{self.version}"
+		kwargs['headers']['server'] =f"PhaazeDB v{self.Server.version}"
 
 		if kwargs['headers'].get('Content-Type', None) == None:
 			kwargs['headers']['Content-Type'] ="Application/json"
 
 		return web.Response(**kwargs)
 
-	async def cleanup(self):
+	async def stop(self):
 		pass
 		# TODO: CLEANUP
 

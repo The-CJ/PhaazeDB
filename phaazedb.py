@@ -1,6 +1,6 @@
 __version__ = "2.0.1"
 
-import json, sys, os, logging
+import json, sys, logging
 
 from utils.cli import CliArgs
 from utils.database import Database
@@ -12,6 +12,8 @@ except ImportError:	pass
 class PhaazeDBServer(object):
 	"""Contains all main parts: DB, main service and web interface"""
 	def __init__(self):
+		self.version = __version__
+
 		self.Server = None
 		self.Database = None
 		self.Logger = None
@@ -60,7 +62,7 @@ class PhaazeDBServer(object):
 			self.Logger.addHandler(SH)
 
 	def loadDatabase(self):
-		self.Database = Database(config=self.config)
+		self.Database = Database(self)
 
 	def loadServer(self):
 		self.Server = web.Application()
@@ -70,7 +72,7 @@ class PhaazeDBServer(object):
 		self.Server.router.add_route('*', '/{x:.*}', self.Database.process)
 
 	def start(self):
-		self.Logger.info(f"Starting PhaazeDB v{__version__}")
+		self.Logger.info(f"Starting PhaazeDB v{self.version}")
 		self.Logger.info(f"Running on port: {self.port}")
 		if self.allowed_ips: self.Logger.info(f"Allowed IP's: {self.allowed_ips}")
 		self.Logger.info(f"Action Logging: {self.action_logging}")
@@ -78,9 +80,9 @@ class PhaazeDBServer(object):
 		web.run_app(self.Server, port=self.port, print=False)
 
 	async def stop(self):
-		self.Logger.info(f"Shutdown finished")
+		self.Logger.info(f"Shutdown started...")
 		await self.Server.shutdown()
-		await self.Database.cleanup()
+		await self.Database.stop()
 		self.Logger.info(f"Shutdown finished")
 		exit(1)
 
