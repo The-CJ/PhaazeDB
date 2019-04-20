@@ -3,6 +3,7 @@ import json
 from aiohttp import web
 
 class Database(object):
+	"""Main instance for processing of all database requests"""
 	def __init__(self, server):
 		self.Server = server
 		self.config = self.Server.config #REMOVE THIS
@@ -13,7 +14,7 @@ class Database(object):
 		# main db
 		self.db = dict()
 
-	#functions
+	# functions
 	from functions.create import create as create
 	from functions.delete import delete as delete
 	from functions.drop import drop as drop
@@ -26,14 +27,15 @@ class Database(object):
 	from functions.default import default
 	# TODO: add functions.config : to edit configs on the fly without restart
 
-	#website interface
+	# website
 	from admin.interface import webInterface as webInterface
 
-	#errors
+	# errors
 	from utils.errors import unauthorised as unauthorised
 	from utils.errors import unknown_function as unknown_function
 	from utils.errors import missing_function as missing_function
 
+	# utils
 	from utils.load import load
 	from utils.store import store
 
@@ -50,6 +52,20 @@ class Database(object):
 	async def stop(self):
 		pass
 		# TODO: CLEANUP
+
+	@web.middleware
+	async def mainHandler(self, request, handler):
+		try:
+			response = await handler(request)
+			return response
+		except web.HTTPException as http_ex:
+			return self.response(
+				body=json.dumps(dict(msg=http_ex.reason, status=http_ex.status)),
+				status=http_ex.status
+			)
+		except Exception as e:
+			self.Server.Logger.error(str(e))
+			return self.response(status=500)
 
 	#accessable via web - /admin
 	async def interface(self, request):
