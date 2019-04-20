@@ -74,6 +74,8 @@ class PhaazeDBServer(object):
 		self.Server.router.add_route('GET', '/favicon.ico', self.Database.interface)
 		self.Server.router.add_route('*', '/{x:.*}', self.Database.process)
 
+		self.Server.middlewares.append( self.Database.mainHandler )
+
 	def start(self):
 		self.Logger.info(f"Starting PhaazeDB v{self.version}")
 		self.Logger.info(f"Running on port: {self.port}")

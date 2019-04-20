@@ -55,9 +55,21 @@ class Database(object):
 
 	@web.middleware
 	async def mainHandler(self, request, handler):
+
+		request.db_method = request.headers.get("X-DB-Method", "json").lower()
+
+
 		try:
+			# get usable content from Method
+			if request.db_method == "json":
+				request.db_request = await request.json()
+
+			else:
+				return self.response( body=json.dumps(dict(msg="unsupported 'X-DB-Method'", status=405)),	status=405 )
+
 			response = await handler(request)
 			return response
+
 		except web.HTTPException as http_ex:
 			return self.response(
 				body=json.dumps(dict(msg=http_ex.reason, status=http_ex.status)),
