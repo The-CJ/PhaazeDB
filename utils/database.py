@@ -56,17 +56,20 @@ class Database(object):
 	@web.middleware
 	async def mainHandler(self, request, handler):
 
+		# db is about to shutdown
+		if not self.active:
+			return self.response(status=400, body=json.dumps(dict( code=400, status="rejected", msg="DB is marked as disabled")))
+
+		# is limited to certain ip's
+		if self.Server.config.get("allowed_ips", []) != []:
+			allowed_ips = self.Server.config.get("allowed_ips", [])
+			if request.remote not in allowed_ips:
+				return self.response(status=400, body=json.dumps(dict( code=400, status="rejected",	msg="ip not allowed" )))
+
+		# get process method
 		request.db_method = request.headers.get("X-DB-Method", "json").lower()
 
-
 		try:
-			# get usable content from Method
-			if request.db_method == "json":
-				request.db_request = await request.json()
-
-			else:
-				return self.response( body=json.dumps(dict(msg="unsupported 'X-DB-Method'", status=405)),	status=405 )
-
 			response = await handler(request)
 			return response
 
@@ -79,49 +82,29 @@ class Database(object):
 			self.Server.Logger.error(str(e))
 			return self.response(status=500)
 
+	async def authorise(self, request):
+		token = request.db_request.get("token", None)
+		if token != self.Server.config.get('auth_token', None):
+			return False
+		else:
+			return True
+
 	#accessable via web - /admin
 	async def interface(self, request):
-		if not self.active:
-			res = dict(
-				code=400,
-				status="rejected",
-				msg="DB is marked as disabled"
-			)
-			return self.response(status=400, body=json.dumps(res))
-
-		# is limited to certain ip's
-		if self.config.get("allowed_ips", []) != []:
-			allowed_ips = self.config.get("allowed_ips", [])
-			if request.remote not in allowed_ips:
-				res = dict(
-					code=400,
-					status="rejected",
-					msg="ip not allowed"
-				)
-				return self.response(status=400, body=json.dumps(res))
-
 		return await self.webInterface(request)
 
 	#main entry call point
 	async def process(self, request):
-		if not self.active:
-			res = dict(
-				code=400,
-				status="rejected",
-				msg="DB is marked as disabled"
-			)
-			return self.response(status=400, body=json.dumps(res))
 
-		# is limited to certain ip's
-		if self.config.get("allowed_ips", []) != []:
-			allowed_ips = self.config.get("allowed_ips", [])
-			if request.remote not in allowed_ips:
-				res = dict(
-					code=400,
-					status="rejected",
-					msg="ip not allowed"
-				)
-				return self.response(status=400, body=json.dumps(res))
+		# get usable content from Method
+		if request.db_method == "json":
+			request.db_request = await request.json()
+
+		else:
+			return self.response( body=json.dumps(dict(msg="unsupported 'X-DB-Method'", status=405)),	status=405 )
+
+		if not await self.authorise(request):
+			return await self.unauthorised()
 
 		#gather everything
 		_GET = request.query
