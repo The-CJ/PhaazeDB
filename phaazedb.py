@@ -24,29 +24,10 @@ class PhaazeDBServer(object):
 		self.action_logging = False
 		self.allowed_ips = []
 
-		self.loadConfig()
 		self.loadLogging()
+		self.loadConfig()
 		self.loadDatabase()
 		self.loadServer()
-
-	def loadConfig(self):
-		config_file = CliArgs.get("config", "config.json")
-		try:
-			configs = open(config_file, "rb").read()
-			c = json.loads(configs.decode("UTF-8"))
-		except FileNotFoundError:
-			print(f"file '{config_file}' could not be found")
-			c = dict()
-		except json.decoder.JSONDecodeError:
-			print(f"file '{config_file}' could not be loaded as a config file")
-			c = dict()
-		finally:
-			self.config = c
-
-			self.adress = c.get("adress", "0.0.0.0")
-			self.port = c.get("port", 2000)
-			self.action_logging = c.get("logging", False)
-			self.allowed_ips = c.get("allowed_ips", [])
 
 	def loadLogging(self):
 		self.Logger = logging.getLogger('PhaazeDB')
@@ -60,6 +41,28 @@ class PhaazeDBServer(object):
 			SH = logging.StreamHandler()
 			SH.setFormatter(SHF)
 			self.Logger.addHandler(SH)
+
+	def loadConfig(self):
+		config_file = CliArgs.get("config", "config.json")
+		try:
+			configs = open(config_file, "rb").read()
+			c = json.loads(configs.decode("UTF-8"))
+		except FileNotFoundError:
+			self.Logger.info(f"file '{config_file}' could not be found")
+			c = dict()
+		except json.decoder.JSONDecodeError:
+			self.Logger.info(f"file '{config_file}' could not be loaded as a config file")
+			c = dict()
+		except:
+			self.Logger.info(f"unexpected error while loading '{config_file}' as config file")
+			c = dict()
+		finally:
+			self.config = c
+
+			self.adress = c.get("adress", "0.0.0.0")
+			self.port = c.get("port", 2000)
+			self.action_logging = c.get("logging", False)
+			self.allowed_ips = c.get("allowed_ips", [])
 
 	def loadDatabase(self):
 		self.Database = Database(self)
