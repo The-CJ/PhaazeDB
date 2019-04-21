@@ -32,8 +32,8 @@ class Database(object):
 
 	# errors
 	from utils.errors import unauthorised as unauthorised
-	from utils.errors import unknown_function as unknown_function
-	from utils.errors import missing_function as missing_function
+	from utils.errors import unknownFunction as unknownFunction
+	from utils.errors import missingFunction as missingFunction
 
 	# utils
 	from utils.load import load
@@ -162,7 +162,7 @@ class Database(object):
 		# # #
 
 		if action == None:
-			return await self.missing_function()
+			return await self.missingFunction()
 
 		elif action == "select":
 			return await self.select(request, _INFO)
@@ -195,6 +195,6 @@ class Database(object):
 			return await self.option(request, _INFO)
 
 		else:
-			return await self.unknown_function()
+			return await self.unknownFunction()
 
 		# # #
