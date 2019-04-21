@@ -39,6 +39,9 @@ class Database(object):
 	from utils.load import load
 	from utils.store import store
 
+	# content load method load-parser
+	from utils.loader import jsonContent
+
 	def sendBackResponse(self, **kwargs):
 		already_set_header = kwargs.get('headers', dict())
 		kwargs['headers'] = already_set_header
@@ -78,9 +81,18 @@ class Database(object):
 				body=json.dumps(dict(msg=http_ex.reason, status=http_ex.status)),
 				status=http_ex.status
 			)
+
 		except Exception as e:
 			self.Server.Logger.error(str(e))
 			return self.response(status=500)
+
+	async def getContent(self, request):
+		# get usable content from Method
+		if request.db_method == "json":
+			return await self.jsonContent(request)
+
+		else:
+			return None
 
 	async def authorise(self, request):
 		token = request.db_request.get("token", None)
@@ -96,12 +108,14 @@ class Database(object):
 	#main entry call point
 	async def process(self, request):
 
-		# get usable content from Method
-		if request.db_method == "json":
-			request.db_request = await request.json()
+		request.db_request = await self.getContent(request)
 
-		else:
+		# none supported
+		if request.db_request == None:
 			return self.response( body=json.dumps(dict(msg="unsupported 'X-DB-Method'", status=405)),	status=405 )
+
+		if request.db_request.success == False:
+			return self.response( body=json.dumps(dict(msg=request.db_request.error_msg, status=400)),	status=400 )
 
 		if not await self.authorise(request):
 			return await self.unauthorised()
