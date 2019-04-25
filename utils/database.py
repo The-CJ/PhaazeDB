@@ -6,6 +6,7 @@ class Database(object):
 	"""Main instance for processing of all database requests"""
 	def __init__(self, server):
 		self.Server = server
+		self.container_root = "DATABASE/"
 		self.config = self.Server.config #REMOVE THIS
 		self.log = self.Server.action_logging #REMOVE THIS
 		self.active = True
@@ -41,6 +42,14 @@ class Database(object):
 
 	# content load method load-parser
 	from utils.loader import jsonContent
+
+	def setRoot(self, root):
+		if root == None:
+			self.container_root = "DATABASE/"
+			return False
+		if not root.endswith("/"):
+			root += "/"
+		self.container_root = root
 
 	def sendBackResponse(self, **kwargs):
 		already_set_header = kwargs.get('headers', dict())

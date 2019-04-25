@@ -66,6 +66,7 @@ class PhaazeDBServer(object):
 
 	def loadDatabase(self):
 		self.Database = Database(self)
+		self.Database.setRoot(self.config.get("root", None))
 
 	def loadServer(self):
 		self.Server = web.Application()
