@@ -48,7 +48,7 @@ class SelectRequest(object):
 			self.fields = []
 
 	def getOffset(self, db_req):
-		self.offset = db_req.get("offset": -1)
+		self.offset = db_req.get("offset", -1)
 		if type(self.offset) is str:
 			if self.offset.isdigit():
 				self.offset = int(self.offset)
@@ -57,7 +57,7 @@ class SelectRequest(object):
 			self.offset = -1
 
 	def getLimit(self, db_req):
-		self.limit = db_req.get("limit": -1)
+		self.limit = db_req.get("limit", -1)
 		if type(self.limit) is str:
 			if self.limit.isdigit():
 				self.limit = int(self.limit)
@@ -68,7 +68,7 @@ class SelectRequest(object):
 	def getStore(self, db_req):
 		self.store = db_req.get("store", None)
 		if type(self.store) is not str:
-			self.store = None:
+			self.store = None
 
 	def getJoin(self, db_req):
 		self.join = db_req.get("join", None)
@@ -106,7 +106,7 @@ async def select(self, request):
 		res = dict(
 			code=404,
 			status="error",
-			msg=f"container '{table_name}' not found"
+			msg=f"container '{select_request.container}' not found"
 		)
 		return self.response(status=404, body=json.dumps(res))
 
@@ -119,24 +119,14 @@ async def select(self, request):
 		)
 		return self.response(status=500, body=json.dumps(res))
 
-async def performSelect(db_instance, save):
+async def performSelect(db_instance, select_request):
 
-	return 0 #TODO: fix everything
+	result, hits, hits_field, total = await getDataFromContainer(db_instance, select_request)
 
-	result, hits, hits_field, total = await getDataFromContainer(
-		db_instance,
-
-		container=table_name,
-		limit=limit,
-		offset=offset,
-		where=where,
-		fields=fields,
-		store=store
-	)
-	if type(join) != list: join = [join]
-	for j in join:
-		if j == None: continue
-		result = await perform_join(self, last_result=result, join=j, parent_name=store)
+	#if type(join) != list: join = [join]
+	#for j in join:
+	#	if j == None: continue
+	#	result = await perform_join(self, last_result=result, join=j, parent_name=store)
 
 	res = dict(
 		code=200,
@@ -147,73 +137,74 @@ async def performSelect(db_instance, save):
 		total=total,
 		data=result
 	)
-	if self.log != False:
-		self.logger.info(f"selected {str(hits)} entry(s) from '{table_name}'")
-	return self.response(status=200, body=json.dumps(res))
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"selected {str(hits)} entry(s) from '{select_request.container}'")
+	return db_instance.response(status=200, body=json.dumps(res))
 
-async def get_data_from_container(Main_instance, container=None, limit=math.inf, offset=0, where=None, fields=[], store=None):
-	if container in [None, ""]: return [], 0, 0, 0
+async def getDataFromContainer(db_instance, select_request):
+	if select_request.container in [None, ""]: return [], 0, 0, 0
 
-	container = await Main_instance.load(container)
+	container = await db_instance.load(select_request.container)
 
 	if container.status == "sys_error": raise SysLoadError
 	elif container.status == "not_found": raise ContainerNotFound
 	elif container.status == "success":	container = container.content
 
+	# return values
 	result = []
-	found = 0
 	hits = 0
 	hits_field = 0
 
+
 	#go through all entrys
+	found = 0
 	for entry_id in container.get('data', []):
 		entry = container['data'][entry_id]
 		entry['id'] = entry_id
 
-		if not await check_where(where_str=where, base_entry=entry, base_name=store):
+		# where dont hit entry, means skip, we dont need it
+		if not await checkWhere(where=select_request.where, check_entry=entry, check_name=select_request.store):
 			continue
 
 		found += 1
-		if offset >= found:
+		if select_request.offset >= found:
 			continue
 
-		requested_fields = await check_fields(entry, fields)
+		requested_fields = await getFields(entry, select_request.fields)
 
 		hits += 1
 		hits_field += len(requested_fields)
 
 		result.append( dict(sorted(requested_fields.items())) )
 
-		if hits >= limit:
+		if hits >= select_request.limit:
 			break
 
 	return result, hits, hits_field, len(container.get('data', []) )
 
-async def check_where(where_str="", base_entry=None, base_name="data", check_entry=None, check_name="None"):
+async def checkWhere(where="", parent_entry=None, parent_name=None, check_entry=None, check_name=None):
 
-	if where_str == "" or where_str == None:
+	if not where:
 		return True
 
-	if base_entry == None:
-		return True
+	if not check_name:
+		check_name = "data"
 
-	if base_name == None:
-		base_name = "data"
+	loc = locals()
 
-	locals()[base_name] = base_entry
-	locals()[check_name] = check_entry
+	loc[check_name] = check_entry
+	loc[parent_name] = parent_entry
 
 	try:
-		if eval(where_str):
+		if eval(where):
 			return True
 		else:
 			return False
 	except:
 		return False
 
-async def check_fields(data, fields):
-	if fields == None or fields == []:
-		return data
+async def getFields(data, fields):
+	if not fields: return data
 
 	requested_fields = dict()
 	for field in fields:
