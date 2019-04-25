@@ -7,6 +7,7 @@ class Database(object):
 	def __init__(self, server):
 		self.Server = server
 		self.container_root = "DATABASE/"
+		self.keep_alive = 60
 		self.config = self.Server.config #REMOVE THIS
 		self.log = self.Server.action_logging #REMOVE THIS
 		self.active = True
@@ -50,6 +51,16 @@ class Database(object):
 		if not root.endswith("/"):
 			root += "/"
 		self.container_root = root
+
+	def setAliveTime(self, time):
+		if type(time) is str:
+			if time.isdigit():
+				self.keep_alive = int(time)
+				return True
+		if type(time) is int:
+			self.keep_alive = time
+			return True
+		return False
 
 	def sendBackResponse(self, **kwargs):
 		already_set_header = kwargs.get('headers', dict())
