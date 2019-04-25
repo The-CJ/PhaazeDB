@@ -67,6 +67,7 @@ class PhaazeDBServer(object):
 	def loadDatabase(self):
 		self.Database = Database(self)
 		self.Database.setRoot(self.config.get("root", None))
+		self.Database.setAliveTime(self.config.get("keep_alive", None))
 
 	def loadServer(self):
 		self.Server = web.Application()
