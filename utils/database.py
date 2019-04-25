@@ -69,7 +69,7 @@ class Database(object):
 			if request.remote not in allowed_ips:
 				return self.response(status=400, body=json.dumps(dict( code=400, status="rejected",	msg="ip not allowed" )))
 
-		# get process method
+		# get process method, default is json
 		request.db_method = request.headers.get("X-DB-Method", "json").lower()
 
 		try:
@@ -120,44 +120,7 @@ class Database(object):
 		if not await self.authorise(request):
 			return await self.unauthorised()
 
-		#gather everything
-		_GET = request.query
-		_POST = dict()
-		_JSON = dict()
-		_HEADER = request.headers
-
-		try:
-			_POST = await request.post()
-		except Exception as e:
-			pass
-
-		try:
-			_JSON = await request.json()
-		except Exception as e:
-			pass
-
-		#get
-		token = request.query.get('token', None)
-
-		#post
-		if token == None: token = _POST.get('token', None)
-
-		#json str
-		if token == None: token = _JSON.get('token', None)
-
-		#header
-		if token == None: token = _HEADER.get('token', None)
-
-		# authorisation failed, block
-		if token != self.config.get('auth_token', None):
-			return await self.unauthorised()
-
-		#get action
-		action = _POST.get('action', None)
-		if action == None: action = _JSON.get('action', None)
-		if action == None: action = _GET.get('action', None)
-
-		_INFO = dict(_GET=_GET, _POST=_POST, _JSON=_JSON, _HEADER=_HEADER)
+		action = request.db_request.get("action", None)
 
 		# # #
 
@@ -165,7 +128,7 @@ class Database(object):
 			return await self.missingFunction()
 
 		elif action == "select":
-			return await self.select(request, _INFO)
+			return await self.select(request)
 
 		elif action == "update":
 			return await self.update(request, _INFO)
