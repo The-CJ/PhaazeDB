@@ -84,43 +84,7 @@ async def select(self, request):
 	# prepare request for a valid search
 	try:
 		select_request = SelectRequest(request.db_request)
-	except:
-		pass
-
-
-	# # #
-
-	try:
-		if table_name == "": raise MissingOfField
-
-		result, hits, hits_field, total = await get_data_from_container(
-			self,
-			container=table_name,
-			limit=limit,
-			offset=offset,
-			where=where,
-			fields=fields,
-			store=store
-		)
-
-		# join entry?
-		if type(join) != list: join = [join]
-		for j in join:
-			if j == None: continue
-			result = await perform_join(self, last_result=result, join=j, parent_name=store)
-
-		res = dict(
-			code=200,
-			status="selected",
-
-			hits=hits,
-			hits_field=hits_field,
-			total=total,
-			data=result
-		)
-		if self.log != False:
-			self.logger.info(f"selected {str(hits)} entry(s) from '{table_name}'")
-		return self.response(status=200, body=json.dumps(res))
+		return await performSelect(self, select_request)
 
 	except MissingOfField:
 		res = dict(
@@ -138,6 +102,14 @@ async def select(self, request):
 		)
 		return self.response(status=400, body=json.dumps(res))
 
+	except ContainerNotFound:
+		res = dict(
+			code=404,
+			status="error",
+			msg=f"container '{table_name}' not found"
+		)
+		return self.response(status=404, body=json.dumps(res))
+
 	except SysLoadError:
 		# this SHOULD never happen, but hey... just in case
 		res = dict(
@@ -147,13 +119,37 @@ async def select(self, request):
 		)
 		return self.response(status=500, body=json.dumps(res))
 
-	except ContainerNotFound:
-		res = dict(
-			code=404,
-			status="error",
-			msg=f"container '{table_name}' not found"
-		)
-		return self.response(status=404, body=json.dumps(res))
+async def performSelect(db_instance, save):
+
+	return 0 #TODO: fix everything
+
+	result, hits, hits_field, total = await getDataFromContainer(
+		db_instance,
+
+		container=table_name,
+		limit=limit,
+		offset=offset,
+		where=where,
+		fields=fields,
+		store=store
+	)
+	if type(join) != list: join = [join]
+	for j in join:
+		if j == None: continue
+		result = await perform_join(self, last_result=result, join=j, parent_name=store)
+
+	res = dict(
+		code=200,
+		status="selected",
+
+		hits=hits,
+		hits_field=hits_field,
+		total=total,
+		data=result
+	)
+	if self.log != False:
+		self.logger.info(f"selected {str(hits)} entry(s) from '{table_name}'")
+	return self.response(status=200, body=json.dumps(res))
 
 async def get_data_from_container(Main_instance, container=None, limit=math.inf, offset=0, where=None, fields=[], store=None):
 	if container in [None, ""]: return [], 0, 0, 0
@@ -192,16 +188,6 @@ async def get_data_from_container(Main_instance, container=None, limit=math.inf,
 			break
 
 	return result, hits, hits_field, len(container.get('data', []) )
-
-def get_value(info, value, default):
-	v = info.get('_GET', {}).get(value, None)
-	if v == None:
-		v = info.get('_JSON', {}).get(value, None)
-	if v == None:
-		v = info.get('_POST', {}).get(value, None)
-
-	if v == None: return default
-	else: return v
 
 async def check_where(where_str="", base_entry=None, base_name="data", check_entry=None, check_name="None"):
 
