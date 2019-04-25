@@ -6,22 +6,24 @@ class MissingOfField(Exception):
 	status = 400
 class MissingStoreInJoin(Exception):
 	status = 400
-class SysLoadError(Exception): pass
+class InvalidJoin(Exception):
+	status = 400
+class SysLoadError(Exception):
 	status = 500
-class ContainerNotFound(Exception): pass
+class ContainerNotFound(Exception):
 	status = 404
 
 class SelectRequest(object):
 	""" Contains informations for a valid select request,
 		does not mean the container exists or where statement has right syntax """
 	def __init__(self, db_req):
-		self.container = ""
-		self.where = ""
-		self.fields = []
-		self.offset = -1
-		self.limit = -1
-		self.store = None
-		self.join = []
+		self.container:str = None
+		self.where:str = ""
+		self.fields:list = []
+		self.offset:int = -1
+		self.limit:int = -1
+		self.store:str = None
+		self.join:list[dict] = []
 
 		self.getContainter(db_req)
 		self.getWhere(db_req)
@@ -33,7 +35,48 @@ class SelectRequest(object):
 
 	def getContainter(self, db_req):
 		self.container = db_req.get("of", None)
-		if self.container == None: raise MissingOfField
+		if not self.container: raise MissingOfField
+
+	def getWhere(self, db_req):
+		self.where = db_req.get("where", "")
+
+	def getFields(self, db_req):
+		self.fields = db_req.get("fields", None)
+		if type(self.fields) is str:
+			self.fields = self.fields.split(",")
+		if type(self.fields) is not list:
+			self.fields = []
+
+	def getOffset(self, db_req):
+		self.offset = db_req.get("offset": -1)
+		if type(self.offset) is str:
+			if self.offset.isdigit():
+				self.offset = int(self.offset)
+
+		if type(self.offset) is not int:
+			self.offset = -1
+
+	def getLimit(self, db_req):
+		self.limit = db_req.get("limit": -1)
+		if type(self.limit) is str:
+			if self.limit.isdigit():
+				self.limit = int(self.limit)
+
+		if type(self.limit) is not int:
+			self.limit = -1
+
+	def getStore(self, db_req):
+		self.store = db_req.get("store", None)
+		if type(self.store) is not str:
+			self.store = None:
+
+	def getJoin(self, db_req):
+		self.join = db_req.get("join", None)
+		if type(self.join) is str:
+			try:
+				self.join = json.loads(self.join)
+			except:
+				raise InvalidJoin
 
 async def select(self, request):
 	""" Used to select data from ad DB container and give it back, may also include joins to other tables """
@@ -44,53 +87,6 @@ async def select(self, request):
 	except:
 		pass
 
-
-
-	# table_name :: str
-	table_name = request.db_request.get("of", None)
-	if table_name == None: raise MissingOfField
-
-	# where :: str
-	where = get_value(_INFO, "where", None)
-	if type(where) is not str:
-		where = None
-
-	# fields :: str || list
-	fields = get_value(_INFO, "fields", None)
-	if type(fields) is str:
-		fields = fields.split(',')
-	if type(fields) is not list:
-		fields = None
-
-	# offset :: int
-	offset = get_value(_INFO, "offset", 0)
-	if type(offset) is str:
-		if offset.isdigit():
-			offset = int(offset)
-	if type(offset) is not int:
-		offset = 0
-
-	# limit :: int
-	limit = get_value(_INFO, "limit", math.inf)
-	if type(limit) is str:
-		if limit.isdigit():
-			limit = int(limit)
-	if type(limit) is not int:
-		limit = math.inf
-	if limit == 0: limit = 1
-
-	# store :: str
-	store = get_value(_INFO, "store", None)
-	if type(store) is not str:
-		store = None
-
-	# join :: dict
-	join = get_value(_INFO, "join", None)
-	if type(join) == str:
-		try:
-			join = json.loads(join)
-		except:
-			join = None
 
 	# # #
 
