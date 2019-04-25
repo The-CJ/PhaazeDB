@@ -2,17 +2,53 @@ import json, math
 
 from utils.load import load as load
 
-class MissingOfField(Exception): pass
-class MissingStoreInJoin(Exception): pass
+class MissingOfField(Exception):
+	status = 400
+class MissingStoreInJoin(Exception):
+	status = 400
 class SysLoadError(Exception): pass
+	status = 500
 class ContainerNotFound(Exception): pass
+	status = 404
 
-async def select(self, request, _INFO):
-	""" Used to select data from ad DB container and give it back """
-	#get required vars (GET -> JSON -> POST based)
+class SelectRequest(object):
+	""" Contains informations for a valid select request,
+		does not mean the container exists or where statement has right syntax """
+	def __init__(self, db_req):
+		self.container = ""
+		self.where = ""
+		self.fields = []
+		self.offset = -1
+		self.limit = -1
+		self.store = None
+		self.join = []
+
+		self.getContainter(db_req)
+		self.getWhere(db_req)
+		self.getFields(db_req)
+		self.getOffset(db_req)
+		self.getLimit(db_req)
+		self.getStore(db_req)
+		self.getJoin(db_req)
+
+	def getContainter(self, db_req):
+		self.container = db_req.get("of", None)
+		if self.container == None: raise MissingOfField
+
+async def select(self, request):
+	""" Used to select data from ad DB container and give it back, may also include joins to other tables """
+
+	# prepare request for a valid search
+	try:
+		select_request = SelectRequest(request.db_request)
+	except:
+		pass
+
+
 
 	# table_name :: str
-	table_name = str(get_value(_INFO, "of", "")).replace('..', '').strip('/')
+	table_name = request.db_request.get("of", None)
+	if table_name == None: raise MissingOfField
 
 	# where :: str
 	where = get_value(_INFO, "where", None)
