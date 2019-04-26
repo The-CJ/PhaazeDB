@@ -77,14 +77,6 @@ async def select(self, request):
 		select_request = SelectRequest(request.db_request)
 		return await performSelect(self, select_request)
 
-	except MissingOfField:
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'of' field"
-		)
-		return self.response(status=400, body=json.dumps(res))
-
 	except MissingStoreInJoin:
 		res = dict(
 			code=400,
@@ -93,22 +85,13 @@ async def select(self, request):
 		)
 		return self.response(status=400, body=json.dumps(res))
 
-	except ContainerNotFound:
+	except (ContainerNotFound, MissingOfField, SysLoadError) as e:
 		res = dict(
-			code=404,
-			status="error",
-			msg=f"container '{select_request.container}' not found"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		return self.response(status=404, body=json.dumps(res))
-
-	except SysLoadError:
-		# this SHOULD never happen, but hey... just in case
-		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not load container file."
-		)
-		return self.response(status=500, body=json.dumps(res))
+		return self.response(status=ContainerNotFound.code, body=json.dumps(res))
 
 async def performSelect(db_instance, select_request):
 
@@ -139,8 +122,8 @@ async def getDataFromContainer(db_instance, select_request):
 
 	container = await db_instance.load(select_request.container)
 
-	if container.status == "sys_error": raise SysLoadError
-	elif container.status == "not_found": raise ContainerNotFound
+	if container.status == "sys_error": raise SysLoadError()
+	elif container.status == "not_found": raise ContainerNotFound(select_request.container)
 	elif container.status == "success":	container = container.content
 
 	# return values
