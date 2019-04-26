@@ -1,7 +1,5 @@
 import json, math
 
-from utils.load import load as load
-
 class MissingOfField(Exception):
 	status = 400
 class MissingStoreInJoin(Exception):
