@@ -1,15 +1,5 @@
 import json, math
-
-class MissingOfField(Exception):
-	status = 400
-class MissingStoreInJoin(Exception):
-	status = 400
-class InvalidJoin(Exception):
-	status = 400
-class SysLoadError(Exception):
-	status = 500
-class ContainerNotFound(Exception):
-	status = 404
+from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError
 
 class SelectRequest(object):
 	""" Contains informations for a valid select request,

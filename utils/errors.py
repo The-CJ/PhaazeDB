@@ -11,3 +11,18 @@ async def missingFunction(self):
 async def unknownFunction(self):
 	content = dict(code=400, status="error", msg="unknown value for 'action'")
 	return self.response(status=400, body=json.dumps(content))
+
+class MissingOfField(Exception):
+	status = 400
+
+class MissingStoreInJoin(Exception):
+	status = 400
+
+class InvalidJoin(Exception):
+	status = 400
+
+class SysLoadError(Exception):
+	status = 500
+
+class ContainerNotFound(Exception):
+	status = 404
