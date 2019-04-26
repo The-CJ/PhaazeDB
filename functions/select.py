@@ -32,7 +32,10 @@ class SelectRequest(object):
 		self.getJoin(db_req)
 
 	def getContainter(self, db_req):
-		self.container = db_req.get("of", None)
+		self.container = db_req.get("of", "")
+		self.container = self.container.replace('..', '')
+		self.container = self.container.strip('/')
+
 		if not self.container: raise MissingOfField
 
 	def getWhere(self, db_req):
