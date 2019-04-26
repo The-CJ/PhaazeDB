@@ -123,6 +123,8 @@ async def performSelect(db_instance, select_request):
 
 	result, hits, hits_field, total = await getDataFromContainer(db_instance, select_request)
 
+	#TODO finish select
+
 	#if type(join) != list: join = [join]
 	#for j in join:
 	#	if j == None: continue
