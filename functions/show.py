@@ -78,7 +78,7 @@ async def getContainer(tree, folder_path, recursive=False):
 		#is supercontainer
 		else:
 			if recursive:
-				tree['supercontainer'][file] = await getContainer(dict(supercontainer={}, container=[]), folder_path + "/" + file)
+				tree['supercontainer'][file] = await getContainer(dict(supercontainer={}, container=[]), f"{folder_path}/{file}", recursive=recursive)
 			else:
 				tree['supercontainer'][file] = {}
 
