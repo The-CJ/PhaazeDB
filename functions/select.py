@@ -1,5 +1,5 @@
-import json, math
-from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError
+import json
+from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError, InvalidJoin
 
 class SelectRequest(object):
 	""" Contains informations for a valid select request,
@@ -91,7 +91,7 @@ async def select(self, request):
 			status = e.status,
 			msg = e.msg()
 		)
-		return self.response(status=ContainerNotFound.code, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
 
 async def performSelect(db_instance, select_request):
 

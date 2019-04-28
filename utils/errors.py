@@ -34,4 +34,4 @@ class ContainerNotFound(Exception):
 		self.code = 404
 		self.status = "error"
 
-	def msg(*arg): return f"container '{self.container}' not found"
+	def msg(self, *arg): return f"container '{self.container}' not found"
