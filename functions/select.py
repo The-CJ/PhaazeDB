@@ -93,6 +93,9 @@ async def select(self, request):
 		)
 		return self.response(status=e.code, body=json.dumps(res))
 
+	except Exception as ex:
+		return await self.criticalError(ex)
+
 async def performSelect(db_instance, select_request):
 
 	result, hits, hits_field, total = await getDataFromContainer(db_instance, select_request)

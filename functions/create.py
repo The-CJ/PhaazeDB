@@ -33,6 +33,9 @@ async def create(self, request):
 		)
 		return self.response(status=e.code, body=json.dumps(res))
 
+	except Exception as ex:
+		return await self.criticalError(ex)
+
 async def performCreate(db_instance, create_request):
 	container_location = f"{db_instance.container_root}{create_request.container_name}.phaazedb"
 

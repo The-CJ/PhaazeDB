@@ -36,6 +36,7 @@ class Database(object):
 	from utils.errors import unauthorised as unauthorised
 	from utils.errors import unknownFunction as unknownFunction
 	from utils.errors import missingFunction as missingFunction
+	from utils.errors import criticalError as criticalError
 
 	# utils
 	from utils.load import load

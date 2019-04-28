@@ -1,4 +1,10 @@
-import asyncio, json
+import asyncio, json, traceback
+
+async def criticalError(self, Ex):
+	content = dict(code=500, status="critical_error", msg="unknown error")
+	exception = traceback.format_exc()
+	self.Server.Logger.critical(f"Unknown error: {str(exception)}")
+	return self.response(status=500, body=json.dumps(content))
 
 async def unauthorised(self):
 	content = dict(code=401, status="error", msg="unauthorised")
