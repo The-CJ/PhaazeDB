@@ -13,20 +13,32 @@ async def unknownFunction(self):
 	return self.response(status=400, body=json.dumps(content))
 
 class MissingOfField(Exception):
-	code = 400
-	status = "error"
-	def msg(*arg): return "missing 'of' field"
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "missing 'of' field"
 
 class MissingStoreInJoin(Exception):
-	status = 400
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "missing 'store' in join"
 
 class InvalidJoin(Exception):
-	status = 400
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "invalid or missing content in 'join' field"
 
 class SysLoadError(Exception):
-	code = 500
-	status = "critical_error"
-	def msg(*arg): return "DB could not load container file"
+	def __init__(self, *arg):
+		self.code = 500
+		self.status = "critical_error"
+
+	def msg(self, *arg): return "DB could not load container file"
 
 class ContainerNotFound(Exception):
 	def __init__(self, *arg):
