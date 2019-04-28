@@ -21,7 +21,7 @@ class ShowRequest(object):
 		self.path = self.path.replace('..', '')
 		self.path = self.path.strip('/')
 
-		if not self.path: raise MissingPathField()
+		if not self.path: self.path = ""
 
 async def show(self, request):
 	""" Shows container hierarchy from 'name' or all if not defined """
@@ -41,44 +41,34 @@ async def show(self, request):
 	except Exception as ex:
 		return await self.criticalError(ex)
 
-
 async def performShow(db_instance, show_request):
 
-	path = path.replace('..', '')
-	path = path.strip('/')
-	path = "DATABASE/"+path
+	check_location = f"{db_instance.container_root}{show_request.path}"
 
-	###
-
-	#check if there
-	try:
-		os.listdir(path)
-	except Exception as e:
+	if not os.path.exists(check_location):
 		res = dict(
 			code=400,
 			status="error",
-			msg=f"no tree path found at '{path}'",
+			msg=f"no tree path found at '{check_location}'",
 		)
-		return self.response(status=400, body=json.dumps(res))
+		return db_instance.response(status=400, body=json.dumps(res))
 
 	root = {'supercontainer': {},'container': []}
-
-	tree = await get_container(root, path, recursive=recursive)
-
-	###
+	tree = await getContainer(root, check_location, recursive=show_request.recursive)
 
 	res = dict(
 		code=200,
 		status="showed",
-		path=path,
-		recursive=recursive,
+		path=check_location,
+		recursive=show_request.recursive,
 		tree=tree
 	)
-	if self.log != False:
-		self.logger.info(f"showed tree: path={path}, recursive={str(recursive)}")
-	return self.response(status=200, body=json.dumps(res))
 
-async def get_container(tree, folder_path, recursive=False):
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"showed tree: path={check_location}, recursive={str(show_request.recursive)}")
+	return db_instance.response(status=200, body=json.dumps(res))
+
+async def getContainer(tree, folder_path, recursive=False):
 	for file in os.listdir(folder_path):
 
 		#is container
@@ -89,7 +79,7 @@ async def get_container(tree, folder_path, recursive=False):
 		#is supercontainer
 		else:
 			if recursive:
-				tree['supercontainer'][file] = await get_container(dict(supercontainer={}, container=[]), folder_path + "/" + file)
+				tree['supercontainer'][file] = await getContainer(dict(supercontainer={}, container=[]), folder_path + "/" + file)
 			else:
 				tree['supercontainer'][file] = {}
 
