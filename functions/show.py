@@ -1,31 +1,48 @@
 import asyncio, json, os
+from utils.errors import MissingPathField
 
-async def show(self, request, _INFO):
+class ShowRequest(object):
+	""" Contains informations for a valid show request,
+		does not mean if can be executed without errors """
+	def __init__(self, db_req):
+		self.recursive:bool = False
+		self.path:str = None
+
+		self.getRecursive(db_req)
+		self.getPath(db_req)
+
+	def getRecursive(self, db_req):
+		self.recursive = db_req.get("recursive",None)
+		if type(self.recursive) is not bool:
+			self.recursive = bool(self.recursive)
+
+	def getPath(self, db_req):
+		self.path = db_req.get("path", "")
+		self.path = self.path.replace('..', '')
+		self.path = self.path.strip('/')
+
+		if not self.path: raise MissingPathField()
+
+async def show(self, request):
 	""" Shows container hierarchy from 'name' or all if not defined """
 
-	#get required vars (GET -> JSON -> POST based)
+	try:
+		show_request = ShowRequest(request.db_request)
+		return await performShow(self, show_request)
 
-	#get recursive path
-	recursive = _INFO.get('_GET', {}).get('recursive', None)
-	if recursive == None:
-		recursive = _INFO.get('_JSON', {}).get('recursive', None)
-	if recursive == None:
-		recursive = _INFO.get('_POST', {}).get('recursive', None)
+	except () as e:
+		res = dict(
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
+		)
+		return self.response(status=e.code, body=json.dumps(res))
 
-	if type(recursive) is not bool:
-		recursive = bool(recursive)
+	except Exception as ex:
+		return await self.criticalError(ex)
 
-	#get show path
-	path = _INFO.get('_GET', {}).get('path', None)
-	if path == None:
-		path = _INFO.get('_JSON', {}).get('path', None)
-	if path == None:
-		path = _INFO.get('_POST', {}).get('path', None)
 
-	if path == None:
-		path = ""
-	else:
-		path = str(path)
+async def performShow(db_instance, show_request):
 
 	path = path.replace('..', '')
 	path = path.strip('/')

@@ -167,7 +167,7 @@ class Database(object):
 			return await self.drop(request, _INFO)
 
 		elif action == "show":
-			return await self.show(request, _INFO)
+			return await self.show(request)
 
 		elif action == "default":
 			return await self.default(request, _INFO)
