@@ -50,10 +50,19 @@ class InvalidJoin(Exception):
 
 class SysLoadError(Exception):
 	def __init__(self, *arg):
+		self.container = arg[0] if arg else None
 		self.code = 500
 		self.status = "critical_error"
 
-	def msg(self, *arg): return "DB could not load container file"
+	def msg(self, *arg): return f"DB could not load container file: {self.container}"
+
+class SysCreateError(Exception):
+	def __init__(self, *arg):
+		self.container = arg[0] if arg else None
+		self.code = 500
+		self.status = "critical_error"
+
+	def msg(self, *arg): return f"DB could not create container file: {self.container}"
 
 class ContainerNotFound(Exception):
 	def __init__(self, *arg):
