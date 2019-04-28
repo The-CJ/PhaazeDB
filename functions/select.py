@@ -122,7 +122,7 @@ async def getDataFromContainer(db_instance, select_request):
 
 	container = await db_instance.load(select_request.container)
 
-	if container.status == "sys_error": raise SysLoadError()
+	if container.status == "sys_error": raise SysLoadError(select_request.container)
 	elif container.status == "not_found": raise ContainerNotFound(select_request.container)
 	elif container.status == "success":	container = container.content
 
