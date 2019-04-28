@@ -1,39 +1,44 @@
 import os, pickle, json
 from datetime import datetime
+from utils.errors import MissingNameField, ContainerAlreadyExists
 
-async def create(self, request, _INFO):
+class CreateRequest(object):
+	""" Contains informations for a valid create request,
+		does not mean the container may not already be existing or other errors are iompossible """
+	def __init__(self, db_req):
+		self.container_name:str = None
+
+		self.getContainterName(db_req)
+
+	def getContainterName(self, db_req):
+		self.container_name = db_req.get("name", "")
+		self.container_name = self.container_name.replace('..', '')
+		self.container_name = self.container_name.strip('/')
+
+		if not self.container_name: raise MissingNameField()
+
+async def create(self, request):
 	""" Used to create new container in the database (automaticly creates supercontainer if necessary) """
 
-	#get required vars (POST -> JSON based)
+	# prepare request for a valid search
+	try:
+		create_request = CreateRequest(request.db_request)
+		return await performCreate(self, create_request)
 
-	#get tabel name
-	table_name = _INFO.get('_POST', {}).get('name', "")
-	if table_name == "":
-		table_name = _INFO.get('_JSON', {}).get('name', "")
-
-	if type(table_name) is not str:
-		table_name = str(table_name)
-
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
-
-	#no tabel name
-	if table_name == "":
+	except (MissingNameField, ContainerAlreadyExists) as e:
 		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'name' field"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		return self.response(status=400, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
+
+async def performCreate(db_instance, create_request):
+	container_location = f"{db_instance.container_root}{create_request.container_name}.phaazedb"
 
 	#already exist
-	if os.path.isfile(f"DATABASE/{table_name}.phaazedb"):
-		res = dict(
-			code=400,
-			status="error",
-			msg=f"container '{table_name}' already exist"
-		)
-		return self.response(status=400, body=json.dumps(res))
+	if os.path.isfile(container_location):
+		raise ContainerAlreadyExists(create_request.container_name)
 
 	container = dict (
 		current_id = 1,
@@ -41,8 +46,6 @@ async def create(self, request, _INFO):
 		default = dict(),
 		creation_date = str(datetime.now())
 	)
-
-	file_path = f"DATABASE/{table_name}.phaazedb"
 
 	try:
 		#add file folders
@@ -73,3 +76,4 @@ async def create(self, request, _INFO):
 		if self.log != False:
 			self.logger.critical(f"create container '{table_name}' failed")
 		return self.response(status=500, body=json.dumps(res))
+

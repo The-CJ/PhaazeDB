@@ -19,12 +19,27 @@ class MissingOfField(Exception):
 
 	def msg(self, *arg): return "missing 'of' field"
 
+class MissingNameField(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "missing 'name' field"
+
 class MissingStoreInJoin(Exception):
 	def __init__(self, *arg):
 		self.code = 400
 		self.status = "error"
 
 	def msg(self, *arg): return "missing 'store' in join"
+
+class ContainerAlreadyExists(Exception):
+	def __init__(self, *arg):
+		self.container = arg[0] if arg else None
+		self.code = 404
+		self.status = "error"
+
+	def msg(self, *arg): return f"container '{self.container}' already exists"
 
 class InvalidJoin(Exception):
 	def __init__(self, *arg):

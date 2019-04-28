@@ -160,7 +160,7 @@ class Database(object):
 			return await self.delete(request, _INFO)
 
 		elif action == "create":
-			return await self.create(request, _INFO)
+			return await self.create(request)
 
 		elif action == "drop":
 			return await self.drop(request, _INFO)
