@@ -23,6 +23,9 @@ class SelectRequest(object):
 
 	def getContainter(self, db_req):
 		self.container = db_req.get("of", "")
+		if type(self.container) is not str:
+			self.container = str(self.container)
+
 		self.container = self.container.replace('..', '')
 		self.container = self.container.strip('/')
 

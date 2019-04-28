@@ -12,6 +12,9 @@ class CreateRequest(object):
 
 	def getContainterName(self, db_req):
 		self.container_name = db_req.get("name", "")
+		if type(self.container_name) is not str:
+			self.container_name = str(self.container_name)
+
 		self.container_name = self.container_name.replace('..', '')
 		self.container_name = self.container_name.strip('/')
 

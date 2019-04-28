@@ -17,6 +17,9 @@ class ShowRequest(object):
 
 	def getPath(self, db_req):
 		self.path = db_req.get("path", "")
+		if type(self.path) is not str:
+			self.path = str(self.path)
+
 		self.path = self.path.replace('..', '')
 		self.path = self.path.strip('/')
 
