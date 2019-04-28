@@ -55,7 +55,7 @@ async def performShow(db_instance, show_request):
 		)
 		return db_instance.response(status=400, body=json.dumps(res))
 
-	root = {'supercontainer': {},'container': []}
+	root = {'supercontainer': {},'container': [], 'unusable': []}
 	tree = await getContainer(root, check_location, recursive=show_request.recursive)
 
 	res = dict(
@@ -71,18 +71,22 @@ async def performShow(db_instance, show_request):
 	return db_instance.response(status=200, body=json.dumps(res))
 
 async def getContainer(tree, folder_path, recursive=False):
-	for file in os.listdir(folder_path):
+	for check_object in os.listdir(folder_path):
+		# is container
+		print(f"{folder_path}/{check_object}")
+		if check_object.endswith('.phaazedb'):
+			check_object = check_object.split('.phaazedb')[0]
+			tree['container'].append(check_object)
 
-		#is container
-		if file.endswith('.phaazedb'):
-			file = file.split('.phaazedb')[0]
-			tree['container'].append(file)
-
-		#is supercontainer
-		else:
+		# is supercontainer and a folder
+		elif os.path.isdir(f"{folder_path}/{check_object}"):
 			if recursive:
-				tree['supercontainer'][file] = await getContainer(dict(supercontainer={}, container=[]), f"{folder_path}/{file}", recursive=recursive)
+				tree['supercontainer'][check_object] = await getContainer(dict(supercontainer={}, container=[], unusable=[]), f"{folder_path}/{check_object}", recursive=recursive)
 			else:
-				tree['supercontainer'][file] = {}
+				tree['supercontainer'][check_object] = {}
+
+		# it's nothing phaazeDB should handle
+		else:
+			tree['unusable'].append(check_object)
 
 	return tree
