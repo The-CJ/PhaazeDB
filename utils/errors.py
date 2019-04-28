@@ -25,13 +25,6 @@ class MissingOfField(Exception):
 
 	def msg(self, *arg): return "missing 'of' field"
 
-class MissingPathField(Exception):
-	def __init__(self, *arg):
-		self.code = 400
-		self.status = "error"
-
-	def msg(self, *arg): return "missing 'path' field"
-
 class MissingNameField(Exception):
 	def __init__(self, *arg):
 		self.code = 400

@@ -1,5 +1,4 @@
 import asyncio, json, os
-from utils.errors import MissingPathField
 
 class ShowRequest(object):
 	""" Contains informations for a valid show request,
