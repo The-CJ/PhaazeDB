@@ -1,6 +1,6 @@
-import os, pickle, json
+import os, json
 from datetime import datetime
-from utils.errors import MissingNameField, ContainerAlreadyExists
+from utils.errors import MissingNameField, ContainerAlreadyExists, SysCreateError
 
 class CreateRequest(object):
 	""" Contains informations for a valid create request,
@@ -25,7 +25,7 @@ async def create(self, request):
 		create_request = CreateRequest(request.db_request)
 		return await performCreate(self, create_request)
 
-	except (MissingNameField, ContainerAlreadyExists) as e:
+	except (MissingNameField, ContainerAlreadyExists, SysCreateError) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -40,40 +40,30 @@ async def performCreate(db_instance, create_request):
 	if os.path.isfile(container_location):
 		raise ContainerAlreadyExists(create_request.container_name)
 
-	container = dict (
+	success, container = await makeNewContainer(db_instance, create_request.container_name)
+
+	if not success:
+		db_instance.Server.Logger.critical(f"create container '{create_request.container_name}' failed")
+		raise SysCreateError(create_request.container_name)
+
+	res = dict(
+		code=201,
+		status="created",
+
+		msg=f"created container '{create_request.container_name}'"
+	)
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"created container '{create_request.container_name}'")
+	return db_instance.response(status=201, body=json.dumps(res))
+
+async def makeNewContainer(db_instance, container_name):
+	new_container = dict (
 		current_id = 1,
 		data = dict(),
 		default = dict(),
 		creation_date = str(datetime.now())
 	)
 
-	try:
-		#add file folders
-		os.makedirs(os.path.dirname(file_path), exist_ok=True)
+	created = await db_instance.store(container_name, new_container, create=True)
 
-		#add file
-		pickle.dump(container, open(file_path, "wb") )
-
-		#add to active db
-		self.db[table_name] = container
-
-		#awnser
-		res = dict(
-			code=201,
-			status="created",
-			msg=f"created container '{table_name}'"
-		)
-		if self.log != False:
-			self.logger.info(f"created container '{table_name}'")
-		return self.response(status=201, body=json.dumps(res))
-
-	except:
-		res = dict(
-			code=500,
-			status="error",
-			msg="unknown server error"
-		)
-		if self.log != False:
-			self.logger.critical(f"create container '{table_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
-
+	return created, new_container
