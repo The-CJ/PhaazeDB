@@ -1,102 +1,59 @@
 import asyncio, json
+from utils.errors import MissingIntoField, InvalidContent
 
 class InsertRequest(object):
-	""" Contains informations for a valid select request,
-		does not mean the container exists or where statement has right syntax """
+	""" Contains informations for a valid insert request,
+		does not mean the container exists """
 	def __init__(self, db_req):
 		self.container:str = None
+		self.content:dict = dict()
 
 		self.getContainter(db_req)
+		self.getContent(db_req)
 
 	def getContainter(self, db_req):
-		self.container = db_req.get("of", "")
+		self.container = db_req.get("into", "")
 		self.container = self.container.replace('..', '')
 		self.container = self.container.strip('/')
 
-		if not self.container: raise MissingOfField
+		if not self.container: raise MissingIntoField
 
-	def getWhere(self, db_req):
-		self.where = db_req.get("where", "")
+	def getContent(self, db_req):
+		self.content = db_req.get("content", None)
 
-	def getFields(self, db_req):
-		self.fields = db_req.get("fields", None)
-		if type(self.fields) is str:
-			self.fields = self.fields.split(",")
-		if type(self.fields) is not list:
-			self.fields = []
-
-	def getOffset(self, db_req):
-		self.offset = db_req.get("offset", -1)
-		if type(self.offset) is str:
-			if self.offset.isdigit():
-				self.offset = int(self.offset)
-
-		if type(self.offset) is not int:
-			self.offset = -1
-
-	def getLimit(self, db_req):
-		self.limit = db_req.get("limit", -1)
-		if type(self.limit) is str:
-			if self.limit.isdigit():
-				self.limit = int(self.limit)
-
-		if type(self.limit) is not int:
-			self.limit = -1
-
-	def getStore(self, db_req):
-		self.store = db_req.get("store", None)
-		if type(self.store) is not str:
-			self.store = None
-
-	def getJoin(self, db_req):
-		self.join = db_req.get("join", None)
-		if type(self.join) is str:
+		if type(self.content) is str:
 			try:
-				self.join = json.loads(self.join)
+				self.content = json.loads(self.content)
 			except:
-				raise InvalidJoin
+				raise InvalidContent()
+
+		if type(self.content) is not dict:
+			raise InvalidContent()
 
 async def insert(self, request):
 	""" Used to insert a new entry into a existing container """
 
-	#get required vars (POST -> JSON based)
+	# prepare request for a valid insert
+	try:
+		insert_request = InsertRequest(request.db_request)
+		return await performInsert(self, insert_request)
 
-	#get table_name
-	table_name = _INFO.get('_POST', {}).get('into', "")
-	if table_name == "":
-		table_name = _INFO.get('_JSON', {}).get('into', "")
-
-	if type(table_name) is not str:
-		table_name = str(table_name)
-
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
-
-	#no tabel name
-	if table_name == "":
+	except () as e:
 		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'into' field"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		return self.response(status=400, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
 
-	#get content
-	content = _INFO.get('_POST', {}).get('content', None)
-	if content == None:
-		content = _INFO.get('_JSON', {}).get('content', None)
+	except Exception as ex:
+		return await self.criticalError(ex)
 
-	if type(content) is not dict:
-		content = None
+async def performInsert(db_instance, insert_request):
 
-	#no content
-	if content == None:
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'content' field as valid json-object"
-		)
-		return self.response(status=400, body=json.dumps(res))
+	print(vars(insert_request))
+
+	return None
 
 	#unnamed key
 	if content.get('', dummy) != dummy:
