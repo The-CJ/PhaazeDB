@@ -25,6 +25,13 @@ class MissingOfField(Exception):
 
 	def msg(self, *arg): return "missing 'of' field"
 
+class MissingIntoField(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "missing 'into' field"
+
 class MissingNameField(Exception):
 	def __init__(self, *arg):
 		self.code = 400
@@ -53,6 +60,13 @@ class InvalidJoin(Exception):
 		self.status = "error"
 
 	def msg(self, *arg): return "invalid or missing content in 'join' field"
+
+class InvalidContent(object):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "invalid or missing 'content' as valid json-object"
 
 class SysLoadError(Exception):
 	def __init__(self, *arg):
