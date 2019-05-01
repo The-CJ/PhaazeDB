@@ -61,12 +61,17 @@ class InvalidJoin(Exception):
 
 	def msg(self, *arg): return "invalid or missing content in 'join' field"
 
-class InvalidContent(object):
+class InvalidContent(Exception):
 	def __init__(self, *arg):
+		self.empty_field = True if arg else False
 		self.code = 400
 		self.status = "error"
 
-	def msg(self, *arg): return "invalid or missing 'content' as valid json-object"
+	def msg(self, *arg):
+		if self.empty_field:
+			return "empty field in 'content'"
+		else:
+			return "invalid or missing 'content' as valid json-object"
 
 class SysLoadError(Exception):
 	def __init__(self, *arg):
