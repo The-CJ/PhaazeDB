@@ -77,3 +77,13 @@ class ContainerNotFound(Exception):
 		self.status = "error"
 
 	def msg(self, *arg): return f"container '{self.container}' not found"
+
+class CantAccessContainer(PermissionError):
+	def __init__(self, *arg):
+		self.container = arg[0] if arg else None
+		self.type = arg[1] if len(arg) > 1 else "container"
+		self.code = 500
+		self.status = "critical_error"
+
+	def msg(self, *arg): return f"system can't access {self.type}: '{self.container}'"
+

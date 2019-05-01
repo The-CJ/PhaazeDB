@@ -1,4 +1,5 @@
 import asyncio, json, os
+from utils.errors import CantAccessContainer
 
 class ShowRequest(object):
 	""" Contains informations for a valid show request,
@@ -32,7 +33,7 @@ async def show(self, request):
 		show_request = ShowRequest(request.db_request)
 		return await performShow(self, show_request)
 
-	except () as e:
+	except (CantAccessContainer) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -71,9 +72,13 @@ async def performShow(db_instance, show_request):
 	return db_instance.response(status=200, body=json.dumps(res))
 
 async def getContainer(tree, folder_path, recursive=False):
-	for check_object in os.listdir(folder_path):
+	try:
+		container_list = os.listdir(folder_path)
+	except PermissionError:
+		raise CantAccessContainer(folder_path,"supercontainer")
+
+	for check_object in container_list:
 		# is container
-		print(f"{folder_path}/{check_object}")
 		if check_object.endswith('.phaazedb'):
 			check_object = check_object.split('.phaazedb')[0]
 			tree['container'].append(check_object)
