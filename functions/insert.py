@@ -1,5 +1,5 @@
 import asyncio, json
-from utils.errors import MissingIntoField, InvalidContent, SysLoadError, ContainerNotFound, ContainerBroken
+from utils.errors import MissingIntoField, InvalidContent, SysLoadError, SysStoreError, ContainerNotFound, ContainerBroken
 
 class InsertRequest(object):
 	""" Contains informations for a valid insert request,
@@ -63,7 +63,6 @@ async def performInsert(db_instance, insert_request):
 	elif container.status == "not_found": raise ContainerNotFound(insert_request.container)
 	elif container.status == "success":	container = container.content
 
-
 	#get current_id
 	current_id_index = container.get('current_id',  None)
 	if current_id_index == None: raise ContainerBroken(insert_request.container)
@@ -76,30 +75,21 @@ async def performInsert(db_instance, insert_request):
 	container['current_id'] = current_id_index + 1
 
 	#save everything
-	finished = await db_instance.store(insert_request.container, container)
+	success = await db_instance.store(insert_request.container, container)
 
-	return None
+	if not success:
+		db_instance.Server.Logger.critical(f"inserting data into container '{insert_request.container}' failed")
+		raise SysStoreError(insert_request.container)
 
-	if finished:
-		res = dict(
-			code=201,
-			status="inserted",
-			msg=f"successfully inserted into container '{table_name}'",
-			data=content
-		)
-		if self.log != False:
-			self.logger.info(f"insert entry into '{table_name}': {str(content)}")
-		return self.response(status=201, body=json.dumps(res))
+	res = dict(
+		code=201,
+		status="inserted",
+		msg=f"successfully inserted into container '{insert_request.container}'",
+		data=insert_request.content
+	)
 
-	else:
-		# this SHOULD never happen, but hey... just in case
-		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not save your data."
-		)
-		if self.log != False:
-			self.logger.critical(f"insert entry into '{table_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"insert entry into '{insert_request.container}': {str(insert_request.content)}")
+	return db_instance.response(status=201, body=json.dumps(res))
 
 class EmptyObject(object): pass
