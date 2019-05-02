@@ -23,7 +23,7 @@ class Drop {
       Display.message( {content:"Successfull dropped '"+name+"'", color:Display.color_success} );
     })
     .fail(function (data) {
-      Display.message({content:data.msg, color:Display.color_fail});
+      return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
     })
   }
 }

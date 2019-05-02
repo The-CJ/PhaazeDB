@@ -56,13 +56,11 @@ class Insert {
       Display.message( {content:"Successfull inserted into '"+request.into+"' - ID: "+data.data.id, color:Display.color_success} );
     })
     .fail(function (data) {
-      if (data.status == "error") {
-        if (data.msg == "unauthorised") {
-          return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
-        }
-        return Display.message( {content:data.msg, color:Display.color_fail} );
-      } else {
-        return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
       }
     })
   }

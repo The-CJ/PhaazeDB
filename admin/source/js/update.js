@@ -110,13 +110,11 @@ class Update {
       Display.message( {content:"Successfull updated "+data.hits+" entry(s) of "+request['of'], color:Display.color_success} );
     })
     .fail(function (data) {
-      if (data.status == "error") {
-        if (data.msg == "unauthorised") {
-          return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
-        }
-        return Display.message( {content:data.msg, color:Display.color_fail} );
-      } else {
-        return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
       }
     })
   }
