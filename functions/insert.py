@@ -1,5 +1,5 @@
 import asyncio, json
-from utils.errors import MissingIntoField, InvalidContent, SysLoadError, ContainerNotFound
+from utils.errors import MissingIntoField, InvalidContent, SysLoadError, ContainerNotFound, ContainerBroken
 
 class InsertRequest(object):
 	""" Contains informations for a valid insert request,
@@ -38,7 +38,7 @@ async def insert(self, request):
 		insert_request = InsertRequest(request.db_request)
 		return await performInsert(self, insert_request)
 
-	except (MissingIntoField, InvalidContent, ContainerNotFound, SysLoadError) as e:
+	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -63,22 +63,22 @@ async def performInsert(db_instance, insert_request):
 	elif container.status == "not_found": raise ContainerNotFound(insert_request.container)
 	elif container.status == "success":	container = container.content
 
-	return None
 
 	#get current_id
-	_id_ = container['current_id']
+	current_id_index = container.get('current_id',  None)
+	if current_id_index == None: raise ContainerBroken(insert_request.container)
 
 	#add entry
-	container['data'][_id_] = content
-	content['id'] = _id_
+	insert_request.content['id'] = current_id_index
+	container['data'][current_id_index] = insert_request.content
 
 	#increase id
-	container['current_id'] = _id_ + 1
-
-	# # #
+	container['current_id'] = current_id_index + 1
 
 	#save everything
-	finished = await self.store(table_name, container)
+	finished = await db_instance.store(insert_request.container, container)
+
+	return None
 
 	if finished:
 		res = dict(
