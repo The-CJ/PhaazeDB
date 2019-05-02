@@ -79,7 +79,7 @@ class SysLoadError(Exception):
 		self.code = 500
 		self.status = "critical_error"
 
-	def msg(self, *arg): return f"DB could not load container file: {self.container}"
+	def msg(self, *arg): return f"DB could not load container file: '{self.container}'"
 
 class SysCreateError(Exception):
 	def __init__(self, *arg):
@@ -87,7 +87,7 @@ class SysCreateError(Exception):
 		self.code = 500
 		self.status = "critical_error"
 
-	def msg(self, *arg): return f"DB could not create container file: {self.container}"
+	def msg(self, *arg): return f"DB could not create container file: '{self.container}'"
 
 class ContainerNotFound(Exception):
 	def __init__(self, *arg):
@@ -105,4 +105,12 @@ class CantAccessContainer(PermissionError):
 		self.status = "critical_error"
 
 	def msg(self, *arg): return f"system can't access {self.type}: '{self.container}'"
+
+class ContainerBroken(Exception):
+	def __init__(self, *arg):
+		self.container = arg[0] if arg else None
+		self.code = 500
+		self.status = "critical_error"
+
+	def msg(self, *arg): return f"DB container file: '{self.container}' seems broken"
 
