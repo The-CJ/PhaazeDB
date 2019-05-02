@@ -46,7 +46,7 @@ async def performCreate(db_instance, create_request):
 	if os.path.isfile(container_location):
 		raise ContainerAlreadyExists(create_request.container_name)
 
-	success, container = await makeNewContainer(db_instance, create_request.container_name)
+	success = await makeNewContainer(db_instance, create_request.container_name)
 
 	if not success:
 		db_instance.Server.Logger.critical(f"create container '{create_request.container_name}' failed")
