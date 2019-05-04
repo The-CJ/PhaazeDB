@@ -90,7 +90,7 @@ async def update(self, request):
 
 async def performUpdate(db_instance, update_request):
 
-	hits, total = updateDataInContainer(db_instance, update_request)
+	hits, total = await updateDataInContainer(db_instance, update_request)
 
 	res = dict(
 		code=201,
@@ -167,18 +167,22 @@ async def updateDataInContainer(db_instance, update_request):
 				self.logger.critical(f"update entry(s) from '{table_name}' failed")
 		return self.response(status=500, body=json.dumps(res))
 
-async def updateEntry(entry, update_request):
+async def updateEntry(data, update_request):
 	if update_request.method == "dict":
 		for new_data_key in update_request.content:
-			entry[new_data_key] = update_request[new_data_key]
+			data[new_data_key] = update_request[new_data_key]
 
 	elif update_request.method == "str":
+		if update_request.store:
+			loc = locals()
+			loc[update_request.store] = data
+
 		try:
 			exec(update_request.content)
 		except Exception as e:
 			raise InvalidUpdateExec(str(e))
 
-	return entry
+	return data
 
 async def checkWhere(where="", check_entry=None, check_name=None):
 	if not where:
