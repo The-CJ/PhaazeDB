@@ -181,13 +181,14 @@ async def updateEntry(entry, update_request):
 	return entry
 
 async def checkWhere(where="", check_entry=None, check_name=None):
-
 	if not where:
 		return True
 
 	if not check_name:
 		check_name = "data"
 
+	loc = locals()
+	loc[check_name] = check_entry
 
 	try:
 		if eval(where):
