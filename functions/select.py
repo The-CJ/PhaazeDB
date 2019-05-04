@@ -29,7 +29,7 @@ class SelectRequest(object):
 		self.container = self.container.replace('..', '')
 		self.container = self.container.strip('/')
 
-		if not self.container: raise MissingOfField
+		if not self.container: raise MissingOfField()
 
 	def getWhere(self, db_req):
 		self.where = db_req.get("where", "")
@@ -73,7 +73,7 @@ class SelectRequest(object):
 			try:
 				self.join = json.loads(self.join)
 			except:
-				raise InvalidJoin
+				raise InvalidJoin()
 
 async def select(self, request):
 	""" Used to select data from ad DB container and give it back, may also include joins to other tables """
