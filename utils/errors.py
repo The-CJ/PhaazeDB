@@ -1,4 +1,4 @@
-import asyncio, json, traceback
+import json, traceback
 
 async def criticalError(self, Ex):
 	content = dict(code=500, status="critical_error", msg="unknown error")
@@ -91,6 +91,15 @@ class InvalidContent(Exception):
 			return "unnamed or empty field in 'content' field"
 		else:
 			return "invalid or missing 'content' as valid json-object"
+
+class InvalidUpdateExec(Exception):
+	def __init__(self, *arg):
+		self.catch = arg[0] if arg else None
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg):
+		return f"exec() string for in 'content' field has throw a exception: {self.catch}"
 
 class SysLoadError(Exception):
 	def __init__(self, *arg):

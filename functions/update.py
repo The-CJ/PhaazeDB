@@ -1,5 +1,5 @@
 import json, math
-from utils.errors import MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound
+from utils.errors import MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound, InvalidUpdateExec
 
 class UpdateRequest(object):
 	""" Contains informations for a valid update request,
@@ -77,7 +77,7 @@ async def update(self, request):
 		update_request = UpdateRequest(request.db_request)
 		return await performUpdate(self, update_request)
 
-	except (MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound) as e:
+	except (MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound, InvalidUpdateExec) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -127,31 +127,19 @@ async def updateDataInContainer(db_instance, update_request):
 		entry['id'] = entry_id
 
 		# where dont hit entry, means skip, we dont need it
-		if not await checkWhere(where=select_request.where, check_entry=entry, check_name=select_request.store):
+		if not await checkWhere(where=update_request.where, check_entry=entry, check_name=update_request.store):
 			continue
 
 		found += 1
 		if update_request.offset >= found:
 			continue
 
-		if METHOD == "dict":
-			for new_data_key in content:
-				data[new_data_key] = content[new_data_key]
-
-		elif METHOD == "str":
-			try:
-				exec(content)
-			except Exception as e:
-				res = dict(
-					code=400,
-					status="error",
-					msg=f"the exec() string in 'content' has trow a exception"
-				)
-				return self.response(status=400, body=json.dumps(res))
+		# update the entry with new content
+		entry = await updateEntry(entry, update_request)
 
 		hits += 1
 
-		if hits >= limit:
+		if hits >= update_request.limit:
 			break
 
 	#save everything
@@ -178,6 +166,19 @@ async def updateDataInContainer(db_instance, update_request):
 		if self.log != False:
 				self.logger.critical(f"update entry(s) from '{table_name}' failed")
 		return self.response(status=500, body=json.dumps(res))
+
+async def updateEntry(entry, update_request):
+	if update_request.method == "dict":
+		for new_data_key in update_request.content:
+			entry[new_data_key] = update_request[new_data_key]
+
+	elif update_request.method == "str":
+		try:
+			exec(update_request.content)
+		except Exception as e:
+			raise InvalidUpdateExec(str(e))
+
+	return entry
 
 async def checkWhere(where="", check_entry=None, check_name=None):
 
