@@ -46,6 +46,18 @@ class MissingStoreInJoin(Exception):
 
 	def msg(self, *arg): return "missing 'store' in join"
 
+class MissingUpdateContent(Exception):
+	def __init__(self, *arg):
+		self.empty_field = True if arg else False
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg):
+		if self.empty_field:
+			return "unnamed or empty field in 'content' field"
+		else:
+			return "missing 'content' field as valid json-object or exec() string"
+
 class ContainerAlreadyExists(Exception):
 	def __init__(self, *arg):
 		self.container = arg[0] if arg else None
@@ -76,7 +88,7 @@ class InvalidContent(Exception):
 
 	def msg(self, *arg):
 		if self.empty_field:
-			return "empty field in 'content'"
+			return "unnamed or empty field in 'content' field"
 		else:
 			return "invalid or missing 'content' as valid json-object"
 
