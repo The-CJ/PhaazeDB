@@ -1,6 +1,64 @@
 import asyncio, json, math
 
 async def delete(self, request, _INFO):
+import json, math
+from utils.errors import MissingOfField, InvalidLimit
+
+class DeleteRequest(object):
+	""" Contains informations for a valid delete request,
+		does not mean the container may not already be existing or other errors are iompossible """
+	def __init__(self, db_req):
+		self.container:str = None
+		self.where:str = ""
+		self.offset:int = 0
+		self.limit:int = math.inf
+		self.store:str = None
+
+		self.getContainter(db_req)
+		self.where(db_req)
+		self.getOffset(db_req)
+		self.getLimit(db_req)
+		self.getStore(db_req)
+
+	def getContainter(self, db_req):
+		self.container = db_req.get("of", "")
+		if type(self.container) is not str:
+			self.container = str(self.container)
+
+		self.container = self.container.replace('..', '')
+		self.container = self.container.strip('/')
+
+		if not self.container: raise MissingOfField()
+
+	def getWhere(self, db_req):
+		self.where = db_req.get("where", "")
+
+	def getOffset(self, db_req):
+		self.offset = db_req.get("offset", -1)
+		if type(self.offset) is str:
+			if self.offset.isdigit():
+				self.offset = int(self.offset)
+
+		if type(self.offset) is not int:
+			self.offset = -1
+
+	def getLimit(self, db_req):
+		self.limit = db_req.get("limit", math.inf)
+		if type(self.limit) is str:
+			if self.limit.isdigit():
+				self.limit = int(self.limit)
+
+		if type(self.limit) is not int:
+			self.limit = math.inf
+
+		if self.limit <= 0:
+			raise InvalidLimit()
+
+	def getStore(self, db_req):
+		self.store = db_req.get("store", None)
+		if type(self.store) is not str:
+			self.store = None
+
 	""" Used to delete entrys from the database """
 
 	#get required vars (POST -> JSON based)

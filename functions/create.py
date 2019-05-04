@@ -4,7 +4,7 @@ from utils.errors import MissingNameField, ContainerAlreadyExists, SysCreateErro
 
 class CreateRequest(object):
 	""" Contains informations for a valid create request,
-		does not mean the container may not already be existing or other errors are iompossible """
+		does not mean the container may not already be existing or other errors are impossible """
 	def __init__(self, db_req):
 		self.container_name:str = None
 

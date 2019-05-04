@@ -158,7 +158,7 @@ class Database(object):
 			return await self.insert(request)
 
 		elif action == "delete":
-			return await self.delete(request, _INFO)
+			return await self.delete(request)
 
 		elif action == "create":
 			return await self.create(request)
