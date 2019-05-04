@@ -152,7 +152,7 @@ class Database(object):
 			return await self.select(request)
 
 		elif action == "update":
-			return await self.update(request, _INFO)
+			return await self.update(request)
 
 		elif action == "insert":
 			return await self.insert(request)
