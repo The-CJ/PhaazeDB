@@ -1,5 +1,5 @@
-import json
-from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError, InvalidJoin
+import json, math
+from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError, InvalidJoin, InvalidLimit
 
 class SelectRequest(object):
 	""" Contains informations for a valid select request,
@@ -8,8 +8,8 @@ class SelectRequest(object):
 		self.container:str = None
 		self.where:str = ""
 		self.fields:list = []
-		self.offset:int = -1
-		self.limit:int = -1
+		self.offset:int = 0
+		self.limit:int = math.inf
 		self.store:str = None
 		self.join:list[dict] = []
 
@@ -51,13 +51,16 @@ class SelectRequest(object):
 			self.offset = -1
 
 	def getLimit(self, db_req):
-		self.limit = db_req.get("limit", -1)
+		self.limit = db_req.get("limit", math.inf)
 		if type(self.limit) is str:
 			if self.limit.isdigit():
 				self.limit = int(self.limit)
 
 		if type(self.limit) is not int:
-			self.limit = -1
+			self.limit = math.inf
+
+		if self.limit <= 0:
+			raise InvalidLimit()
 
 	def getStore(self, db_req):
 		self.store = db_req.get("store", None)
@@ -88,7 +91,7 @@ async def select(self, request):
 		)
 		return self.response(status=400, body=json.dumps(res))
 
-	except (ContainerNotFound, MissingOfField, SysLoadError) as e:
+	except (ContainerNotFound, MissingOfField, SysLoadError, InvalidLimit) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -136,7 +139,6 @@ async def getDataFromContainer(db_instance, select_request):
 	result = []
 	hits = 0
 	hits_field = 0
-
 
 	#go through all entrys
 	found = 0

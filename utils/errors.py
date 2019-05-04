@@ -61,6 +61,13 @@ class InvalidJoin(Exception):
 
 	def msg(self, *arg): return "invalid or missing content in 'join' field"
 
+class InvalidLimit(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "invalid value for 'limit', number must be > 0"
+
 class InvalidContent(Exception):
 	def __init__(self, *arg):
 		self.empty_field = True if arg else False
