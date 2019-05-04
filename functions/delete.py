@@ -1,6 +1,3 @@
-import asyncio, json, math
-
-async def delete(self, request, _INFO):
 import json, math
 from utils.errors import MissingOfField, InvalidLimit
 
@@ -59,7 +56,26 @@ class DeleteRequest(object):
 		if type(self.store) is not str:
 			self.store = None
 
+async def delete(self, request):
 	""" Used to delete entrys from the database """
+
+	# prepare request for a valid search
+	try:
+		delete_request = DeleteRequest(request.db_request)
+		return await performDelete(self, delete_request)
+
+	except () as e:
+		res = dict(
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
+		)
+		return self.response(status=e.code, body=json.dumps(res))
+
+	except Exception as ex:
+		return await self.criticalError(ex)
+
+async def performDelete(db_instance, select_request):
 
 	#get required vars (POST -> JSON based)
 
