@@ -154,7 +154,7 @@ async def updateDataInContainer(db_instance, update_request):
 async def updateEntry(data, update_request):
 	if update_request.method == "dict":
 		for new_data_key in update_request.content:
-			data[new_data_key] = update_request[new_data_key]
+			data[new_data_key] = update_request.content[new_data_key]
 
 	elif update_request.method == "str":
 		if update_request.store:
