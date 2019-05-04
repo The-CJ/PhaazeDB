@@ -1,9 +1,9 @@
 import json, math
-from utils.errors import MissingOfField, InvalidLimit
+from utils.errors import MissingOfField, InvalidLimit, SysLoadError, ContainerNotFound, SysStoreError
 
 class DeleteRequest(object):
 	""" Contains informations for a valid delete request,
-		does not mean the container may not already be existing or other errors are iompossible """
+		does not mean the container may not already be existing or other errors are impossible """
 	def __init__(self, db_req):
 		self.container:str = None
 		self.where:str = ""
@@ -12,7 +12,7 @@ class DeleteRequest(object):
 		self.store:str = None
 
 		self.getContainter(db_req)
-		self.where(db_req)
+		self.getWhere(db_req)
 		self.getOffset(db_req)
 		self.getLimit(db_req)
 		self.getStore(db_req)
@@ -75,134 +75,56 @@ async def delete(self, request):
 	except Exception as ex:
 		return await self.criticalError(ex)
 
-async def performDelete(db_instance, select_request):
+async def performDelete(db_instance, delete_request):
 
-	#get required vars (POST -> JSON based)
-
-	#get tabel name
-	table_name = _INFO.get('_POST', {}).get('of', "")
-	if table_name == "":
-		table_name = _INFO.get('_JSON', {}).get('of', "")
-
-	if type(table_name) is not str:
-		table_name = str(table_name)
-
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
-
-	#no tabel name
-	if table_name == "":
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'of' field"
-		)
-		return self.response(status=400, body=json.dumps(res))
-
-	#get container
-	container = await self.load(table_name)
+	container = await db_instance.load(delete_request.container)
 
 	#error handling
-	if container.status == "sys_error":
-		# this SHOULD never happen, but hey... just in case
-		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not load container file."
-		)
-		return self.response(status=500, body=json.dumps(res))
+	if container.status == "sys_error": raise SysLoadError(delete_request.container)
+	elif container.status == "not_found": raise ContainerNotFound(delete_request.container)
+	elif container.status == "success":	container = container.content
 
-	elif container.status == "not_found":
-		res = dict(
-			code=404,
-			status="error",
-			msg=f"container '{table_name}' not found"
-		)
-		return self.response(status=404, body=json.dumps(res))
-
-	elif container.status == "success":
-
-		container = container.content
-
-	#get where :: eval str
-	where = _INFO.get('_JSON', {}).get('where', None)
-	if where == None:
-		where = _INFO.get('_POST', {}).get('where', None)
-
-	if type(where) is not str:
-		where = None
-
-	#get offset :: int
-	offset = _INFO.get('_JSON', {}).get('offset', None)
-	if offset == None:
-		offset = _INFO.get('_POST', {}).get('offset', None)
-
-	if type(offset) is str:
-		if offset.isdigit():
-			offset = int(offset)
-	if type(offset) is not int:
-		offset = 0
-
-	#get limit :: int
-	limit = _INFO.get('_JSON', {}).get('limit', None)
-	if limit == None:
-		limit = _INFO.get('_POST', {}).get('limit', None)
-
-	if type(limit) is str:
-		if limit.isdigit():
-			limit = int(limit)
-	if type(limit) is not int:
-		limit = math.inf
-
-	#search all entrys
 	hits = 0
-	hits_field = 0
 	found = 0
 
-	check_list = [_id_ for _id_ in container.get('data', [])]
-
-	for entry_id in check_list:
+	# list(data) -> for a copy of data, so there is no RuntimeError because changing list size
+	for entry_id in list(container.get("data", [])):
 		entry = container['data'][entry_id]
 		entry['id'] = entry_id
 
-		if not await check_where(entry, where):
+		# where dont hit entry, means skip, we dont need it
+		if not await checkWhere(where=delete_request.where, check_entry=entry, check_name=delete_request.store):
 			continue
 
 		found += 1
-		if offset >= found:
+		if delete_request.offset >= found:
 			continue
 
+		# delete entry
 		del container['data'][entry_id]
 		hits += 1
 
-		if hits >= limit:
+		if hits >= delete_request.limit:
 			break
 
 	#save everything
-	finished = await self.store(table_name, container)
+	success = await db_instance.store(delete_request.container, container)
 
-	if finished:
-		res = dict(
-			code=201,
-			status="deleted",
-			hits=hits,
-			total=len( container.get('data', []) ),
-		)
-		if self.log != False:
-			self.logger.info(f"deleted {str(hits)} entry(s) from '{table_name}'")
-		return self.response(status=201, body=json.dumps(res))
+	if not success:
+		db_instance.Server.Logger.critical(f"deleting data in container '{delete_request.container}' failed")
+		raise SysStoreError(delete_request.container)
 
-	else:
-		# this SHOULD never happen, but hey... just in case
-		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not save your data."
-		)
-		if self.log != False:
-			self.logger.critical(f"deleted {str(hits)} entry(s) from '{table_name}'")
-		return self.response(status=500, body=json.dumps(res))
+	res = dict(
+		code=201,
+		status="deleted",
 
+		hits=hits,
+		total=len( container.get('data', []) ),
+	)
+
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"deleted {str(hits)} entry(s) from '{delete_request.container}'")
+	return db_instance.response(status=201, body=json.dumps(res))
 
 async def checkWhere(where="", check_entry=None, check_name=None):
 	if not where:
