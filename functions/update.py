@@ -1,5 +1,5 @@
 import json, math
-from utils.errors import MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound, InvalidUpdateExec
+from utils.errors import MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound, InvalidUpdateExec, SysStoreError
 
 class UpdateRequest(object):
 	""" Contains informations for a valid update request,
@@ -77,7 +77,7 @@ async def update(self, request):
 		update_request = UpdateRequest(request.db_request)
 		return await performUpdate(self, update_request)
 
-	except (MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound, InvalidUpdateExec) as e:
+	except (MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, SysStoreError, ContainerNotFound, InvalidUpdateExec) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -143,29 +143,13 @@ async def updateDataInContainer(db_instance, update_request):
 			break
 
 	#save everything
-	finished = await self.store(table_name, container)
+	success = await db_instance.store(update_request.container, container)
 
-	if finished:
-		res = dict(
-			code=201,
-			status="updated",
-			hits=hits,
-			total=len( container.get('data', []) ),
-		)
-		if self.log != False:
-			self.logger.info(f"updated {str(hits)} entry(s) in '{table_name}'")
-		return self.response(status=201, body=json.dumps(res))
+	if not success:
+		db_instance.Server.Logger.critical(f"updateing data in container '{update_request.container}' failed")
+		raise SysStoreError(update_request.container)
 
-	else:
-		# this SHOULD never happen, but hey... just in case
-		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not save your data."
-		)
-		if self.log != False:
-				self.logger.critical(f"update entry(s) from '{table_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
+	return hits, len(container.get('data', []) )
 
 async def updateEntry(data, update_request):
 	if update_request.method == "dict":
