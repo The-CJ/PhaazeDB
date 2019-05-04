@@ -159,7 +159,7 @@ async def getDataFromContainer(db_instance, select_request):
 		hits += 1
 		hits_field += len(requested_fields)
 
-		result.append( dict(sorted(requested_fields.items())) )
+		result.append( requested_fields )
 
 		if hits >= select_request.limit:
 			break
