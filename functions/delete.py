@@ -204,9 +204,15 @@ async def performDelete(db_instance, select_request):
 		return self.response(status=500, body=json.dumps(res))
 
 
-async def check_where(data, where):
-	if where == "" or where == None:
+async def checkWhere(where="", check_entry=None, check_name=None):
+	if not where:
 		return True
+
+	if not check_name:
+		check_name = "data"
+
+	loc = locals()
+	loc[check_name] = check_entry
 
 	try:
 		if eval(where):
