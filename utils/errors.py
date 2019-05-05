@@ -41,10 +41,15 @@ class MissingNameField(Exception):
 
 class MissingOptionField(Exception):
 	def __init__(self, *arg):
+		self.unknown = True if arg else False
 		self.code = 400
 		self.status = "error"
 
-	def msg(self, *arg): return "missing 'option' field"
+	def msg(self, *arg):
+		if self.unknown:
+			return "invalid value in 'option' field"
+		else:
+			return "missing 'option' field"
 
 class MissingStoreInJoin(Exception):
 	def __init__(self, *arg):

@@ -47,6 +47,9 @@ async def performOption(db_instance, option_request):
 	elif option_request.option == "shutdown":
 		return await performShutdown(db_instance, option_request)
 
+	else:
+		raise MissingOptionField(True)
+
 async def performLogging(db_instance, option_request):
 	v = None
 
