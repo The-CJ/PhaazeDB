@@ -51,7 +51,7 @@ async def performDrop(db_instance, drop_request):
 	os.remove(container_location)
 
 	#remove from active db
-	db_instance.db[drop_request.container_name]
+	del db_instance.db[drop_request.container_name]
 
 	#remove upper folder if empty
 	await DropSupercontainer(db_instance, drop_request.container_name)
