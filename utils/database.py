@@ -8,8 +8,6 @@ class Database(object):
 		self.Server = server
 		self.container_root = "DATABASE/"
 		self.keep_alive = 60
-		self.config = self.Server.config #REMOVE THIS
-		self.log = self.Server.action_logging #REMOVE THIS
 		self.active = True
 		self.response = self.sendBackResponse
 

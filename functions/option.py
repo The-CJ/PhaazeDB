@@ -1,4 +1,4 @@
-import json
+import asyncio, json
 from utils.errors import MissingOptionField
 
 class OptionRequest(object):
@@ -76,13 +76,13 @@ async def performLogging(db_instance, option_request):
 	return db_instance.response(status=200, body=json.dumps(res))
 
 async def performShutdown(db_instance, option_request):
-		self.active = False
 
-		asyncio.ensure_future(self.shutdown())
+	db_instance.active = False
+	asyncio.ensure_future(db_instance.shutdown())
 
-		res = dict(
-			code=200,
-			status="success",
-			msg="DB is sutting down"
-		)
-		return self.response(status=200, body=json.dumps(res))
+	res = dict(
+		code=200,
+		status="success",
+		msg="DB is sutting down"
+	)
+	return db_instance.response(status=200, body=json.dumps(res))
