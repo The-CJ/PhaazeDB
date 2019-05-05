@@ -1,22 +1,39 @@
 import os, json
+from utils.errors import MissingNameField, ContainerNotFound
 
-import asyncio
+class DropRequest(object):
+	""" Contains informations for a valid drop request,
+		does not mean the container must exist or other errors are impossible """
+	def __init__(self, db_req):
+		self.container_name:str = None
 
-def drop_upper_empty_folder(table_name):
+		self.getContainterName(db_req)
 
-	t = [r for r in table_name.split('/')]
-	t.pop()
-	t = "/".join(f for f in t)
-	c = os.listdir("DATABASE/{}".format(t))
+	def getContainterName(self, db_req):
+		self.container_name = db_req.get("name", "")
+		if type(self.container_name) is not str:
+			self.container_name = str(self.container_name)
 
-	#folder is now empty -> remove
-	if len(c) == 0:
-		if t == "": return
+		self.container_name = self.container_name.replace('..', '')
+		self.container_name = self.container_name.strip('/')
 
-		os.rmdir("DATABASE/{}".format(t))
+		if not self.container_name: raise MissingNameField()
 
-		#check if this is now empty as well
-		drop_upper_empty_folder(t)
+async def drop(self, request):
+	""" Used to drop/delete container from DB and delete supercontainer if no container are left """
+
+	# prepare request for a valid search
+	try:
+		drop_request = DropRequest(request.db_request)
+		return await performDrop(self, drop_request)
+
+	except (MissingNameField, ContainerNotFound) as e:
+		res = dict(
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
+		)
+		return self.response(status=e.code, body=json.dumps(res))
 
 async def drop(self, request, _INFO):
 	""" Used to drop/delete container from DB (automaticly deletes supercontainer if necessary) """
