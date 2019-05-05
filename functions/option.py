@@ -1,11 +1,24 @@
 import json
+from utils.errors import MissingOptionField
 
 class OptionRequest(object):
 	""" Contains informations for a valid option request,
 		does not mean the option actully exists or given parameter are possible"""
 	def __init__(self, db_req):
-		pass
+		self.option:str = None
+		self.value:str = None
 
+	def getOption(self, db_req):
+		self.option = db_req.get("option", None)
+		if type(self.option) is not str:
+			self.option = None
+
+		if not self.option: raise MissingOptionField()
+
+	def getValue(self, db_req):
+		self.value = db_req.get("value", None)
+		if type(self.value) is not str:
+			self.value = None
 
 async def option(self, request):
 	""" Used to change options on the fly """
@@ -15,7 +28,7 @@ async def option(self, request):
 		option_request = OptionRequest(request.db_request)
 		return await performOption(self, option_request)
 
-	except () as e:
+	except (MissingOptionField) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -27,61 +40,34 @@ async def option(self, request):
 		return await self.criticalError(ex)
 
 async def performOption(db_instance, option_request):
-	#get table_name
-	option = _INFO.get('_POST', {}).get('option', "")
-	if option == "":
-		option = _INFO.get('_JSON', {}).get('option', "")
 
-	if type(option) is not str:
-		option = str(option)
+	if option_request.option == "log":
+		return await performLogging(db_instance, option_request)
 
-	#no option
-	if option == "":
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'option' field"
-		)
-		return self.response(status=400, body=json.dumps(res))
+	elif option_request.option == "shutdown":
+		return await performShutdown(db_instance, option_request)
 
-	#get value
-	value = _INFO.get('_POST', {}).get('value', None)
-	if value == None:
-		value = _INFO.get('_JSON', {}).get('value', None)
+async def performLogging(db_instance, option_request):
+	v = None
 
-	if type(value) is not str:
-		value = None
+	# fix value from call
+	if option_request.value != None:
+		db_instance.Server.action_logging = bool(option_request.value)
+	# toggle
+	else:
+		db_instance.Server.action_logging = False if db_instance.Server.action_logging else True
 
-	# # # # #
+	vv = "active" if v == True else "disabled"
+	db_instance.Server.Logger.info(f"Action logging now: {vv}")
 
-	if option == "log":
+	res = dict(
+		code=200,
+		status="success",
+		msg=f"'action_logging' is now {vv}"
+	)
+	return db_instance.response(status=200, body=json.dumps(res))
 
-		v = None
-
-		if value.lower() == "true": v = True
-		elif value.lower() == "false": v = False
-
-		if v == None:
-			if self.log == False: v = True
-			else: v = False
-
-		if v == True:
-			self.log = True
-		elif v == False:
-			self.log = False
-
-		vv = "active" if v == True else "disabled"
-
-		self.logger.info(f"Logging Module: '{vv}'")
-
-		res = dict(
-			code=200,
-			status="success",
-			msg="option 'log' is now " + vv
-		)
-		return self.response(status=200, body=json.dumps(res))
-
-	elif option == "shutdown":
+async def performShutdown(db_instance, option_request):
 		self.active = False
 
 		asyncio.ensure_future(self.shutdown())
@@ -92,4 +78,3 @@ async def performOption(db_instance, option_request):
 			msg="DB is sutting down"
 		)
 		return self.response(status=200, body=json.dumps(res))
-
