@@ -39,6 +39,13 @@ class MissingNameField(Exception):
 
 	def msg(self, *arg): return "missing 'name' field"
 
+class MissingOptionField(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "missing 'option' field"
+
 class MissingStoreInJoin(Exception):
 	def __init__(self, *arg):
 		self.code = 400
