@@ -35,67 +35,48 @@ async def drop(self, request):
 		)
 		return self.response(status=e.code, body=json.dumps(res))
 
-async def drop(self, request, _INFO):
+	except Exception as ex:
+		return await self.criticalError(ex)
+
+async def performDrop(db_instance, drop_request):
 	""" Used to drop/delete container from DB (automaticly deletes supercontainer if necessary) """
 
-	#get required vars (POST -> JSON based)
-
-	#no tabel name
-	table_name = _INFO.get('_POST', {}).get('name', "")
-	if table_name == "":
-		table_name = _INFO.get('_JSON', {}).get('name', "")
-
-	if type(table_name) is not str:
-		table_name = str(table_name)
-
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
-
-	#no name
-	if table_name == "":
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'name' field"
-		)
-		return self.response(status=400, body=json.dumps(res))
+	container_location = f"{db_instance.container_root}{drop_request.container_name}.phaazedb"
 
 	#does not exist
-	if not os.path.isfile(f"DATABASE/{table_name}.phaazedb"):
-		res = dict(
-			code=400,
-			status="error",
-			msg=f"container '{table_name}' does not exist"
-		)
-		return self.response(status=400, body=json.dumps(res))
+	if not os.path.isfile(container_location):
+		raise ContainerNotFound(drop_request.container_name)
 
-	file_path = f"DATABASE/{table_name}.phaazedb"
+	#remove from file system
+	os.remove(container_location)
 
-	try:
-		#remove from file system
-		os.remove(file_path)
+	#remove from active db
+	db_instance.db[drop_request.container_name]
 
-		#remove from active db
-		self.db.pop(table_name, None)
+	#remove upper folder if empty
+	await DropSupercontainer(db_instance, drop_request.container_name)
 
-		#remove upper folder
-		drop_upper_empty_folder(table_name)
+	res = dict(
+		code=200,
+		status="droped",
+		msg=f"droped container '{drop_request.container_name}'"
+	)
 
-		res = dict(
-			code=200,
-			status="droped",
-			msg=f"droped container '{table_name}'"
-		)
-		if self.log != False:
-			self.logger.info(f"droped container '{table_name}'")
-		return self.response(status=200, body=json.dumps(res))
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"droped container '{drop_request.container_name}'")
+	return db_instance.response(status=200, body=json.dumps(res))
 
-	except:
-		res = dict(
-			code=500,
-			status="error",
-			msg="unknown server error"
-		)
-		if self.log != False:
-			self.logger.critical(f"drop container '{table_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
+async def DropSupercontainer(db_instance, container_name):
+
+	supercontainer_path = os.path.dirname(container_name)
+	c = os.listdir(f"{db_instance.container_root}{supercontainer_path}")
+
+	#folder is now empty -> remove
+	if len(c) == 0:
+		# ignore database root dir
+		if supercontainer_path == "": return
+
+		os.rmdir(f"{db_instance.container_root}{supercontainer_path}")
+
+		#check if the supercontainer of this is is now empty as well
+		await DropSupercontainer(db_instance, supercontainer_path)
