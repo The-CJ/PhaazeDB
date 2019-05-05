@@ -176,7 +176,7 @@ class Database(object):
 			return await self.describe(request, _INFO)
 
 		elif action == "option":
-			return await self.option(request, _INFO)
+			return await self.option(request)
 
 		else:
 			return await self.unknownFunction()

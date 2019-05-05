@@ -1,10 +1,32 @@
-import asyncio, json, logging
+import json
 
-async def option(self, request, _INFO):
-	""" Used to change options of the fly """
+class OptionRequest(object):
+	""" Contains informations for a valid option request,
+		does not mean the option actully exists or given parameter are possible"""
+	def __init__(self, db_req):
+		pass
 
-	#get required vars (POST -> JSON based)
 
+async def option(self, request):
+	""" Used to change options on the fly """
+
+	# prepare request for a valid insert
+	try:
+		option_request = OptionRequest(request.db_request)
+		return await performOption(self, option_request)
+
+	except () as e:
+		res = dict(
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
+		)
+		return self.response(status=e.code, body=json.dumps(res))
+
+	except Exception as ex:
+		return await self.criticalError(ex)
+
+async def performOption(db_instance, option_request):
 	#get table_name
 	option = _INFO.get('_POST', {}).get('option', "")
 	if option == "":

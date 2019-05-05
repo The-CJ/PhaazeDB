@@ -1,4 +1,4 @@
-import asyncio, json, os
+import json, os
 from utils.errors import CantAccessContainer
 
 class ShowRequest(object):
