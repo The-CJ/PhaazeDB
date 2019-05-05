@@ -8,6 +8,9 @@ class OptionRequest(object):
 		self.option:str = None
 		self.value:str = None
 
+		self.getOption(db_req)
+		self.getValue(db_req)
+
 	def getOption(self, db_req):
 		self.option = db_req.get("option", None)
 		if type(self.option) is not str:
@@ -17,7 +20,7 @@ class OptionRequest(object):
 
 	def getValue(self, db_req):
 		self.value = db_req.get("value", None)
-		if type(self.value) is not str:
+		if not self.value:
 			self.value = None
 
 async def option(self, request):
@@ -51,7 +54,9 @@ async def performOption(db_instance, option_request):
 		raise MissingOptionField(True)
 
 async def performLogging(db_instance, option_request):
-	v = None
+
+	if not option_request.value:
+		option_request.value = None
 
 	# fix value from call
 	if option_request.value != None:
@@ -60,7 +65,7 @@ async def performLogging(db_instance, option_request):
 	else:
 		db_instance.Server.action_logging = False if db_instance.Server.action_logging else True
 
-	vv = "active" if v == True else "disabled"
+	vv = "active" if db_instance.Server.action_logging else "disabled"
 	db_instance.Server.Logger.info(f"Action logging now: {vv}")
 
 	res = dict(
