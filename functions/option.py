@@ -77,8 +77,7 @@ async def performLogging(db_instance, option_request):
 
 async def performShutdown(db_instance, option_request):
 
-	db_instance.active = False
-	asyncio.ensure_future(db_instance.shutdown())
+	asyncio.ensure_future(db_instance.Server.stop())
 
 	res = dict(
 		code=200,

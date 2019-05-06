@@ -1,6 +1,6 @@
 __version__ = "2.0.1"
 
-import json, sys, logging
+import json, sys, logging, asyncio
 
 from utils.cli import CliArgs
 from utils.database import Database
@@ -88,10 +88,15 @@ class PhaazeDBServer(object):
 
 	async def stop(self):
 		self.Logger.info(f"Shutdown started...")
+
 		await self.Server.shutdown()
+		await self.Server.cleanup()
+
+		# save all changes and close
 		await self.Database.stop()
+
 		self.Logger.info(f"Shutdown finished")
-		exit(1)
+		sys.exit()
 
 if __name__ == '__main__':
 	PhaazeDB = PhaazeDBServer()
