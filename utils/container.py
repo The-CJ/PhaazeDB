@@ -13,6 +13,8 @@ class Container(object):
 		self.removed = False
 
 	async def countDown(self):
+		""" counts down the keep alive counter, if end -> save to file, unload from ram
+			must be start called from outside, most likly DB.load() """
 		while self.keep_alive_time_left > 0:
 			self.keep_alive_time_left -= 1
 			await asyncio.sleep(1)
