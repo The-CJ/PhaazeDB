@@ -71,9 +71,22 @@ class Database(object):
 
 		return web.Response(**kwargs)
 
+	async def storeAllContainer(self):
+		all_success = True
+		for container_name in list(self.db):
+			saved = await self.db[container_name].remove()
+			if not saved:
+				all_success = False
+				self.Server.Logger.critical(f"[Save-All] Could not save container: {container_name}")
+
+		return all_success
+
 	async def stop(self):
-		pass
-		# TODO: CLEANUP
+		# stop all incomming requests
+		self.active = False
+
+		# save current containers
+		await self.storeAllContainer()
 
 	@web.middleware
 	async def mainHandler(self, request, handler):

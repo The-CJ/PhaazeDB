@@ -89,11 +89,12 @@ class PhaazeDBServer(object):
 	async def stop(self):
 		self.Logger.info(f"Shutdown started...")
 
+		# close db and save all changes
+		await self.Database.stop()
+
 		await self.Server.shutdown()
 		await self.Server.cleanup()
 
-		# save all changes and close
-		await self.Database.stop()
 
 		self.Logger.info(f"Shutdown finished")
 		sys.exit()
