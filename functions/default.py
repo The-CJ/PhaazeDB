@@ -58,6 +58,10 @@ async def default(self, request):
 
 async def performDefault(db_instance, default_request):
 
+	#unnamed key
+	if default_request.content.get('', EmptyObject) != EmptyObject:
+		raise InvalidContent(True)
+
 	container = await db_instance.load(default_request.container)
 
 	if container.status == "sys_error": raise SysLoadError(default_request.container)
@@ -84,3 +88,5 @@ async def performDefault(db_instance, default_request):
 	if db_instance.Server.action_logging:
 		db_instance.Server.Logger.info(f"default set for container '{default_request.container}'")
 	return db_instance.response(status=200, body=json.dumps(res))
+
+class EmptyObject(): pass
