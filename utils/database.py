@@ -181,10 +181,10 @@ class Database(object):
 			return await self.show(request)
 
 		elif action == "default":
-			return await self.default(request, _INFO)
+			return await self.default(request)
 
 		elif action == "describe":
-			return await self.describe(request, _INFO)
+			return await self.describe(request)
 
 		elif action == "option":
 			return await self.option(request)

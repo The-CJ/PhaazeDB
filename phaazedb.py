@@ -1,6 +1,6 @@
 __version__ = "2.0.1"
 
-import json, sys, logging, asyncio
+import json, sys, logging
 
 from utils.cli import CliArgs
 from utils.database import Database
