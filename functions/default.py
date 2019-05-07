@@ -45,7 +45,7 @@ async def default(self, request):
 		default_request = DefaultRequest(request.db_request)
 		return await performDefault(self, default_request)
 
-	except (MissingNameField) as e:
+	except (MissingNameField, InvalidContent, SysStoreError) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -59,7 +59,7 @@ async def default(self, request):
 async def performDefault(db_instance, default_request):
 
 	#unnamed key
-	if default_request.content.get('', EmptyObject) != EmptyObject:
+	if default_request.default_content.get('', EmptyObject) != EmptyObject:
 		raise InvalidContent(True)
 
 	container = await db_instance.load(default_request.container_name)
@@ -72,7 +72,7 @@ async def performDefault(db_instance, default_request):
 	container["default"] = default_request.default_content
 
 	#save everything
-	success = await default_request.store(default_request, container)
+	success = await db_instance.store(default_request.container_name, container)
 
 	if not success:
 		db_instance.Server.Logger.critical(f"setting default set for container '{default_request.container_name}' failed")
