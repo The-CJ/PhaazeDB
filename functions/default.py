@@ -1,108 +1,86 @@
 import json
+from utils.errors import MissingNameField, InvalidContent, SysLoadError, ContainerNotFound, SysStoreError
 
-async def default(self, request, _INFO):
+class DefaultRequest(object):
+	""" Contains informations for a valid container default request,
+		does not mean the container may not already be existing or other errors are impossible """
+	def __init__(self, db_req):
+		self.container_name:str = None
+		self.default_content:dict = None
+
+		self.getContainterName(db_req)
+		self.getContainterTemplate(db_req)
+
+	def getContainterName(self, db_req):
+		self.container_name = db_req.get("name", "")
+		if type(self.container_name) is not str:
+			self.container_name = str(self.container_name)
+
+		self.container_name = self.container_name.replace('..', '')
+		self.container_name = self.container_name.strip('/')
+
+		if not self.container_name: raise MissingNameField()
+
+	def getContainterTemplate(self, db_req):
+		self.default_content = db_req.get("content", "")
+
+		if type(self.default_content) is str:
+			try:
+				self.default_content = json.loads(self.default_content)
+			except:
+				raise InvalidContent()
+
+		if type(self.default_content) is not dict:
+			raise InvalidContent()
+
+async def default(self, request):
 	"""
 		Used to set a new object as default for a container,
-		values in default always get added to a select request,
+		values in default set always get added to a select request, (if requested in 'fields')
 		so values will always be there
 	"""
 
-	#get required vars (JSON -> POST based)
-
-	#get container
-	container_name = _INFO.get('_JSON', {}).get('container', None)
-	if container_name == None:
-		container_name = _INFO.get('_POST', {}).get('container', None)
-
-	if container_name == None:
-		container_name = ""
-	else:
-		container_name = str(container_name)
-
-	container_name = container_name.replace('..', '')
-	container_name = container_name.strip('/')
-
-	#no container
-	if container_name == "":
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'container' field"
-		)
-		return self.response(status=400, body=json.dumps(res))
-
-	new_default = _INFO.get('_JSON', {}).get('default', None)
-	if new_default == None:
-		new_default = _INFO.get('_POST', {}).get('default', None)
-
-	if type(new_default) != dict:
-		res = dict(
-			code=400,
-			status="error",
-			msg="value 'default' must be a valid json object"
-		)
-		return self.response(status=400, body=json.dumps(res))
-
+	# prepare request for a valid search
 	try:
-		#get container
-		container = await self.load(container_name)
+		default_request = DefaultRequest(request.db_request)
+		return await performDefault(self, default_request)
 
-		#error handling
-		if container.status == "sys_error":
-			# this SHOULD never happen, but hey... just in case
-			res = dict(
-				code=500,
-				status="error",
-				msg="DB could not load container file."
-			)
-			return self.response(status=500, body=json.dumps(res))
-
-		elif container.status == "not_found":
-			res = dict(
-				code=404,
-				status="error",
-				msg=f"container '{table_name}' not found"
-			)
-			return self.response(status=404, body=json.dumps(res))
-
-		elif container.status == "success":
-
-			container = container.content
-
-		container["default"] = new_default
-
-		#save everything
-		finished = await self.store(container_name, container)
-
-		if finished:
-			res = dict(
-				code=200,
-				status="default set",
-				container=container_name,
-				default=new_default,
-				msg=f"default set for container '{container_name}'"
-			)
-			if self.log != False:
-				self.logger.info(f"default set for container '{container_name}'")
-			return self.response(status=200, body=json.dumps(res))
-
-		else:
-			# this SHOULD never happen, but hey... just in case
-			res = dict(
-				code=500,
-				status="error",
-				msg="DB could not save your data."
-			)
-			if self.log != False:
-				self.logger.critical(f"update entry(s) from '{table_name}' failed")
-			return self.response(status=500, body=json.dumps(res))
-
-	except:
+	except (MissingNameField) as e:
 		res = dict(
-			code=500,
-			status="error",
-			msg="unknown server error"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		if self.log != False:
-			self.logger.critical(f"default set for container '{container_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
+
+	except Exception as ex:
+		return await self.criticalError(ex)
+
+async def performDefault(db_instance, default_request):
+
+	container = await db_instance.load(default_request.container)
+
+	if container.status == "sys_error": raise SysLoadError(default_request.container)
+	elif container.status == "not_found": raise ContainerNotFound(default_request.container)
+	elif container.status == "success":	container = container.content
+
+	# actully set it
+	container["default"] = default_request.default_content
+
+	#save everything
+	success = await default_request.store(default_request, container)
+
+	if not success:
+		db_instance.Server.Logger.critical(f"setting default set for container '{default_request.container}' failed")
+		raise SysStoreError(default_request.container)
+
+	res = dict(
+		code=200,
+		status="default set",
+		container=default_request.container,
+		default=default_request.default_content,
+		msg=f"default set for container '{default_request.container}'"
+	)
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"default set for container '{default_request.container}'")
+	return db_instance.response(status=200, body=json.dumps(res))
