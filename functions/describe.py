@@ -22,6 +22,21 @@ class DescribeRequest(object):
 async def describe(self, request):
 	""" Used to get the defaults value list of a container, pretty much the counterpart to self.default """
 
+	# prepare request for a valid search
+	try:
+		describe_request = DescribeRequest(request.db_request)
+		return await performDescribe(self, describe_request)
+
+	except (MissingNameField, SysLoadError, ContainerNotFound) as e:
+		res = dict(
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
+		)
+		return self.response(status=e.code, body=json.dumps(res))
+
+	except Exception as ex:
+		return await self.criticalError(ex)
 
 async def performDescribe(db_instance, describe_request):
 
