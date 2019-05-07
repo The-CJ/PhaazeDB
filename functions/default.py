@@ -62,10 +62,10 @@ async def performDefault(db_instance, default_request):
 	if default_request.content.get('', EmptyObject) != EmptyObject:
 		raise InvalidContent(True)
 
-	container = await db_instance.load(default_request.container)
+	container = await db_instance.load(default_request.container_name)
 
-	if container.status == "sys_error": raise SysLoadError(default_request.container)
-	elif container.status == "not_found": raise ContainerNotFound(default_request.container)
+	if container.status == "sys_error": raise SysLoadError(default_request.container_name)
+	elif container.status == "not_found": raise ContainerNotFound(default_request.container_name)
 	elif container.status == "success":	container = container.content
 
 	# actully set it
@@ -75,18 +75,18 @@ async def performDefault(db_instance, default_request):
 	success = await default_request.store(default_request, container)
 
 	if not success:
-		db_instance.Server.Logger.critical(f"setting default set for container '{default_request.container}' failed")
-		raise SysStoreError(default_request.container)
+		db_instance.Server.Logger.critical(f"setting default set for container '{default_request.container_name}' failed")
+		raise SysStoreError(default_request.container_name)
 
 	res = dict(
 		code=200,
 		status="default set",
-		container=default_request.container,
+		container=default_request.container_name,
 		default=default_request.default_content,
-		msg=f"default set for container '{default_request.container}'"
+		msg=f"default set for container '{default_request.container_name}'"
 	)
 	if db_instance.Server.action_logging:
-		db_instance.Server.Logger.info(f"default set for container '{default_request.container}'")
+		db_instance.Server.Logger.info(f"default set for container '{default_request.container_name}'")
 	return db_instance.response(status=200, body=json.dumps(res))
 
 class EmptyObject(): pass
