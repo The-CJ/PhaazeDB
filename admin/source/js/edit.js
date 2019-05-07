@@ -1,3 +1,62 @@
+class Describe {
+  constructor() {
+    this.last = "";
+  }
+
+  start() {
+    var field = _("[modal='edit'] [name=container]");
+    let name = field.value();
+    if (isEmpty(name)) {
+      field.addClass("need-correction"); return;
+    }
+    this.execute(name);
+  }
+
+  execute(name) {
+    let r = {
+      'action': 'describe',
+      'token': _('#db_token').value(),
+      'name': name
+    };
+
+    var this2 = this;
+    _.post('/', JSON.stringify(r))
+    .done(function (data) {
+      this2.build(data.default);
+    })
+    .fail(function (data) {
+      return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
+    })
+
+  }
+
+  build(data) {
+    var describe_result = _("[modal=edit] .modal-result").html("");
+    for (var key in data) {
+      let value = data[key];
+
+      if (value === null) {
+        describe_result.append(Template.getKeyValueField(key, null, "none"))
+      }
+      else if (typeof value == "string") {
+        describe_result.append(Template.getKeyValueField(key, value, "string"))
+      }
+      else if (typeof value == "number") {
+        describe_result.append(Template.getKeyValueField(key, value, "number"))
+      }
+      else if (typeof value == "boolean") {
+        describe_result.append(Template.getKeyValueField(key, value, "bool"))
+      }
+      else if (typeof value == "object") {
+        describe_result.append(Template.getKeyValueField(key, value, "object"))
+      }
+      
+    }
+  }
+}
+
+Describe = new Describe();
+
 function start_container_edit() {
   $('#container_edit_modal').find('[name=container]').val( last_selected_container );
   $('#container_edit_modal').find('.need_correction').removeClass('need_correction');
