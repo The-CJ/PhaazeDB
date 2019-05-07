@@ -48,9 +48,9 @@ class Describe {
         describe_result.append(Template.getKeyValueField(key, value, "bool"))
       }
       else if (typeof value == "object") {
-        describe_result.append(Template.getKeyValueField(key, value, "object"))
+        describe_result.append(Template.getKeyValueField(key, JSON.stringify(value), "object"))
       }
-      
+
     }
   }
 }
