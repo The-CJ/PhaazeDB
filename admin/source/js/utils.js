@@ -197,9 +197,9 @@ class Template {
     let inputs = _.create('<div class="col center-item-row">');
     let controlls = _.create('<div class="center-item-row">');
 
-    inputs.append( _.create('<input class="col" type="text" placeholder="Key">').value(key) );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Key">').value(key ? key : "") );
     inputs.append( _.create('<span>').text("-") );
-    inputs.append( _.create('<input class="col" type="text" placeholder="Value">').value(value) );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Value">').value(value ? key : "") );
 
     let button = _.create('<button type="button" class="btn orange">');
     button.text("X");
@@ -219,7 +219,7 @@ class Template {
     ts.append( _.create('<option value="bool">Bool</option>').attribute("selected", type == "bool" ? true : null) );
     ts.append( _.create('<option value="object">Object</option>').attribute("selected", type == "object" ? true : null) );
     ts.append( _.create('<option value="none">None/null</option>').attribute("selected", type == "none" ? true : null) );
-    Display.changeType(ts.result[0], null, type)
+    Display.changeType(ts.result[0], null, type ? type : "string")
     return ts;
   }
 

@@ -54,7 +54,6 @@ class Describe {
     }
   }
 }
-
 Describe = new Describe();
 
 function start_container_edit() {
