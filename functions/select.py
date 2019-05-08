@@ -1,4 +1,4 @@
-import json, math
+import json, math, copy
 from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError, InvalidJoin, InvalidLimit
 
 class SelectRequest(object):
@@ -142,6 +142,8 @@ async def getDataFromContainer(db_instance, select_request):
 
 	#go through all entrys
 	found = 0
+	default_set = container.get("default", {})
+
 	for entry_id in container.get('data', []):
 		entry = container['data'][entry_id]
 		entry['id'] = entry_id
@@ -154,6 +156,15 @@ async def getDataFromContainer(db_instance, select_request):
 		if select_request.offset >= found:
 			continue
 
+		# copy entry before further actions, so the entry in the db itself does not get the default set added to permanent memory
+		entry = copy.deepcopy(entry)
+
+		# complete entry
+		for default_key in default_set:
+			if entry.get(default_key, EmptyObject) == EmptyObject:
+				entry[default_key] = container["default"][default_key]
+
+		# only gather what the user wants
 		requested_fields = await getFields(entry, select_request.fields)
 
 		hits += 1
@@ -270,3 +281,5 @@ async def perform_join(Main_instance, last_result=[], join=dict(), parent_name=N
 			already_selected[store] = result
 
 	return last_result
+
+class EmptyObject(object): pass
