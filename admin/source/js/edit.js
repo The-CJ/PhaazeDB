@@ -33,7 +33,6 @@ class Describe {
   build(data) {
     var describe_result = _("[modal=edit] [default-fields]").html("");
     if (isEmpty(data)) {
-      describe_result.siblings(".modal-result-footer").hide();
       return describe_result.addClass("empty");
     } else {
       describe_result.siblings(".modal-result-footer").show();
@@ -63,37 +62,67 @@ class Describe {
 }
 Describe = new Describe();
 
-function set_default() {
-  var new_default = {};
-  var fields = $("#container_edit_modal .modal-result .field_key_value");
-  for (field of fields) {
-    field = $(field);
-    let key = field.find('[placeholder=key]').val();
-    let type = field.find('select').val();
-    let value = field.find('[placeholder=value]').val();
-
-    if (key == "") {
-      field.find('[placeholder=key]').addClass('need_correction');
-      display_message({content:"no key can be empty", color:"orange"});
-      return ;
-    }
-
-    new_default[key] = get_value_in_right_type(value, type, key);
-
+class DefaultSet {
+  constructor() {
+    this.last = "";
   }
-  let name = $('#container_edit_modal [name=container]').val();
-  let d = {
-    'action': 'default',
-    'token': $('#db_token').val(),
-    'container': name,
-    'default': new_default
-  };
-  $.post('/', JSON.stringify(d))
-  .done(function (data) {
-    display_message( {content:"Successfull updated default template for: "+data.container, color:"#ccc"} );
-  })
-  .fail(function (data) {
-    data = data.responseJSON ? data.responseJSON : {};
-    display_message({content:data.msg, color:"#fa3"});
-  })
+
+  modalAddField() {
+    let n = Template.getKeyValueField();
+    _('[modal=edit] [default-fields]').append(n);
+  }
+
+  start() {
+    let modal = _('[modal=edit]');
+    let container = modal.find('[name=container]').value();
+    if (isEmpty(container)) { return modal.find('[name=container]').addClass('need-correction'); }
+
+    let new_object = {};
+
+    for (let field of modal.find(".key-value-field").result) {
+      field = _(field);
+      let key = field.find("[placeholder=Key]").value();
+      let value = field.find("[placeholder=Value]").value();
+      let type = field.find("select").value();
+
+      if (isEmpty(key)) {
+        field.find("[placeholder=Key]").addClass('need-correction');
+        return Display.message({content:"no key can be empty", color:Display.color_warn});
+      }
+
+      try { new_object[key] = getValueInRightType(value, type); }
+      catch (e) {
+        Display.message( {content:"invalid json object", color:Display.color_warn} );
+        return field.find("[placeholder=Value]").addClass("need-correction");
+      }
+    }
+    return this.execute({"name":container, "content": new_object});
+  }
+
+  execute(request) {
+    if (request == null) { request = {}; }
+    let r = {
+      "action": "default",
+      "token": _('#db_token').value(),
+      "name": request['name'],
+      "content": request['content']
+    };
+
+    this.last = request['into'];
+
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      Display.closeModal();
+      Display.message( {content:"Successfull set defalut of: "+request.name, color:Display.color_success} );
+    })
+    .fail(function (data) {
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
+      }
+    })
+  }
 }
+DefaultSet = new DefaultSet();

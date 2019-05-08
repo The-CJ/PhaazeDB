@@ -199,7 +199,7 @@ class Template {
 
     inputs.append( _.create('<input class="col" type="text" placeholder="Key">').value(key ? key : "") );
     inputs.append( _.create('<span>').text("-") );
-    inputs.append( _.create('<input class="col" type="text" placeholder="Value">').value(value ? key : "") );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Value">').value(value ? value : "") );
 
     let button = _.create('<button type="button" class="btn orange">');
     button.text("X");
