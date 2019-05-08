@@ -32,10 +32,10 @@ class Describe {
 
   build(data) {
     var describe_result = _("[modal=edit] [default-fields]").html("");
+    describe_result.siblings(".modal-result-footer").show();
     if (isEmpty(data)) {
       return describe_result.addClass("empty");
     } else {
-      describe_result.siblings(".modal-result-footer").show();
       describe_result.removeClass("empty");
     }
     for (var key in data) {
