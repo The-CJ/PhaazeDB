@@ -54,6 +54,6 @@
   text-align: center;
   width: 100%;
 }
-.modal .modal-result.empty::after {
+.modal .modal-result.empty:empty::after {
   content: "No Default set avariable";
 }
