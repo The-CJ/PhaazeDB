@@ -28,7 +28,7 @@ class Container(object):
 		self.keep_alive_time_left = 0
 
 		# save content
-		success = await self.db_instance.store(self.name, self.content)
+		success = await self.db_instance.store(self.name, self.content, ignore_save_limit=True)
 		if not success:
 			self.db_instance.Server.Logger.critical(f"Could not store: '{self.name}' before unloading")
 			return False

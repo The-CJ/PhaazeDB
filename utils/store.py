@@ -4,7 +4,7 @@ from utils.container import Container
 lock = threading.Lock()
 locked_files = []
 
-async def store(self, container_name, container_content, create=False):
+async def store(self, container_name, container_content, create=False, ignore_save_limit=False):
 
 	# get container info object from db, based on name, won't be avariable if new container must be created
 	container = self.db.get(container_name, None)
@@ -13,7 +13,7 @@ async def store(self, container_name, container_content, create=False):
 
 	container.actions_since_save += 1
 
-	if not container.actions_since_save > self.save_interval:
+	if not container.actions_since_save > self.save_interval and not ignore_save_limit:
 		# continue without saving
 		return True
 
