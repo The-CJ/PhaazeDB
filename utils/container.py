@@ -10,6 +10,7 @@ class Container(object):
 		self.content = content
 
 		self.keep_alive_time_left = keep_alive
+		self.actions_since_save = 0
 		self.removed = False
 
 	async def countDown(self):

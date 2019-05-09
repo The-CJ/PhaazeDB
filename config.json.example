@@ -5,7 +5,7 @@
 	"root": "DATABASE/",
 	"keep_alive": 60,
 	"allowed_ips": ["127.0.0.1"],
-
+	"save_interval": 0,
 	"logging": false
 
 }
