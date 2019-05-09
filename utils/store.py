@@ -1,12 +1,30 @@
 import pickle, threading, os
-
+from utils.container import Container
 
 lock = threading.Lock()
 locked_files = []
 
 async def store(self, container_name, container_content, create=False):
 
-	container_path = f"{self.container_root}{container_name}.phaazedb"
+	# get container info object from db, based on name, won't be avariable if new container must be created
+	container = self.db.get(container_name, None)
+	if container == None:
+		container = Container(self, container_name)
+
+	container.actions_since_save += 1
+
+	if not container.actions_since_save > self.save_interval:
+		# continue without saving
+		return True
+
+	success = await performStore(self, container_name, container_content, create)
+	# save successfull, reset save counter
+	if success: container.actions_since_save = 0
+	return success
+
+async def performStore(db_instance, container_name, container_content, create):
+
+	container_path = f"{db_instance.container_root}{container_name}.phaazedb"
 
 	# is a new container, check for subfolder and create
 	if create:
