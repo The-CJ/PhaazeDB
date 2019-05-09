@@ -22,8 +22,9 @@ class Container(object):
 
 		return await self.remove()
 
-	async def remove(self):
-		if self.removed: return True
+	async def remove(self, remove_from_ram=True):
+		if self.removed:
+			return True
 		self.removed = True
 		self.keep_alive_time_left = 0
 
@@ -34,6 +35,9 @@ class Container(object):
 			return False
 
 		# delete from ram
-		del self.db_instance.db[self.name]
+		if remove_from_ram: del self.db_instance.db[self.name]
 		return True
+
+	async def save(self):
+		return await self.remove(remove_from_ram=False)
 

@@ -1,5 +1,5 @@
 import asyncio, json
-from utils.errors import MissingOptionField
+from utils.errors import MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound
 
 class OptionRequest(object):
 	""" Contains informations for a valid option request,
@@ -31,7 +31,7 @@ async def option(self, request):
 		option_request = OptionRequest(request.db_request)
 		return await performOption(self, option_request)
 
-	except (MissingOptionField) as e:
+	except (MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -50,13 +50,13 @@ async def performOption(db_instance, option_request):
 	elif option_request.option == "shutdown":
 		return await performShutdown(db_instance, option_request)
 
+	elif option_request.option == "store":
+		return await performStore(db_instance, option_request)
+
 	else:
 		raise MissingOptionField(True)
 
 async def performLogging(db_instance, option_request):
-
-	if not option_request.value:
-		option_request.value = None
 
 	# fix value from call
 	if option_request.value != None:
@@ -85,3 +85,44 @@ async def performShutdown(db_instance, option_request):
 		msg="DB is sutting down"
 	)
 	return db_instance.response(status=200, body=json.dumps(res))
+
+async def performStore(db_instance, option_request):
+
+	if option_request.value:
+		selected_container = await db_instance.load(option_request.value)
+		if selected_container.status == "sys_error": raise SysLoadError(option_request.value)
+		elif selected_container.status == "not_found": raise ContainerNotFound(option_request.value)
+	else:
+		selected_container = None
+
+	# one
+	if selected_container:
+		success = await selected_container.save()
+		if success:
+			res = dict(
+				code=200,
+				status="success",
+				msg=f"forced store of '{option_request.value}' complete"
+			)
+			return db_instance.response(status=200, body=json.dumps(res))
+
+		else:
+			raise SysStoreError(option_request.value)
+
+	# all
+	success = await db_instance.storeAllContainer(remove_from_ram=False)
+	if success:
+		res = dict(
+			code=200,
+			status="success",
+			msg="forced store of all active container complete"
+		)
+		return db_instance.response(status=200, body=json.dumps(res))
+
+	else:
+		res = dict(
+			code=500,
+			status="critical_error",
+			msg="forced store of all container failed at least once"
+		)
+		return db_instance.response(status=500, body=json.dumps(res))

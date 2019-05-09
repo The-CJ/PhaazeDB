@@ -98,10 +98,13 @@ class Database(object):
 
 		return web.Response(**kwargs)
 
-	async def storeAllContainer(self):
+	async def storeAllContainer(self, remove_from_ram=True):
 		all_success = True
 		for container_name in list(self.db):
-			saved = await self.db[container_name].remove()
+			if remove_from_ram:
+				saved = await self.db[container_name].remove()
+			else:
+				saved = await self.db[container_name].save()
 			if not saved:
 				all_success = False
 				self.Server.Logger.critical(f"[Save-All] Could not save container: {container_name}")
