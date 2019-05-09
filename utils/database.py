@@ -1,4 +1,4 @@
-import json
+import json, math
 
 from aiohttp import web
 
@@ -9,6 +9,7 @@ class Database(object):
 		self.container_root = "DATABASE/"
 		self.keep_alive = 60
 		self.active = True
+		self.save_interval = 0
 		self.response = self.sendBackResponse
 
 		# main db
@@ -46,20 +47,46 @@ class Database(object):
 	def setRoot(self, root):
 		if root == None:
 			self.container_root = "DATABASE/"
+
+		if type(root) is not str:
+			self.container_root = "DATABASE/"
 			return False
+
 		if not root.endswith("/"):
 			root += "/"
+
 		self.container_root = root
+
+		self.Server.Logger.info(f"[Settings] DB root set to: {self.container_root}")
+		return True
 
 	def setAliveTime(self, time):
 		if type(time) is str:
 			if time.isdigit():
 				self.keep_alive = int(time)
-				return True
-		if type(time) is int:
+		elif type(time) is int:
 			self.keep_alive = time
-			return True
-		return False
+		else:
+			return False
+
+		self.Server.Logger.info(f"[Settings] DB alive time set to: {self.keep_alive}")
+		return True
+
+	def setSaveInterval(self, time):
+		if type(time) is str:
+			if time.isdigit():
+				self.save_interval = int(time)
+		elif type(time) is int:
+			self.save_interval = time
+
+		else:
+			return False
+
+		if self.save_interval < 0:
+			self.save_interval = math.inf
+
+		self.Server.Logger.info(f"[Settings] Save interval set to: {self.save_interval}")
+		return True
 
 	def sendBackResponse(self, **kwargs):
 		already_set_header = kwargs.get('headers', dict())
