@@ -4,7 +4,7 @@ from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, 
 class SelectRequest(object):
 	""" Contains informations for a valid select request,
 		does not mean the container exists or where statement has right syntax """
-	def __init__(self, db_req):
+	def __init__(self, db_req, is_join=False):
 		self.container:str = None
 		self.where:str = ""
 		self.fields:list = []
@@ -12,6 +12,8 @@ class SelectRequest(object):
 		self.limit:int = math.inf
 		self.store:str = None
 		self.join:list[dict] = []
+		self.is_join:bool = is_join
+		self.include:bool = False
 
 		self.getContainter(db_req)
 		self.getWhere(db_req)
@@ -20,6 +22,7 @@ class SelectRequest(object):
 		self.getLimit(db_req)
 		self.getStore(db_req)
 		self.getJoin(db_req)
+		self.getInclude(db_req)
 
 	def getContainter(self, db_req):
 		self.container = db_req.get("of", "")
@@ -67,6 +70,9 @@ class SelectRequest(object):
 		if type(self.store) is not str:
 			self.store = None
 
+		if not self.store and self.is_join:
+			raise MissingStoreInJoin()
+
 	def getJoin(self, db_req):
 		self.join = db_req.get("join", None)
 		if type(self.join) is str:
@@ -74,6 +80,10 @@ class SelectRequest(object):
 				self.join = json.loads(self.join)
 			except:
 				raise InvalidJoin()
+		if type(self.join) != list: self.join = [self.join]
+
+	def getInclude(self, db_req):
+		self.include = bool(db_req.get("include", False))
 
 async def select(self, request):
 	""" Used to select data from ad DB container and give it back, may also include joins to other tables """
@@ -102,16 +112,14 @@ async def select(self, request):
 	except Exception as ex:
 		return await self.criticalError(ex)
 
-async def performSelect(db_instance, select_request):
+async def performSelect(db_instance, select_request:SelectRequest):
 
 	result, hits, hits_field, total = await getDataFromContainer(db_instance, select_request)
 
-	#TODO finish select
-
-	#if type(join) != list: join = [join]
-	#for j in join:
-	#	if j == None: continue
-	#	result = await perform_join(self, last_result=result, join=j, parent_name=store)
+	for join in select_request.join:
+		if join == None: continue
+		select_join_request = SelectRequest(join, is_join=True)
+		result = await performJoin(db_instance, result, select_join_request, parent_name=select_request.store)
 
 	res = dict(
 		code=200,
@@ -126,7 +134,7 @@ async def performSelect(db_instance, select_request):
 		db_instance.Server.Logger.info(f"selected {str(hits)} entry(s) from '{select_request.container}'")
 	return db_instance.response(status=200, body=json.dumps(res))
 
-async def getDataFromContainer(db_instance, select_request):
+async def getDataFromContainer(db_instance, select_request:SelectRequest, parent_name:str=None, parent_entry:dict=None):
 	if select_request.container in [None, ""]: return [], 0, 0, 0
 
 	container = await db_instance.load(select_request.container)
@@ -149,7 +157,7 @@ async def getDataFromContainer(db_instance, select_request):
 		entry['id'] = entry_id
 
 		# where dont hit entry, means skip, we dont need it
-		if not await checkWhere(where=select_request.where, check_entry=entry, check_name=select_request.store):
+		if not await checkWhere(where=select_request.where, parent_name=parent_name, parent_entry=parent_entry, check_entry=entry, check_name=select_request.store):
 			continue
 
 		found += 1
@@ -177,7 +185,7 @@ async def getDataFromContainer(db_instance, select_request):
 
 	return result, hits, hits_field, len(container.get('data', []) )
 
-async def checkWhere(where="", parent_entry=None, parent_name=None, check_entry=None, check_name=None):
+async def checkWhere(where="", parent_entry:dict=None, parent_name:str=None, check_entry:dict=None, check_name:str=None):
 
 	if not where:
 		return True
@@ -207,78 +215,25 @@ async def getFields(data, fields):
 
 	return requested_fields
 
-async def perform_join(Main_instance, last_result=[], join=dict(), parent_name=None):
+async def performJoin(db_instance, last_result:list, join_request:SelectRequest, parent_name:str=None):
 
-	# table_name :: str
-	table_name = str(join.get("of", "")).replace('..', '').strip('/')
+	container = await db_instance.load(join_request.container)
 
-	# where :: str
-	where = join.get("where", None)
-	if type(where) is not str:
-		where = None
-
-	# fields :: str || list
-	fields = join.get("fields", None)
-	if type(fields) is str:
-		fields = fields.split(',')
-	if type(fields) is not list:
-		fields = None
-
-	# store :: str
-	store = join.get("store", None)
-
-	# include :: bool
-	include = bool(join.get("include", False))
-
-	# join :: dict
-	join = join.get("join", None)
-	if type(join) == str:
-		try:
-			join = json.loads(join)
-		except:
-			join = None
-
-	# # #
-
-	if table_name == "": raise MissingOfField
-
-	if store in ["", None]: raise MissingStoreInJoin
-
-	# # #
-
-	container = await Main_instance.load(table_name)
-
-	if container.status == "sys_error": raise SysLoadError
-	elif container.status == "not_found": raise ContainerNotFound
+	if container.status == "sys_error": raise SysLoadError(join_request.container)
+	elif container.status == "not_found": raise ContainerNotFound(join_request.container)
 	elif container.status == "success":	container = container.content
 
+	# for every already selected entry, take the data and go in the next container
 	for already_selected in last_result:
 
-		result = []
+		join_result, hits, hits_field, total = await getDataFromContainer(db_instance, join_request, parent_name=parent_name, parent_entry=already_selected)
 
-		for entry_id in container.get('data', []):
-			entry = container['data'][entry_id]
-			entry['id'] = entry_id
-
-			if not await check_where(where_str=where, base_entry=already_selected, base_name=parent_name, check_entry=entry, check_name=store):
-				continue
-
-			requested_fields = await check_fields(entry, fields)
-
-			result.append( requested_fields )
-
-		# join entry?
-		if type(join) != list: join = [join]
-		for j in join:
-			if j == None: continue
-			result = await perform_join(Main_instance, last_result=result, join=j, parent_name=store)
-
-		if include and len(result) >= 1:
-			for field_of_join in result[0]:
+		if join_request.include and len(join_result) >= 1:
+			for field_of_join in join_result[0]:
 				if field_of_join == "id": continue
-				already_selected[field_of_join] = result[0][field_of_join]
+				already_selected[field_of_join] = join_result[0][field_of_join]
 		else:
-			already_selected[store] = result
+			already_selected[join_request.store] = join_result
 
 	return last_result
 
