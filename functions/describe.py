@@ -1,80 +1,64 @@
 import json
+from utils.errors import MissingNameField, SysLoadError, ContainerNotFound
 
-async def describe(self, request, _INFO):
-	""" Used to get the defaults value list of a container """
+class DescribeRequest(object):
+	""" Contains informations for a valid describe request,
+		does not mean the container exists or other errors are impossible """
+	def __init__(self, db_req):
+		self.container_name:str = None
 
-	#get required vars (GET -> JSON -> POST based)
+		self.getContainterName(db_req)
 
-	#get tabel name
-	table_name = _INFO.get('_GET', {}).get('name', None)
-	if table_name == None:
-		table_name = _INFO.get('_JSON', {}).get('name', None)
-	if table_name == None:
-		table_name = _INFO.get('_POST', {}).get('name', None)
+	def getContainterName(self, db_req):
+		self.container_name = db_req.get("name", "")
+		if type(self.container_name) is not str:
+			self.container_name = str(self.container_name)
 
-	if table_name == None:
-		table_name = ""
-	else:
-		table_name = str(table_name)
+		self.container_name = self.container_name.replace('..', '')
+		self.container_name = self.container_name.strip('/')
 
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
+		if not self.container_name: raise MissingNameField()
 
-	#no tabel name
-	if table_name == "":
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'name' field"
-		)
-		return self.response(status=400, body=json.dumps(res))
+async def describe(self, request):
+	""" Used to get the defaults value list of a container, pretty much the counterpart to self.default """
 
+	# prepare request for a valid search
 	try:
-		#get container
-		container = await self.load(table_name)
+		describe_request = DescribeRequest(request.db_request)
+		return await performDescribe(self, describe_request)
 
-		#error handling
-		if container.status == "sys_error":
-			# this SHOULD never happen, but hey... just in case
-			res = dict(
-				code=500,
-				status="error",
-				msg="DB could not load container file."
-			)
-			return self.response(status=500, body=json.dumps(res))
-
-		elif container.status == "not_found":
-			res = dict(
-				code=404,
-				status="error",
-				msg=f"container '{table_name}' not found"
-			)
-			return self.response(status=404, body=json.dumps(res))
-
-		elif container.status == "success":
-
-			container = container.content
-
-		default_template = container.get("default", dict())
-
-		#awnser
+	except (MissingNameField, SysLoadError, ContainerNotFound) as e:
 		res = dict(
-			code=200,
-			status="described",
-			container=table_name,
-			default=default_template,
-			msg=f"described container '{table_name}'"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		if self.log != False:
-			self.logger.info(f"described container '{table_name}'")
-		return self.response(status=200, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
 
-	except:
-		res = dict(
-			code=500,
-			status="error",
-			msg="unknown server error"
-		)
-		if self.log != False:
-			self.logger.critical(f"described container '{table_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
+	except Exception as ex:
+		return await self.criticalError(ex)
+
+async def performDescribe(db_instance, describe_request):
+
+	container = await db_instance.load(describe_request.container_name)
+
+	if container.status == "sys_error": raise SysLoadError(describe_request.container_name)
+	elif container.status == "not_found": raise ContainerNotFound(describe_request.container_name)
+	elif container.status == "success":	container = container.content
+
+	default_template = container.get("default", dict())
+
+	#awnser
+	res = dict(
+		code=200,
+		status="described",
+		container=describe_request.container_name,
+		default=default_template,
+		msg=f"described container '{describe_request.container_name}'"
+	)
+
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"described container '{describe_request.container_name}'")
+	return db_instance.response(status=200, body=json.dumps(res))
+
+class EmptyObject(): pass

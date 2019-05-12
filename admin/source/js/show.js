@@ -29,7 +29,7 @@ class Show {
         Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
       }
       else {
-        Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+        Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
       }
     })
   }
@@ -66,4 +66,4 @@ class Show {
   }
 
 }
-Show = new Show;
+Show = new Show();

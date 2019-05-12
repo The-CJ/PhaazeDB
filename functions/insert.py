@@ -1,119 +1,95 @@
-import asyncio, json
+import json
+from utils.errors import MissingIntoField, InvalidContent, SysLoadError, SysStoreError, ContainerNotFound, ContainerBroken
 
-async def insert(self, request, _INFO):
+class InsertRequest(object):
+	""" Contains informations for a valid insert request,
+		does not mean the container exists """
+	def __init__(self, db_req):
+		self.container:str = None
+		self.content:dict = dict()
+
+		self.getContainter(db_req)
+		self.getContent(db_req)
+
+	def getContainter(self, db_req):
+		self.container = db_req.get("into", "")
+		self.container = self.container.replace('..', '')
+		self.container = self.container.strip('/')
+
+		if not self.container: raise MissingIntoField()
+
+	def getContent(self, db_req):
+		self.content = db_req.get("content", None)
+
+		if type(self.content) is str:
+			try:
+				self.content = json.loads(self.content)
+			except:
+				raise InvalidContent()
+
+		if type(self.content) is not dict:
+			raise InvalidContent()
+
+async def insert(self, request):
 	""" Used to insert a new entry into a existing container """
 
-	#get required vars (POST -> JSON based)
+	# prepare request for a valid insert
+	try:
+		insert_request = InsertRequest(request.db_request)
+		return await performInsert(self, insert_request)
 
-	#get table_name
-	table_name = _INFO.get('_POST', {}).get('into', "")
-	if table_name == "":
-		table_name = _INFO.get('_JSON', {}).get('into', "")
-
-	if type(table_name) is not str:
-		table_name = str(table_name)
-
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
-
-	#no tabel name
-	if table_name == "":
+	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError) as e:
 		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'into' field"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		return self.response(status=400, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
 
-	#get content
-	content = _INFO.get('_POST', {}).get('content', None)
-	if content == None:
-		content = _INFO.get('_JSON', {}).get('content', None)
+	except Exception as ex:
+		return await self.criticalError(ex)
 
-	if type(content) is not dict:
-		content = None
-
-	#no content
-	if content == None:
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'content' field as valid json-object"
-		)
-		return self.response(status=400, body=json.dumps(res))
+async def performInsert(db_instance, insert_request):
 
 	#unnamed key
-	if content.get('', dummy) != dummy:
-		res = dict(
-			code=400,
-			status="error",
-			msg="field 'content' has a unnamed json-object key"
-		)
-		return self.response(status=400, body=json.dumps(res))
+	if insert_request.content.get('', EmptyObject) != EmptyObject:
+		raise InvalidContent(True)
 
 	#get current container from db
-	container = await self.load(table_name)
+	container = await db_instance.load(insert_request.container)
 
 	#error handling
-	if container.status == "sys_error":
-		# this SHOULD never happen, but hey... just in case
-		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not load container file."
-		)
-		return self.response(status=500, body=json.dumps(res))
-
-	elif container.status == "not_found":
-		res = dict(
-			code=404,
-			status="error",
-			msg=f"container '{table_name}' not found"
-		)
-		return self.response(status=404, body=json.dumps(res))
-
-	elif container.status == "success":
-
-		container = container.content
-
-	# # #
+	if container.status == "sys_error": raise SysLoadError(insert_request.container)
+	elif container.status == "not_found": raise ContainerNotFound(insert_request.container)
+	elif container.status == "success":	container = container.content
 
 	#get current_id
-	_id_ = container['current_id']
+	current_id_index = container.get('current_id',  None)
+	if current_id_index == None: raise ContainerBroken(insert_request.container)
 
 	#add entry
-	container['data'][_id_] = content
-	content['id'] = _id_
+	insert_request.content['id'] = current_id_index
+	container['data'][current_id_index] = insert_request.content
 
 	#increase id
-	container['current_id'] = _id_ + 1
-
-	# # #
+	container['current_id'] = current_id_index + 1
 
 	#save everything
-	finished = await self.store(table_name, container)
+	success = await db_instance.store(insert_request.container, container)
 
-	if finished:
-		res = dict(
-			code=201,
-			status="inserted",
-			msg=f"successfully inserted into container '{table_name}'",
-			data=content
-		)
-		if self.log != False:
-			self.logger.info(f"insert entry into '{table_name}': {str(content)}")
-		return self.response(status=201, body=json.dumps(res))
+	if not success:
+		db_instance.Server.Logger.critical(f"inserting data into container '{insert_request.container}' failed")
+		raise SysStoreError(insert_request.container)
 
-	else:
-		# this SHOULD never happen, but hey... just in case
-		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not save your data."
-		)
-		if self.log != False:
-			self.logger.critical(f"insert entry into '{table_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
+	res = dict(
+		code=201,
+		status="inserted",
+		msg=f"successfully inserted into container '{insert_request.container}'",
+		data=insert_request.content
+	)
 
-class dummy(object):
-	pass
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"insert entry into '{insert_request.container}': {str(insert_request.content)}")
+	return db_instance.response(status=201, body=json.dumps(res))
+
+class EmptyObject(object): pass

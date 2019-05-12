@@ -1,102 +1,97 @@
-import json, math
+import json, math, copy
+from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError, InvalidJoin, InvalidLimit
 
-from utils.load import load as load
+class SelectRequest(object):
+	""" Contains informations for a valid select request,
+		does not mean the container exists or where statement has right syntax """
+	def __init__(self, db_req, is_join=False):
+		self.container:str = None
+		self.where:str = ""
+		self.fields:list = []
+		self.offset:int = 0
+		self.limit:int = math.inf
+		self.store:str = None
+		self.join:list[dict] = []
+		self.is_join:bool = is_join
+		self.include:bool = False
 
-class MissingOfField(Exception): pass
-class MissingStoreInJoin(Exception): pass
-class SysLoadError(Exception): pass
-class ContainerNotFound(Exception): pass
+		self.getContainter(db_req)
+		self.getWhere(db_req)
+		self.getFields(db_req)
+		self.getOffset(db_req)
+		self.getLimit(db_req)
+		self.getStore(db_req)
+		self.getJoin(db_req)
+		self.getInclude(db_req)
 
-async def select(self, request, _INFO):
-	""" Used to select data from ad DB container and give it back """
-	#get required vars (GET -> JSON -> POST based)
+	def getContainter(self, db_req):
+		self.container = db_req.get("of", "")
+		if type(self.container) is not str:
+			self.container = str(self.container)
 
-	# table_name :: str
-	table_name = str(get_value(_INFO, "of", "")).replace('..', '').strip('/')
+		self.container = self.container.replace('..', '')
+		self.container = self.container.strip('/')
 
-	# where :: str
-	where = get_value(_INFO, "where", None)
-	if type(where) is not str:
-		where = None
+		if not self.container: raise MissingOfField()
 
-	# fields :: str || list
-	fields = get_value(_INFO, "fields", None)
-	if type(fields) is str:
-		fields = fields.split(',')
-	if type(fields) is not list:
-		fields = None
+	def getWhere(self, db_req):
+		self.where = db_req.get("where", "")
 
-	# offset :: int
-	offset = get_value(_INFO, "offset", 0)
-	if type(offset) is str:
-		if offset.isdigit():
-			offset = int(offset)
-	if type(offset) is not int:
-		offset = 0
+	def getFields(self, db_req):
+		self.fields = db_req.get("fields", None)
+		if type(self.fields) is str:
+			self.fields = self.fields.split(",")
+		if type(self.fields) is not list:
+			self.fields = []
 
-	# limit :: int
-	limit = get_value(_INFO, "limit", math.inf)
-	if type(limit) is str:
-		if limit.isdigit():
-			limit = int(limit)
-	if type(limit) is not int:
-		limit = math.inf
-	if limit == 0: limit = 1
+	def getOffset(self, db_req):
+		self.offset = db_req.get("offset", -1)
+		if type(self.offset) is str:
+			if self.offset.isdigit():
+				self.offset = int(self.offset)
 
-	# store :: str
-	store = get_value(_INFO, "store", None)
-	if type(store) is not str:
-		store = None
+		if type(self.offset) is not int:
+			self.offset = -1
 
-	# join :: dict
-	join = get_value(_INFO, "join", None)
-	if type(join) == str:
-		try:
-			join = json.loads(join)
-		except:
-			join = None
+	def getLimit(self, db_req):
+		self.limit = db_req.get("limit", math.inf)
+		if type(self.limit) is str:
+			if self.limit.isdigit():
+				self.limit = int(self.limit)
 
-	# # #
+		if type(self.limit) is not int:
+			self.limit = math.inf
 
+		if self.limit <= 0:
+			raise InvalidLimit()
+
+	def getStore(self, db_req):
+		self.store = db_req.get("store", None)
+		if type(self.store) is not str:
+			self.store = None
+
+		if not self.store and self.is_join:
+			raise MissingStoreInJoin()
+
+	def getJoin(self, db_req):
+		self.join = db_req.get("join", None)
+		if type(self.join) is str:
+			try:
+				self.join = json.loads(self.join)
+			except:
+				raise InvalidJoin()
+		if type(self.join) != list: self.join = [self.join]
+
+	def getInclude(self, db_req):
+		self.include = bool(db_req.get("include", False))
+
+async def select(self, request):
+	""" Used to select data from ad DB container and give it back, may also include joins to other tables """
+
+	# prepare request for a valid search
 	try:
-		if table_name == "": raise MissingOfField
-
-		result, hits, hits_field, total = await get_data_from_container(
-			self,
-			container=table_name,
-			limit=limit,
-			offset=offset,
-			where=where,
-			fields=fields,
-			store=store
-		)
-
-		# join entry?
-		if type(join) != list: join = [join]
-		for j in join:
-			if j == None: continue
-			result = await perform_join(self, last_result=result, join=j, parent_name=store)
-
-		res = dict(
-			code=200,
-			status="selected",
-
-			hits=hits,
-			hits_field=hits_field,
-			total=total,
-			data=result
-		)
-		if self.log != False:
-			self.logger.info(f"selected {str(hits)} entry(s) from '{table_name}'")
-		return self.response(status=200, body=json.dumps(res))
-
-	except MissingOfField:
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'of' field"
-		)
-		return self.response(status=400, body=json.dumps(res))
+		select_request = SelectRequest(request.db_request)
+		return await performSelect(self, select_request)
 
 	except MissingStoreInJoin:
 		res = dict(
@@ -106,96 +101,113 @@ async def select(self, request, _INFO):
 		)
 		return self.response(status=400, body=json.dumps(res))
 
-	except SysLoadError:
-		# this SHOULD never happen, but hey... just in case
+	except (ContainerNotFound, MissingOfField, SysLoadError, InvalidLimit) as e:
 		res = dict(
-			code=500,
-			status="error",
-			msg="DB could not load container file."
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		return self.response(status=500, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
 
-	except ContainerNotFound:
-		res = dict(
-			code=404,
-			status="error",
-			msg=f"container '{table_name}' not found"
-		)
-		return self.response(status=404, body=json.dumps(res))
+	except Exception as ex:
+		return await self.criticalError(ex)
 
-async def get_data_from_container(Main_instance, container=None, limit=math.inf, offset=0, where=None, fields=[], store=None):
-	if container in [None, ""]: return [], 0, 0, 0
+async def performSelect(db_instance, select_request:SelectRequest):
 
-	container = await Main_instance.load(container)
+	result, hits, hits_field, total = await getDataFromContainer(db_instance, select_request)
 
-	if container.status == "sys_error": raise SysLoadError
-	elif container.status == "not_found": raise ContainerNotFound
+	for join in select_request.join:
+		if join == None: continue
+		select_join_request = SelectRequest(join, is_join=True)
+		result = await performJoin(db_instance, result, select_join_request, parent_name=select_request.store)
+
+	res = dict(
+		code=200,
+		status="selected",
+
+		hits=hits,
+		hits_field=hits_field,
+		total=total,
+		data=result
+	)
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"selected {str(hits)} entry(s) from '{select_request.container}'")
+	return db_instance.response(status=200, body=json.dumps(res))
+
+async def getDataFromContainer(db_instance, select_request:SelectRequest, parent_name:str=None, parent_entry:dict=None):
+	if select_request.container in [None, ""]: return [], 0, 0, 0
+
+	container = await db_instance.load(select_request.container)
+
+	if container.status == "sys_error": raise SysLoadError(select_request.container)
+	elif container.status == "not_found": raise ContainerNotFound(select_request.container)
 	elif container.status == "success":	container = container.content
 
+	# return values
 	result = []
-	found = 0
 	hits = 0
 	hits_field = 0
 
 	#go through all entrys
+	found = 0
+	default_set = container.get("default", {})
+
 	for entry_id in container.get('data', []):
 		entry = container['data'][entry_id]
 		entry['id'] = entry_id
 
-		if not await check_where(where_str=where, base_entry=entry, base_name=store):
+		# where dont hit entry, means skip, we dont need it
+		if not await checkWhere(where=select_request.where, parent_name=parent_name, parent_entry=parent_entry, check_entry=entry, check_name=select_request.store):
 			continue
 
 		found += 1
-		if offset >= found:
+		if select_request.offset >= found:
 			continue
 
-		requested_fields = await check_fields(entry, fields)
+		# copy entry before further actions, so the entry in the db itself does not get the default set added to permanent memory
+		entry = copy.deepcopy(entry)
+
+		# complete entry
+		for default_key in default_set:
+			if entry.get(default_key, EmptyObject) == EmptyObject:
+				entry[default_key] = container["default"][default_key]
+
+		# only gather what the user wants
+		requested_fields = await getFields(entry, select_request.fields)
 
 		hits += 1
 		hits_field += len(requested_fields)
 
-		result.append( dict(sorted(requested_fields.items())) )
+		result.append( requested_fields )
 
-		if hits >= limit:
+		if hits >= select_request.limit:
 			break
 
 	return result, hits, hits_field, len(container.get('data', []) )
 
-def get_value(info, value, default):
-	v = info.get('_GET', {}).get(value, None)
-	if v == None:
-		v = info.get('_JSON', {}).get(value, None)
-	if v == None:
-		v = info.get('_POST', {}).get(value, None)
+async def checkWhere(where="", parent_entry:dict=None, parent_name:str=None, check_entry:dict=None, check_name:str=None):
 
-	if v == None: return default
-	else: return v
-
-async def check_where(where_str="", base_entry=None, base_name="data", check_entry=None, check_name="None"):
-
-	if where_str == "" or where_str == None:
+	if not where:
 		return True
 
-	if base_entry == None:
-		return True
+	if not check_name:
+		check_name = "data"
 
-	if base_name == None:
-		base_name = "data"
+	loc = locals()
 
-	locals()[base_name] = base_entry
-	locals()[check_name] = check_entry
+	loc[check_name] = check_entry
+	loc[parent_name] = parent_entry
 
 	try:
-		if eval(where_str):
+		if eval(where):
 			return True
 		else:
 			return False
 	except:
 		return False
 
-async def check_fields(data, fields):
-	if fields == None or fields == []:
-		return data
+async def getFields(data, fields):
+	if not fields: return data
 
 	requested_fields = dict()
 	for field in fields:
@@ -203,77 +215,30 @@ async def check_fields(data, fields):
 
 	return requested_fields
 
-async def perform_join(Main_instance, last_result=[], join=dict(), parent_name=None):
+async def performJoin(db_instance, last_result:list, join_request:SelectRequest, parent_name:str=None):
 
-	# table_name :: str
-	table_name = str(join.get("of", "")).replace('..', '').strip('/')
+	container = await db_instance.load(join_request.container)
 
-	# where :: str
-	where = join.get("where", None)
-	if type(where) is not str:
-		where = None
-
-	# fields :: str || list
-	fields = join.get("fields", None)
-	if type(fields) is str:
-		fields = fields.split(',')
-	if type(fields) is not list:
-		fields = None
-
-	# store :: str
-	store = join.get("store", None)
-
-	# include :: bool
-	include = bool(join.get("include", False))
-
-	# join :: dict
-	join = join.get("join", None)
-	if type(join) == str:
-		try:
-			join = json.loads(join)
-		except:
-			join = None
-
-	# # #
-
-	if table_name == "": raise MissingOfField
-
-	if store in ["", None]: raise MissingStoreInJoin
-
-	# # #
-
-	container = await Main_instance.load(table_name)
-
-	if container.status == "sys_error": raise SysLoadError
-	elif container.status == "not_found": raise ContainerNotFound
+	if container.status == "sys_error": raise SysLoadError(join_request.container)
+	elif container.status == "not_found": raise ContainerNotFound(join_request.container)
 	elif container.status == "success":	container = container.content
 
+	# for every already selected entry, take the data and go in the next container
 	for already_selected in last_result:
 
-		result = []
+		join_result, *x = await getDataFromContainer(db_instance, join_request, parent_name=parent_name, parent_entry=already_selected)
+		for join in join_request.join:
+			if join == None: continue
+			select_join_request = SelectRequest(join, is_join=True)
+			join_result = await performJoin(db_instance, join_result, select_join_request, parent_name=join_request.store)
 
-		for entry_id in container.get('data', []):
-			entry = container['data'][entry_id]
-			entry['id'] = entry_id
-
-			if not await check_where(where_str=where, base_entry=already_selected, base_name=parent_name, check_entry=entry, check_name=store):
-				continue
-
-			requested_fields = await check_fields(entry, fields)
-
-			result.append( requested_fields )
-
-		# join entry?
-		if type(join) != list: join = [join]
-		for j in join:
-			if j == None: continue
-			result = await perform_join(Main_instance, last_result=result, join=j, parent_name=store)
-
-		if include and len(result) >= 1:
-			for field_of_join in result[0]:
+		if join_request.include and len(join_result) >= 1:
+			for field_of_join in join_result[0]:
 				if field_of_join == "id": continue
-				already_selected[field_of_join] = result[0][field_of_join]
+				already_selected[field_of_join] = join_result[0][field_of_join]
 		else:
-			already_selected[store] = result
+			already_selected[join_request.store] = join_result
 
 	return last_result
+
+class EmptyObject(object): pass

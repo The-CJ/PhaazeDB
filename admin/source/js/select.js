@@ -81,14 +81,11 @@ class Select {
       return SelectO.build(data.data);
     })
     .fail(function (data) {
-      if (data.status == "error") {
-        if (data.msg == "unauthorised") {
-          return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
-        }
-        return Display.message( {content:data.msg, color:Display.color_fail} );
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
       }
       else {
-        return Display.message( {content:"Unknown Server Error", color:Display.color_fail} );
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
       }
     })
 

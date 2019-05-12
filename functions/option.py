@@ -1,73 +1,128 @@
-import asyncio, json, logging
+import asyncio, json
+from utils.errors import MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound
 
-async def option(self, request, _INFO):
-	""" Used to change options of the fly """
+class OptionRequest(object):
+	""" Contains informations for a valid option request,
+		does not mean the option actully exists or given parameter are possible"""
+	def __init__(self, db_req):
+		self.option:str = None
+		self.value:str = None
 
-	#get required vars (POST -> JSON based)
+		self.getOption(db_req)
+		self.getValue(db_req)
 
-	#get table_name
-	option = _INFO.get('_POST', {}).get('option', "")
-	if option == "":
-		option = _INFO.get('_JSON', {}).get('option', "")
+	def getOption(self, db_req):
+		self.option = db_req.get("option", None)
+		if type(self.option) is not str:
+			self.option = None
 
-	if type(option) is not str:
-		option = str(option)
+		if not self.option: raise MissingOptionField()
 
-	#no option
-	if option == "":
+	def getValue(self, db_req):
+		self.value = db_req.get("value", None)
+		if not self.value:
+			self.value = None
+
+async def option(self, request):
+	""" Used to change options on the fly """
+
+	# prepare request for a valid insert
+	try:
+		option_request = OptionRequest(request.db_request)
+		return await performOption(self, option_request)
+
+	except (MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound) as e:
 		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'option' field"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		return self.response(status=400, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
 
-	#get value
-	value = _INFO.get('_POST', {}).get('value', None)
-	if value == None:
-		value = _INFO.get('_JSON', {}).get('value', None)
+	except Exception as ex:
+		return await self.criticalError(ex)
 
-	if type(value) is not str:
-		value = None
+async def performOption(db_instance, option_request):
 
-	# # # # #
+	if option_request.option == "log":
+		return await performLogging(db_instance, option_request)
 
-	if option == "log":
+	elif option_request.option == "shutdown":
+		return await performShutdown(db_instance, option_request)
 
-		v = None
+	elif option_request.option == "store":
+		return await performStore(db_instance, option_request)
 
-		if value.lower() == "true": v = True
-		elif value.lower() == "false": v = False
+	else:
+		raise MissingOptionField(True)
 
-		if v == None:
-			if self.log == False: v = True
-			else: v = False
+async def performLogging(db_instance, option_request):
 
-		if v == True:
-			self.log = True
-		elif v == False:
-			self.log = False
+	# fix value from call
+	if option_request.value != None:
+		db_instance.Server.action_logging = bool(option_request.value)
+	# toggle
+	else:
+		db_instance.Server.action_logging = False if db_instance.Server.action_logging else True
 
-		vv = "active" if v == True else "disabled"
+	vv = "active" if db_instance.Server.action_logging else "disabled"
+	db_instance.Server.Logger.info(f"Action logging now: {vv}")
 
-		self.logger.info(f"Logging Module: '{vv}'")
+	res = dict(
+		code=200,
+		status="success",
+		msg=f"'action_logging' is now {vv}"
+	)
+	return db_instance.response(status=200, body=json.dumps(res))
 
+async def performShutdown(db_instance, option_request):
+
+	asyncio.ensure_future(db_instance.Server.stop())
+
+	res = dict(
+		code=200,
+		status="success",
+		msg="DB is sutting down"
+	)
+	return db_instance.response(status=200, body=json.dumps(res))
+
+async def performStore(db_instance, option_request):
+
+	if option_request.value:
+		selected_container = await db_instance.load(option_request.value)
+		if selected_container.status == "sys_error": raise SysLoadError(option_request.value)
+		elif selected_container.status == "not_found": raise ContainerNotFound(option_request.value)
+	else:
+		selected_container = None
+
+	# one
+	if selected_container:
+		success = await selected_container.save()
+		if success:
+			res = dict(
+				code=200,
+				status="success",
+				msg=f"forced store of '{option_request.value}' complete"
+			)
+			return db_instance.response(status=200, body=json.dumps(res))
+
+		else:
+			raise SysStoreError(option_request.value)
+
+	# all
+	success = await db_instance.storeAllContainer(remove_from_ram=False)
+	if success:
 		res = dict(
 			code=200,
 			status="success",
-			msg="option 'log' is now " + vv
+			msg="forced store of all active container complete"
 		)
-		return self.response(status=200, body=json.dumps(res))
+		return db_instance.response(status=200, body=json.dumps(res))
 
-	elif option == "shutdown":
-		self.active = False
-
-		asyncio.ensure_future(self.shutdown())
-
+	else:
 		res = dict(
-			code=200,
-			status="success",
-			msg="DB is sutting down"
+			code=500,
+			status="critical_error",
+			msg="forced store of all container failed at least once"
 		)
-		return self.response(status=200, body=json.dumps(res))
-
+		return db_instance.response(status=500, body=json.dumps(res))

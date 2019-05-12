@@ -150,7 +150,8 @@ class Display {
     DynamicURL.set("modal", null);
   }
 
-  changeType(obj, value) {
+  changeType(obj, value, override) {
+    if (typeof override != "undefined") { value = override; }
     _(obj).attribute("field-type", value);
   }
 
@@ -196,9 +197,9 @@ class Template {
     let inputs = _.create('<div class="col center-item-row">');
     let controlls = _.create('<div class="center-item-row">');
 
-    inputs.append( _.create('<input class="col" type="text" placeholder="Key">') );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Key">').value(key ? key : "") );
     inputs.append( _.create('<span>').text("-") );
-    inputs.append( _.create('<input class="col" type="text" placeholder="Value">') );
+    inputs.append( _.create('<input class="col" type="text" placeholder="Value">').value(value ? value : "") );
 
     let button = _.create('<button type="button" class="btn orange">');
     button.text("X");
@@ -211,13 +212,14 @@ class Template {
     return element;
   }
 
-  getTypeSelect() {
+  getTypeSelect(type) {
     let ts = _.create('<select class="btn" field-type="string" onchange="Display.changeType(this, this.value)">');
-    ts.append( _.create('<option value="string">String</option>') );
-    ts.append( _.create('<option value="number">Number</option>') );
-    ts.append( _.create('<option value="bool">Bool</option>') );
-    ts.append( _.create('<option value="object">Object</option>') );
-    ts.append( _.create('<option value="none">None/null</option>') );
+    ts.append( _.create('<option value="string">String</option>').attribute("selected", type == "string" ? true : null) );
+    ts.append( _.create('<option value="number">Number</option>').attribute("selected", type == "number" ? true : null) );
+    ts.append( _.create('<option value="bool">Bool</option>').attribute("selected", type == "bool" ? true : null) );
+    ts.append( _.create('<option value="object">Object</option>').attribute("selected", type == "object" ? true : null) );
+    ts.append( _.create('<option value="none">None/null</option>').attribute("selected", type == "none" ? true : null) );
+    Display.changeType(ts.result[0], null, type ? type : "string")
     return ts;
   }
 

@@ -1,79 +1,97 @@
-import asyncio, json, os
+import json, os
+from utils.errors import CantAccessContainer
 
-async def show(self, request, _INFO):
+class ShowRequest(object):
+	""" Contains informations for a valid show request,
+		does not mean if can be executed without errors """
+	def __init__(self, db_req):
+		self.recursive:bool = False
+		self.path:str = None
+
+		self.getRecursive(db_req)
+		self.getPath(db_req)
+
+	def getRecursive(self, db_req):
+		self.recursive = db_req.get("recursive",None)
+		if type(self.recursive) is not bool:
+			self.recursive = bool(self.recursive)
+
+	def getPath(self, db_req):
+		self.path = db_req.get("path", "")
+		if type(self.path) is not str:
+			self.path = str(self.path)
+
+		self.path = self.path.replace('..', '')
+		self.path = self.path.strip('/')
+
+		if not self.path: self.path = ""
+
+async def show(self, request):
 	""" Shows container hierarchy from 'name' or all if not defined """
 
-	#get required vars (GET -> JSON -> POST based)
-
-	#get recursive path
-	recursive = _INFO.get('_GET', {}).get('recursive', None)
-	if recursive == None:
-		recursive = _INFO.get('_JSON', {}).get('recursive', None)
-	if recursive == None:
-		recursive = _INFO.get('_POST', {}).get('recursive', None)
-
-	if type(recursive) is not bool:
-		recursive = bool(recursive)
-
-	#get show path
-	path = _INFO.get('_GET', {}).get('path', None)
-	if path == None:
-		path = _INFO.get('_JSON', {}).get('path', None)
-	if path == None:
-		path = _INFO.get('_POST', {}).get('path', None)
-
-	if path == None:
-		path = ""
-	else:
-		path = str(path)
-
-	path = path.replace('..', '')
-	path = path.strip('/')
-	path = "DATABASE/"+path
-
-	###
-
-	#check if there
 	try:
-		os.listdir(path)
-	except Exception as e:
+		show_request = ShowRequest(request.db_request)
+		return await performShow(self, show_request)
+
+	except (CantAccessContainer) as e:
+		res = dict(
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
+		)
+		return self.response(status=e.code, body=json.dumps(res))
+
+	except Exception as ex:
+		return await self.criticalError(ex)
+
+async def performShow(db_instance, show_request):
+
+	check_location = f"{db_instance.container_root}{show_request.path}"
+
+	if not os.path.exists(check_location):
 		res = dict(
 			code=400,
 			status="error",
-			msg=f"no tree path found at '{path}'",
+			msg=f"no tree path found at '{check_location}'",
 		)
-		return self.response(status=400, body=json.dumps(res))
+		return db_instance.response(status=400, body=json.dumps(res))
 
-	root = {'supercontainer': {},'container': []}
-
-	tree = await get_container(root, path, recursive=recursive)
-
-	###
+	root = {'supercontainer': {},'container': [], 'unusable': []}
+	tree = await getContainer(root, check_location, recursive=show_request.recursive)
 
 	res = dict(
 		code=200,
 		status="showed",
-		path=path,
-		recursive=recursive,
+		path=check_location,
+		recursive=show_request.recursive,
 		tree=tree
 	)
-	if self.log != False:
-		self.logger.info(f"showed tree: path={path}, recursive={str(recursive)}")
-	return self.response(status=200, body=json.dumps(res))
 
-async def get_container(tree, folder_path, recursive=False):
-	for file in os.listdir(folder_path):
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"showed tree: path={check_location}, recursive={str(show_request.recursive)}")
+	return db_instance.response(status=200, body=json.dumps(res))
 
-		#is container
-		if file.endswith('.phaazedb'):
-			file = file.split('.phaazedb')[0]
-			tree['container'].append(file)
+async def getContainer(tree, folder_path, recursive=False):
+	try:
+		container_list = os.listdir(folder_path)
+	except PermissionError:
+		raise CantAccessContainer(folder_path,"supercontainer")
 
-		#is supercontainer
-		else:
+	for check_object in container_list:
+		# is container
+		if check_object.endswith('.phaazedb'):
+			check_object = check_object.split('.phaazedb')[0]
+			tree['container'].append(check_object)
+
+		# is supercontainer and a folder
+		elif os.path.isdir(f"{folder_path}/{check_object}"):
 			if recursive:
-				tree['supercontainer'][file] = await get_container(dict(supercontainer={}, container=[]), folder_path + "/" + file)
+				tree['supercontainer'][check_object] = await getContainer(dict(supercontainer={}, container=[], unusable=[]), f"{folder_path}/{check_object}", recursive=recursive)
 			else:
-				tree['supercontainer'][file] = {}
+				tree['supercontainer'][check_object] = {}
+
+		# it's nothing phaazeDB should handle
+		else:
+			tree['unusable'].append(check_object)
 
 	return tree

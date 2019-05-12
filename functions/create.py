@@ -1,75 +1,75 @@
-import os, pickle, json
+import os, json
 from datetime import datetime
+from utils.errors import MissingNameField, ContainerAlreadyExists, SysCreateError
 
-async def create(self, request, _INFO):
+class CreateRequest(object):
+	""" Contains informations for a valid create request,
+		does not mean the container may not already be existing or other errors are impossible """
+	def __init__(self, db_req):
+		self.container_name:str = None
+
+		self.getContainterName(db_req)
+
+	def getContainterName(self, db_req):
+		self.container_name = db_req.get("name", "")
+		if type(self.container_name) is not str:
+			self.container_name = str(self.container_name)
+
+		self.container_name = self.container_name.replace('..', '')
+		self.container_name = self.container_name.strip('/')
+
+		if not self.container_name: raise MissingNameField()
+
+async def create(self, request):
 	""" Used to create new container in the database (automaticly creates supercontainer if necessary) """
 
-	#get required vars (POST -> JSON based)
+	# prepare request for a valid search
+	try:
+		create_request = CreateRequest(request.db_request)
+		return await performCreate(self, create_request)
 
-	#get tabel name
-	table_name = _INFO.get('_POST', {}).get('name', "")
-	if table_name == "":
-		table_name = _INFO.get('_JSON', {}).get('name', "")
-
-	if type(table_name) is not str:
-		table_name = str(table_name)
-
-	table_name = table_name.replace('..', '')
-	table_name = table_name.strip('/')
-
-	#no tabel name
-	if table_name == "":
+	except (MissingNameField, ContainerAlreadyExists, SysCreateError) as e:
 		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'name' field"
+			code = e.code,
+			status = e.status,
+			msg = e.msg()
 		)
-		return self.response(status=400, body=json.dumps(res))
+		return self.response(status=e.code, body=json.dumps(res))
+
+	except Exception as ex:
+		return await self.criticalError(ex)
+
+async def performCreate(db_instance, create_request):
+	container_location = f"{db_instance.container_root}{create_request.container_name}.phaazedb"
 
 	#already exist
-	if os.path.isfile(f"DATABASE/{table_name}.phaazedb"):
-		res = dict(
-			code=400,
-			status="error",
-			msg=f"container '{table_name}' already exist"
-		)
-		return self.response(status=400, body=json.dumps(res))
+	if os.path.isfile(container_location):
+		raise ContainerAlreadyExists(create_request.container_name)
 
-	container = dict (
+	success = await makeNewContainer(db_instance, create_request.container_name)
+
+	if not success:
+		db_instance.Server.Logger.critical(f"create container '{create_request.container_name}' failed")
+		raise SysCreateError(create_request.container_name)
+
+	res = dict(
+		code=201,
+		status="created",
+
+		msg=f"created container '{create_request.container_name}'"
+	)
+	if db_instance.Server.action_logging:
+		db_instance.Server.Logger.info(f"created container '{create_request.container_name}'")
+	return db_instance.response(status=201, body=json.dumps(res))
+
+async def makeNewContainer(db_instance, container_name):
+	new_container = dict (
 		current_id = 1,
 		data = dict(),
 		default = dict(),
 		creation_date = str(datetime.now())
 	)
 
-	file_path = f"DATABASE/{table_name}.phaazedb"
+	created = await db_instance.store(container_name, new_container, create=True)
 
-	try:
-		#add file folders
-		os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-		#add file
-		pickle.dump(container, open(file_path, "wb") )
-
-		#add to active db
-		self.db[table_name] = container
-
-		#awnser
-		res = dict(
-			code=201,
-			status="created",
-			msg=f"created container '{table_name}'"
-		)
-		if self.log != False:
-			self.logger.info(f"created container '{table_name}'")
-		return self.response(status=201, body=json.dumps(res))
-
-	except:
-		res = dict(
-			code=500,
-			status="error",
-			msg="unknown server error"
-		)
-		if self.log != False:
-			self.logger.critical(f"create container '{table_name}' failed")
-		return self.response(status=500, body=json.dumps(res))
+	return created, new_container

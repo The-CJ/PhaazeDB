@@ -53,13 +53,23 @@
           <input type="text" name="container" placeholder="Container name">
         </div>
         <hr>
-        <button type="button" class="btn btn-block purple text-white" onclick="alert('TODO describe')">Describe</button>
+        <button type="button" class="btn btn-block purple text-white" onclick="Describe.start()">Describe</button>
         <hr>
-        <div class="modal-result">
+        <div class="modal-result" default-fields>
           <!-- filled with key - value pairs -->
         </div>
-        <div class="modal-result-footer">
-          <!-- gets filled with a button when a valid contaner is described -->
+        <div class="modal-result-footer" style="display: none">
+          <!-- only get shown when a valid container is viewed -->
+          <div class="center-item-row" style="margin-top: 5px;">
+            <div class="col"><button type="button" class="btn btn-block green" onclick="DefaultSet.modalAddField()">Add field</button></div>
+          </div>
+
+          <hr>
+
+          <div class="center-item-row" style="width: 100%">
+            <button type="submit" class="btn btn-block purple dark text-white" onclick="DefaultSet.start()">Submit default set</button>
+          </div>
+
         </div>
       </div>
 
@@ -290,7 +300,7 @@
           </div>
           <div class="center-item-row">
             <span>Limit:</span>
-            <input type="number" name="limit" placeholder="Infinite">
+            <input type="number" name="limit" placeholder="Infinite" min="1">
             <span>Offset:</span>
             <input type="number" name="offset" placeholder="0">
           </div>

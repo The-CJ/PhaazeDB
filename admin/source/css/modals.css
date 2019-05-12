@@ -48,3 +48,12 @@
 .modal-closer.show {
   display: block;
 }
+
+/* special case's */
+.modal .modal-result.empty {
+  text-align: center;
+  width: 100%;
+}
+.modal .modal-result.empty:empty::after {
+  content: "No Default set avariable";
+}
