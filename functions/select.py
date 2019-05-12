@@ -226,7 +226,11 @@ async def performJoin(db_instance, last_result:list, join_request:SelectRequest,
 	# for every already selected entry, take the data and go in the next container
 	for already_selected in last_result:
 
-		join_result, hits, hits_field, total = await getDataFromContainer(db_instance, join_request, parent_name=parent_name, parent_entry=already_selected)
+		join_result, *x = await getDataFromContainer(db_instance, join_request, parent_name=parent_name, parent_entry=already_selected)
+		for join in join_request.join:
+			if join == None: continue
+			select_join_request = SelectRequest(join, is_join=True)
+			join_result = await performJoin(db_instance, join_result, select_join_request, parent_name=join_request.store)
 
 		if join_request.include and len(join_result) >= 1:
 			for field_of_join in join_result[0]:
