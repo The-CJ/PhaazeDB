@@ -391,6 +391,49 @@ class Edit {
 
 }
 Edit = new Edit();
+
+class Store {
+  constructor() {
+    this.last = "";
+  }
+
+  start() {
+    let request = {};
+
+    request["container"] = _("[modal='store'] [name=container]").value();
+
+    return this.execute(request);
+  }
+
+  execute(request) {
+    if (request == null) { request = {}; }
+    let r = {
+      "action": "option",
+      "option": "store",
+      "token": _('#db_token').value(),
+      "value": request['container']
+    };
+    this.last = request['container'];
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      Display.closeModal();
+      Display.message( {content:data.msg, color:Display.color_success} );
+    })
+    .fail(function (data) {
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
+      }
+    })
+  }
+
+
+
+}
+Store = new Store();
+
 // events
 document.addEventListener("DOMContentLoaded", function () {
   // restore view

@@ -117,6 +117,43 @@
 
   <!-- // -->
 
+  <div modal="store" class="modal">
+    <div class="modal-content">
+
+      <form onsubmit="event.preventDefault();Store.start();" method="post">
+        <div class="modal-header orange dark text-white">
+          <div class="center-item-row">
+            <h2>Store</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
+              <i class="material-icons text-white">close</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>Container name:</span>
+            <input type="text" name="container" placeholder="Container name, or empty for all">
+          </div>
+        </div>
+
+        <div class="modal-footer orange dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block orange text-white">Submit store</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- // -->
+
   <div modal="insert" class="modal">
     <div class="modal-content">
 
