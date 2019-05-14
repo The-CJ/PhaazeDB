@@ -3,13 +3,16 @@ import asyncio
 import pickle, os
 from utils.container import Container
 
-async def load(self, container_name):
+async def load(self, container_name, only_already_loaded=False):
 
 	already_loaded = self.db.get(container_name, None)
 	if already_loaded != None:
 		# reset time
 		already_loaded.keep_alive_time_left = self.keep_alive
 		return already_loaded
+
+	# its not currently loaded in ram, don't load it, just give None back
+	if only_already_loaded: return None
 
 	#try to load
 	container_location = f"{self.container_root}{container_name}.phaazedb"

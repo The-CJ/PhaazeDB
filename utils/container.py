@@ -2,7 +2,7 @@ import asyncio
 
 class Container(object):
 	""" Represents a containter from the db, actuall data is in self.content
-		all other functions are for internal menagment """
+		all other functions are for internal managment """
 	def __init__(self, db_instance, name, status="sys_error", content=None, keep_alive=0):
 		self.db_instance = db_instance
 		self.name = name
@@ -22,14 +22,14 @@ class Container(object):
 
 		return await self.remove()
 
-	async def remove(self, remove_from_ram=True):
+	async def remove(self, remove_from_ram=True, store=True):
 		if self.removed:
 			return True
 		self.removed = True
 		self.keep_alive_time_left = 0
 
 		# save content
-		success = await self.db_instance.store(self.name, self.content, ignore_save_limit=True)
+		success = await self.db_instance.store(self.name, self.content, ignore_save_limit=True) if store else True
 		if not success:
 			self.db_instance.Server.Logger.critical(f"Could not store: '{self.name}' before unloading")
 			return False
@@ -40,4 +40,7 @@ class Container(object):
 
 	async def save(self):
 		return await self.remove(remove_from_ram=False)
+
+	async def delete(self):
+		return await self.remove(remove_from_ram=True, store=False)
 
