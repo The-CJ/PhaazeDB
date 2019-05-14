@@ -1,6 +1,12 @@
 import json, math
 from utils.errors import MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound, InvalidUpdateExec, SysStoreError
 
+class UpdateEntry(dict):
+	""" Class is used to wrap dict object database entrys so its impossible to set integre as a dict key
+	 	get's reverted to normal dict after update is finished """
+	def __setitem__(self, key, value):
+		super(UpdateEntry, self).__setitem__(str(key), value)
+
 class UpdateRequest(object):
 	""" Contains informations for a valid update request,
 		does not mean the container exists or where statement has right syntax """
@@ -135,7 +141,7 @@ async def updateDataInContainer(db_instance, update_request):
 			continue
 
 		# update the entry with new content
-		entry = await updateEntry(entry, update_request)
+		container['data'][entry_id] = await updateEntry(entry, update_request)
 
 		hits += 1
 
@@ -154,9 +160,11 @@ async def updateDataInContainer(db_instance, update_request):
 async def updateEntry(data, update_request):
 	if update_request.method == "dict":
 		for new_data_key in update_request.content:
-			data[new_data_key] = update_request.content[new_data_key]
+			data[str(new_data_key)] = update_request.content[new_data_key]
 
 	elif update_request.method == "str":
+		# wrap db entry, to ensure dict keys are strings
+		data = UpdateEntry(data)
 		if update_request.store:
 			loc = locals()
 			loc[update_request.store] = data
@@ -166,7 +174,7 @@ async def updateEntry(data, update_request):
 		except Exception as e:
 			raise InvalidUpdateExec(str(e))
 
-	return data
+	return dict(data)
 
 async def checkWhere(where="", check_entry=None, check_name=None):
 	if not where:
