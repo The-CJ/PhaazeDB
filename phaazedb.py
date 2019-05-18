@@ -19,6 +19,9 @@ class PhaazeDBServer(object):
 		self.Logger = None
 		self.config = None
 
+		self.token_path = None
+		self.token = None
+
 		self.adress = "0.0.0.0"
 		self.port = 2000
 		self.action_logging = False
@@ -48,13 +51,13 @@ class PhaazeDBServer(object):
 			configs = open(config_file, "rb").read()
 			c = json.loads(configs.decode("UTF-8"))
 		except FileNotFoundError:
-			self.Logger.info(f"file '{config_file}' could not be found")
+			self.Logger.critical(f"file '{config_file}' could not be found")
 			c = dict()
 		except json.decoder.JSONDecodeError:
-			self.Logger.info(f"file '{config_file}' could not be loaded as a config file")
+			self.Logger.critical(f"file '{config_file}' could not be loaded as a config file")
 			c = dict()
 		except:
-			self.Logger.info(f"unexpected error while loading '{config_file}' as config file")
+			self.Logger.critical(f"unexpected error while loading '{config_file}' as config file")
 			c = dict()
 		finally:
 			self.config = c
@@ -63,6 +66,20 @@ class PhaazeDBServer(object):
 			self.port = c.get("port", 2000)
 			self.action_logging = c.get("logging", False)
 			self.allowed_ips = c.get("allowed_ips", [])
+			self.token_path = self.config.get('auth_token_path', None)
+			self.loadToken()
+
+	def loadToken(self):
+		if not self.token_path:
+			self.token = None
+			return
+
+		try:
+			self.token = open(self.token_path, "r").read()
+		except Exception as e:
+			self.Logger.critical(f"critical error while loading database token: {str(e)}")
+			self.Logger.critical(f"running without token")
+			self.token = None
 
 	def loadDatabase(self):
 		self.Database = Database(self)

@@ -1,5 +1,7 @@
 import asyncio, json
-from utils.errors import MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound
+from utils.errors import MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound, InvalidValue
+from utils.security import password
+from utils.cli import CliArgs
 
 class OptionRequest(object):
 	""" Contains informations for a valid option request,
@@ -31,7 +33,7 @@ async def option(self, request):
 		option_request = OptionRequest(request.db_request)
 		return await performOption(self, option_request)
 
-	except (MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound) as e:
+	except (MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound, InvalidValue) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -52,6 +54,9 @@ async def performOption(db_instance, option_request):
 
 	elif option_request.option == "store":
 		return await performStore(db_instance, option_request)
+
+	elif option_request.option == "password":
+		return await performPassword(db_instance, option_request)
 
 	else:
 		raise MissingOptionField(True)
@@ -126,3 +131,24 @@ async def performStore(db_instance, option_request):
 			msg="forced store of all container failed at least once"
 		)
 		return db_instance.response(status=500, body=json.dumps(res))
+
+async def performPassword(db_instance, option_request):
+
+	if not option_request.value:
+		raise InvalidValue()
+
+	new_db_token = password(option_request.value)
+
+	# set to current
+	db_instance.Server.config["auth_token"] = new_db_token
+
+	# overwrite password file
+	passwd_file = db_instance.Server.config.get('auth_token_path', None)
+	open(passwd_file, "w").write(new_db_token).close()
+
+	res = dict(
+		code=200,
+		status="success",
+		msg="new password set"
+	)
+	return db_instance.response(status=200, body=json.dumps(res))

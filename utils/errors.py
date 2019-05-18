@@ -92,6 +92,13 @@ class InvalidLimit(Exception):
 
 	def msg(self, *arg): return "invalid value for 'limit', number must be > 0"
 
+class InvalidValue(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "invalid value for field 'value'"
+
 class InvalidContent(Exception):
 	def __init__(self, *arg):
 		self.empty_field = True if arg else False
@@ -161,4 +168,3 @@ class ContainerBroken(Exception):
 		self.status = "critical_error"
 
 	def msg(self, *arg): return f"DB container file: '{self.container}' seems broken"
-

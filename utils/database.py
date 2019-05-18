@@ -1,4 +1,5 @@
 import json, math
+from utils.security import password
 
 from aiohttp import web
 
@@ -158,7 +159,14 @@ class Database(object):
 
 	async def authorise(self, request):
 		token = request.db_request.get("token", None)
-		if token != self.Server.config.get('auth_token', None):
+		if token:
+			token = password(token)
+
+		db_token = self.Server.token
+		if not db_token: return True
+
+		print(f"{token}«»{db_token}")
+		if token != db_token:
 			return False
 		else:
 			return True
