@@ -66,19 +66,16 @@ class PhaazeDBServer(object):
 			self.port = c.get("port", 2000)
 			self.action_logging = c.get("logging", False)
 			self.allowed_ips = c.get("allowed_ips", [])
-			self.token_path = self.config.get('auth_token_path', None)
-			self.loadToken()
 
 	def loadToken(self):
-		if not self.token_path:
-			self.token = None
-			return
-
+		# token is saved in database root
 		try:
-			self.token = open(self.token_path, "r").read()
+			token_file_path = f"{self.Database.container_root}DBTOKEN"
+			self.token = open(token_file_path, "r").read()
 		except Exception as e:
 			self.Logger.critical(f"critical error while loading database token: {str(e)}")
-			self.Logger.critical(f"running without token")
+			self.Logger.critical(f"running without token, set on as soon as possible")
+			self.Logger.critical("make DB call: {action:'option', option:'password', value:'[your_new_password]'}")
 			self.token = None
 
 	def loadDatabase(self):
@@ -86,6 +83,7 @@ class PhaazeDBServer(object):
 		self.Database.setRoot(self.config.get("root", None))
 		self.Database.setAliveTime(self.config.get("keep_alive", None))
 		self.Database.setSaveInterval(self.config.get("save_interval", None))
+		self.loadToken()
 
 	def loadServer(self):
 		self.Server = web.Application()
