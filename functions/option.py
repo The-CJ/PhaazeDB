@@ -140,11 +140,13 @@ async def performPassword(db_instance, option_request):
 	new_db_token = password(option_request.value)
 
 	# set to current
-	db_instance.Server.config["auth_token"] = new_db_token
+	db_instance.Server.token = new_db_token
 
 	# overwrite password file
-	passwd_file = db_instance.Server.config.get('auth_token_path', None)
-	open(passwd_file, "w").write(new_db_token).close()
+	passwd_file = f"{db_instance.container_root}DBTOKEN"
+	file_writer = open(passwd_file, "w")
+	file_writer.write(new_db_token)
+	file_writer.close()
 
 	res = dict(
 		code=200,

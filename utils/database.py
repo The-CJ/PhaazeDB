@@ -165,7 +165,6 @@ class Database(object):
 		db_token = self.Server.token
 		if not db_token: return True
 
-		print(f"{token}«»{db_token}")
 		if token != db_token:
 			return False
 		else:

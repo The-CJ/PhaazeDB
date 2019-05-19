@@ -72,6 +72,8 @@ class PhaazeDBServer(object):
 		try:
 			token_file_path = f"{self.Database.container_root}DBTOKEN"
 			self.token = open(token_file_path, "r").read()
+			self.Logger.info("loaded db token")
+
 		except Exception as e:
 			self.Logger.critical(f"critical error while loading database token: {str(e)}")
 			self.Logger.critical(f"running without token, set on as soon as possible")
