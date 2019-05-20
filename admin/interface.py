@@ -10,6 +10,13 @@ async def webInterface(self, request):
 		part_footer = open("admin/source/html/parts/footer.html","rb").read()
 		part_modals = open("admin/source/html/parts/modals.html","rb").read()
 
+		if self.Server.token == None:
+			part_header = htmlFormat(
+				part_header,
+				sys_message_class=b"show red text-white",
+				sys_message=b"PhaazeDB running without token, please set one"
+			)
+
 		finished_html = htmlFormat(
 			main_html,
 			header=part_header,

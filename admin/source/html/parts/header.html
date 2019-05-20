@@ -54,12 +54,25 @@
 
     <span class="col"></span>
 
-    <button type="button" class="btn blue text-white" onclick="_('#main_menu').collapse('toggle')">
-      <div class="center-item-row">
-        <i class="material-icons">menu</i>
-        <span>Menu</span>
+    <div class="center-item-col">
+      <div id="system_message" class="|>>>(sys_message_class)<<<| center-item-row">
+        |>>>(sys_message)<<<|
+        <button type="button" class="btn btn-hidden" onclick="_('#system_message').hide()">
+          <div class="center-item-row">
+            <i class="material-icons">close</i>
+          </div>
+        </button>
       </div>
-    </button>
+
+      <button type="button" class="btn blue text-white" onclick="_('#main_menu').collapse('toggle')">
+        <div class="center-item-row">
+          <i class="material-icons">menu</i>
+          <span>Menu</span>
+        </div>
+      </button>
+
+    </div>
+
 
   </div>
 </header>
