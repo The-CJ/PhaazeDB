@@ -96,3 +96,15 @@ footer {
 #col_edit_menu button {
 	margin: 2px;
 }
+
+#overlay {
+	z-index: 999999;
+	background: red;
+	position: fixed;
+	height: 100vh;
+	width: 100vw;
+	display: none;
+}
+#overlay.show {
+	display: block;
+}
