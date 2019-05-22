@@ -151,6 +151,40 @@
     </div>
   </div>
 
+  <div modal="password" class="modal">
+    <div class="modal-content">
+
+      <form onsubmit="event.preventDefault();Option.optionPassword();" method="post">
+        <div class="modal-header green dark text-white">
+          <div class="center-item-row">
+            <h2>DB Token</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
+              <i class="material-icons text-white">close</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>New DB Token:</span>
+            <input type="text" name="token" placeholder="New DB Token (after setting this, no old token will work)">
+          </div>
+        </div>
+
+        <div class="modal-footer green dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block green text-white">Submit new token</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
+  </div>
+
 
   <!-- // -->
 
