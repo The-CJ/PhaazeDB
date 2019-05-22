@@ -380,14 +380,30 @@
 
   <hr>
 
-  <button type="button" class="btn btn-block orange text-black" onclick="Display.showModal('store')">Manual Store container</button>
-  <button type="button" class="btn btn-block blue text-white" onclick="Option.optionLogging()">Toggle logging</button>
-  <button type="button" class="btn btn-block red text-white" onclick="Option.optionShutdown()">Shutdown</button>
+  <div class="row text-white">
 
+    <div class="col center-item-col full-width-item">
+      <h3>Operations</h3>
+      <button type="button" class="btn btn-block orange text-black" onclick="Display.showModal('store')">Manual Store container</button>
+      <button type="button" class="btn btn-block green dark text-white" onclick="Display.showModal('password')">Set new DB-Passtoken</button>
+      <hr>
+      <button type="button" class="btn btn-block red text-white" onclick="Option.optionShutdown()">Shutdown</button>
+    </div>
 
-  <div>
-
+    <div class="col center-item-col full-width-item">
+      <h3>Set/Get limit values</h3>
+      <button type="button" class="btn btn-block text-black" onclick="alert('TODO address')">Address</button>
+      <button type="button" class="btn btn-block text-black" onclick="alert('TODO port')">Port</button>
+      <button type="button" class="btn btn-block text-black" onclick="alert('TODO root')">Container root</button>
+      <button type="button" class="btn btn-block text-black" onclick="alert('TODO keep_alive')">Keep Alive Time</button>
+      <button type="button" class="btn btn-block text-black" onclick="alert('TODO save_interval')">Save Interval</button>
+      <button type="button" class="btn btn-block text-black" onclick="alert('TODO allowed_ips')">Allowed IP's</button>
+      <button type="button" class="btn btn-block blue text-white" onclick="Option.optionLogging()">Toggle logging</button>
+    </div>
   </div>
 
+  <hr>
+
+  <div class="message-space"></div>
 
 </div>

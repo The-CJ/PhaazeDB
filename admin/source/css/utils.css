@@ -12,7 +12,7 @@
   flex-direction: row;
   align-items: center;
 }
-.center-item-row * {
+.center-item-row > * {
   white-space: nowrap!important;
 }
 .full-width-item > * {
