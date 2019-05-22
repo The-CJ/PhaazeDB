@@ -19,7 +19,6 @@ class PhaazeDBServer(object):
 		self.Logger = None
 		self.config = None
 
-		self.token_path = None
 		self.token = None
 
 		self.adress = "0.0.0.0"

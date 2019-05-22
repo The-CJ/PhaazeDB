@@ -3,12 +3,6 @@
   <button type="button" class="btn btn-block green text-black" onclick="Display.showModal('create')">Create container</button>
   <button type="button" class="btn btn-block purple text-white" onclick="Display.showModal('edit')">Describe / Edit container</button>
   <button type="button" class="btn btn-block red text-white" onclick="Display.showModal('drop')">Drop container</button>
-  <hr>
-  <button type="button" class="btn btn-block orange text-black" onclick="Display.showModal('store')">Manual Store container</button>
-  <hr>
-  <button type="button" class="btn btn-block blue text-white" onclick="Option.optionLogging()">Toggle logging</button>
-  <hr>
-  <button type="button" class="btn btn-block red text-white" onclick="Option.optionShutdown()">Shutdown</button>
 </div>
 
 <header class="grey dark">
@@ -64,19 +58,21 @@
         </button>
       </div>
 
-      <button type="button" class="btn blue dark text-white" onclick="alert('TODO Settins menu')">
-        <div class="center-item-row">
-          <i class="material-icons">settings</i>
-          <span>DB Settings</span>
-        </div>
-      </button>
+      <div class="center-item-col full-width-item">
+        <button type="button" class="btn blue dark text-white center-item-col" onclick="Edit.startSettings()">
+          <div class="center-item-row">
+            <i class="material-icons">settings</i>
+            <span>DB Settings</span>
+          </div>
+        </button>
 
-      <button type="button" class="btn blue text-white" onclick="_('#main_menu').collapse('toggle')">
-        <div class="center-item-row">
-          <i class="material-icons">menu</i>
-          <span>Menu</span>
-        </div>
-      </button>
+        <button type="button" class="btn blue text-white center-item-col" onclick="_('#main_menu').collapse('toggle')">
+          <div class="center-item-row">
+            <i class="material-icons">menu</i>
+            <span>Menu</span>
+          </div>
+        </button>
+      </div>
 
     </div>
 

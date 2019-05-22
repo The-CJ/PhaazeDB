@@ -389,6 +389,14 @@ class Edit {
     _('#col_edit_menu').collapse('hide');
   }
 
+  startSettings() {
+    _("#overlay").addClass("show");
+  }
+
+  stopSettings() {
+    _("#overlay").removeClass("show");
+  }
+
 }
 Edit = new Edit();
 
