@@ -1,6 +1,3 @@
-// global vars
-var last_selected_container = "";
-
 // global functions
 function isEmpty(o) {
   // null
