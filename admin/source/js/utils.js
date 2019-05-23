@@ -396,6 +396,26 @@ class Edit {
   startSettings() {
     DynamicURL.set("settings", "1");
     _("#overlay").addClass("show");
+    let r = {
+      "action": "option",
+      "option": "config",
+      "token": _('#db_token').value(),
+    };
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      for (var option in data.config) {
+        let field = _("[config="+option+"]");
+        field.value(data.config[option]);
+      }
+    })
+    .fail(function (data) {
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
+      }
+    })
   }
 
   stopSettings() {

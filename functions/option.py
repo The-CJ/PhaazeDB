@@ -58,6 +58,9 @@ async def performOption(db_instance, option_request):
 	elif option_request.option == "password":
 		return await performPassword(db_instance, option_request)
 
+	elif option_request.option == "config":
+		return await performConfig(db_instance, option_request)
+
 	else:
 		raise MissingOptionField(True)
 
@@ -152,5 +155,22 @@ async def performPassword(db_instance, option_request):
 		code=200,
 		status="success",
 		msg="new password set"
+	)
+	return db_instance.response(status=200, body=json.dumps(res))
+
+async def performConfig(db_instance, option_request):
+	config = dict(
+		address=db_instance.Server.address,
+		port=db_instance.Server.port,
+		root=db_instance.container_root,
+		keep_alive=db_instance.keep_alive,
+		save_interval=db_instance.save_interval,
+		allowed_ips=db_instance.Server.allowed_ips
+	)
+	res = dict(
+		code=200,
+		config=config,
+		status="success",
+		msg="returned current configs"
 	)
 	return db_instance.response(status=200, body=json.dumps(res))

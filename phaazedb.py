@@ -21,7 +21,7 @@ class PhaazeDBServer(object):
 
 		self.token = None
 
-		self.adress = "0.0.0.0"
+		self.address = "0.0.0.0"
 		self.port = 2000
 		self.action_logging = False
 		self.allowed_ips = []
@@ -61,7 +61,7 @@ class PhaazeDBServer(object):
 		finally:
 			self.config = c
 
-			self.adress = c.get("adress", "0.0.0.0")
+			self.address = c.get("address", "0.0.0.0")
 			self.port = c.get("port", 2000)
 			self.action_logging = c.get("logging", False)
 			self.allowed_ips = c.get("allowed_ips", [])
@@ -71,7 +71,7 @@ class PhaazeDBServer(object):
 		try:
 			token_file_path = f"{self.Database.container_root}DBTOKEN"
 			self.token = open(token_file_path, "r").read()
-			self.Logger.info("loaded db token")
+			self.Logger.info("Loaded db token")
 
 		except Exception as e:
 			self.Logger.critical(f"critical error while loading database token: {str(e)}")
@@ -101,7 +101,7 @@ class PhaazeDBServer(object):
 		if self.allowed_ips: self.Logger.info(f"Allowed IP's: {self.allowed_ips}")
 		self.Logger.info(f"Action Logging: {self.action_logging}")
 
-		web.run_app(self.Server, port=self.port, print=False)
+		web.run_app(self.Server, host=self.address, port=self.port, print=False)
 
 	async def stop(self):
 		self.Logger.info(f"Shutdown started...")
