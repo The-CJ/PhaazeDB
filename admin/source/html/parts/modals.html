@@ -415,7 +415,6 @@
   <hr>
 
   <div class="row text-white">
-
     <div class="col center-item-col full-width-item">
       <h3>Operations</h3>
       <button type="button" class="btn btn-block orange text-black" onclick="Display.showModal('store')">Manual Store container</button>
@@ -425,13 +424,46 @@
     </div>
 
     <div class="col center-item-col full-width-item">
-      <h3>Set/Get limit values</h3>
-      <button type="button" class="btn btn-block text-black" onclick="alert('TODO address')">Address</button>
-      <button type="button" class="btn btn-block text-black" onclick="alert('TODO port')">Port</button>
-      <button type="button" class="btn btn-block text-black" onclick="alert('TODO root')">Container root</button>
-      <button type="button" class="btn btn-block text-black" onclick="alert('TODO keep_alive')">Keep Alive Time</button>
-      <button type="button" class="btn btn-block text-black" onclick="alert('TODO save_interval')">Save Interval</button>
-      <button type="button" class="btn btn-block text-black" onclick="alert('TODO allowed_ips')">Allowed IP's</button>
+      <h3>Config</h3>
+      <div class="center-item-row setting-field">
+        <span class="text-white">Address</span>
+        <input type="text" class="text-white" config="address" placeholder="Database addess, mostly 0.0.0.0" readonly>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Port</span>
+        <input type="text" class="text-white" config="port" placeholder="Database port" readonly>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Database dir root</span>
+        <input type="text" class="text-white" config="root" placeholder="Database root in filesystem" readonly>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Keep in RAM</span>
+        <input type="text" class="text-white" config="keep_alive" placeholder="Time a container is hold in ram, for faster results (in sec)">
+        <button type="button" class="btn blue dark center-item-col" onclick="alert('save')">
+          <div class="center-item-row"><i class="material-icons text-white">save</i></div>
+        </button>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Save interval</span>
+        <input type="text" class="text-white" config="save_interval" placeholder="Save container to disk all X operations, increase result speed">
+        <button type="button" class="btn blue dark center-item-col" onclick="alert('save')">
+          <div class="center-item-row"><i class="material-icons text-white">save</i></div>
+        </button>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Allowed IP's</span>
+        <input type="text" class="text-white" config="allowed_ips" placeholder="List of IP addresses that are allowed to request, sepperated by |">
+        <button type="button" class="btn blue dark center-item-col" onclick="alert('save')">
+          <div class="center-item-row"><i class="material-icons text-white">save</i></div>
+        </button>
+      </div>
+
       <button type="button" class="btn btn-block blue text-white" onclick="Option.optionLogging()">Toggle logging</button>
     </div>
   </div>

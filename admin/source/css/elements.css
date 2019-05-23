@@ -233,6 +233,9 @@
   border: none;
   text-transform: none;
 }
+.btn:hover {
+  filter: brightness(90%);
+}
 .btn.btn-block {
   width: 100%;
 }
@@ -252,4 +255,21 @@ input[type=number], input[type=text], input[type=email], input[type=password] {
 }
 input[type=number]:focus, input[type=text]:focus, input[type=email]:focus, input[type=password]:focus {
   box-shadow: #05a 0px 2px 0px;
+}
+
+/* settings */
+.setting-field > span {
+  flex-basis: 0;
+  flex-grow: 0.25;
+  max-width: 100%;
+}
+.setting-field > input {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+.setting-field > button {
+  flex-basis: 0;
+  flex-grow: 0.05;
+  max-width: 100%;
 }
