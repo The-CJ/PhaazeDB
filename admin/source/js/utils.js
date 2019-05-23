@@ -382,6 +382,7 @@ class Edit {
 
   selectCol(entry_col) {
     let c = _(entry_col);
+    if (c.result[0].getAttribute("field-type") == "id") {return;}
     _('#result_space .selected').removeClass("selected");
     c.addClass("selected");
     _('#col_edit_menu').collapse('show');
