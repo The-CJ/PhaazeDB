@@ -46,6 +46,7 @@ class DynamicURL {
     this.values['offset'] = this.get('offset');
     this.values['modal'] = this.get('modal');
     this.values['fields'] = this.get('fields');
+    this.values['settings'] = this.get('settings');
   }
 
   set(key, value, update=true) {
@@ -92,6 +93,11 @@ class DynamicURL {
     // reopen modals
     if ( !isEmpty(this.values.modal) ) {
       Display.showModal(this.values.modal);
+    }
+
+    // reopen settings
+    if ( !isEmpty(this.values.settings) ) {
+      Edit.startSettings();
     }
 
     // set last viewed container
@@ -390,10 +396,12 @@ class Edit {
   }
 
   startSettings() {
+    DynamicURL.set("settings", "1");
     _("#overlay").addClass("show");
   }
 
   stopSettings() {
+    DynamicURL.set("settings", null);
     _("#overlay").removeClass("show");
   }
 
