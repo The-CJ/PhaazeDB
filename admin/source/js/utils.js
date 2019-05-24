@@ -353,6 +353,27 @@ class Edit {
     return Update.execute(request);
   }
 
+  saveSetting(option) {
+    let r = {
+      "action": "option",
+      "option": option,
+      "token": _('#db_token').value(),
+    };
+    r["value"] = _("[config="+option+"]").value();
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      return Display.message( {content:data.msg + ": " + data.changed + " = " + data.new_value, color:Display.color_success} );
+    })
+    .fail(function (data) {
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
+      }
+    })
+  }
+
   changeCol(type) {
     if (type == null) { type = "string" }
     let field = _('#result_space .selected');

@@ -443,7 +443,7 @@
       <div class="center-item-row setting-field">
         <span class="text-white">Keep in RAM</span>
         <input type="text" class="text-white" config="keep_alive" placeholder="Time a container is hold in ram, for faster results (in sec)">
-        <button type="button" class="btn blue dark center-item-col" onclick="alert('save')">
+        <button type="button" class="btn blue dark center-item-col" onclick="Edit.saveSetting('keep_alive')">
           <div class="center-item-row"><i class="material-icons text-white">save</i></div>
         </button>
       </div>
@@ -451,15 +451,15 @@
       <div class="center-item-row setting-field">
         <span class="text-white">Save interval</span>
         <input type="text" class="text-white" config="save_interval" placeholder="Save container to disk all X operations, increase result speed">
-        <button type="button" class="btn blue dark center-item-col" onclick="alert('save')">
+        <button type="button" class="btn blue dark center-item-col" onclick="Edit.saveSetting('save_interval')">
           <div class="center-item-row"><i class="material-icons text-white">save</i></div>
         </button>
       </div>
 
       <div class="center-item-row setting-field">
         <span class="text-white">Allowed IP's</span>
-        <input type="text" class="text-white" config="allowed_ips" placeholder="List of IP addresses that are allowed to request, sepperated by |">
-        <button type="button" class="btn blue dark center-item-col" onclick="alert('save')">
+        <input type="text" class="text-white" config="allowed_ips" placeholder="List of IP addresses that are allowed to request, sepperated by ,">
+        <button type="button" class="btn blue dark center-item-col" onclick="Edit.saveSetting('allowed_ips')">
           <div class="center-item-row"><i class="material-icons text-white">save</i></div>
         </button>
       </div>

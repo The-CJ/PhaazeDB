@@ -61,6 +61,9 @@ async def performOption(db_instance, option_request):
 	elif option_request.option == "config":
 		return await performConfig(db_instance, option_request)
 
+	elif option_request.option in ["keep_alive", "save_interval", "allowed_ips"]:
+		return await performSetConfig(db_instance, option_request)
+
 	else:
 		raise MissingOptionField(True)
 
@@ -173,4 +176,33 @@ async def performConfig(db_instance, option_request):
 		status="success",
 		msg="returned current configs"
 	)
+	db_instance.Server.Logger.info(f"Returned settings")
+	return db_instance.response(status=200, body=json.dumps(res))
+
+async def performSetConfig(db_instance, option_request):
+	new_value = None
+	if not option_request.value:
+		raise InvalidValue()
+
+	if option_request.option == "keep_alive":
+		db_instance.keep_alive = new_value = int(option_request.value)
+
+	if option_request.option == "save_interval":
+		db_instance.save_interval = new_value = int(option_request.value)
+
+	if option_request.option == "allowed_ips":
+		if type(option_request.value) == list: nl = new_value = option_request.value
+		elif type(option_request.value) == str: nl = new_value = option_request.value.split(",")
+		else: raise InvalidValue()
+
+		db_instance.Server.allowed_ips = nl
+
+	res = dict(
+		code=200,
+		changed=option_request.option,
+		new_value=new_value,
+		status="success",
+		msg="configuration updated"
+	)
+	db_instance.Server.Logger.info(f"Changed settings {option_request.option} => {new_value}")
 	return db_instance.response(status=200, body=json.dumps(res))

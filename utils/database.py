@@ -127,9 +127,8 @@ class Database(object):
 			return self.response(status=400, body=json.dumps(dict( code=400, status="rejected", msg="DB is marked as disabled")))
 
 		# is limited to certain ip's
-		if self.Server.config.get("allowed_ips", []) != []:
-			allowed_ips = self.Server.config.get("allowed_ips", [])
-			if request.remote not in allowed_ips:
+		if self.Server.allowed_ips != []:
+			if request.remote not in self.Server.allowed_ips:
 				return self.response(status=400, body=json.dumps(dict( code=400, status="rejected",	msg="ip not allowed" )))
 
 		# get process method, default is json
