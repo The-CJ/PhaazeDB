@@ -460,6 +460,14 @@ class Store {
     return this.execute(request);
   }
 
+  import() {
+    alert("TODO: import");
+  }
+
+  export() {
+    alert("TODO: export")
+  }
+
   execute(request) {
     if (request == null) { request = {}; }
     let r = {
