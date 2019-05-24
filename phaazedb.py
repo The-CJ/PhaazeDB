@@ -18,6 +18,7 @@ class PhaazeDBServer(object):
 		self.Database = None
 		self.Logger = None
 		self.config = None
+		self.config_path = None
 
 		self.token = None
 
@@ -45,18 +46,18 @@ class PhaazeDBServer(object):
 			self.Logger.addHandler(SH)
 
 	def loadConfig(self):
-		config_file = CliArgs.get("config", "config.json")
+		self.config_path = CliArgs.get("config", "config.json")
 		try:
-			configs = open(config_file, "rb").read()
+			configs = open(self.config_path, "rb").read()
 			c = json.loads(configs.decode("UTF-8"))
 		except FileNotFoundError:
-			self.Logger.critical(f"file '{config_file}' could not be found")
+			self.Logger.critical(f"file '{self.config_path}' could not be found")
 			c = dict()
 		except json.decoder.JSONDecodeError:
-			self.Logger.critical(f"file '{config_file}' could not be loaded as a config file")
+			self.Logger.critical(f"file '{self.config_path}' could not be loaded as a config file")
 			c = dict()
 		except:
-			self.Logger.critical(f"unexpected error while loading '{config_file}' as config file")
+			self.Logger.critical(f"unexpected error while loading '{self.config_path}' as config file")
 			c = dict()
 		finally:
 			self.config = c

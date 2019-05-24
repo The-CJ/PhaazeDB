@@ -205,4 +205,24 @@ async def performSetConfig(db_instance, option_request):
 		msg="configuration updated"
 	)
 	db_instance.Server.Logger.info(f"Changed settings {option_request.option} => {new_value}")
+
+	try:
+		configs = open(db_instance.Server.config_path, "rb").read()
+		c = json.loads(configs.decode("UTF-8"))
+
+		c['address'] = str(db_instance.Server.address)
+		c['port'] = int(db_instance.Server.port)
+		c['root'] = str(db_instance.container_root)
+		c['keep_alive'] = int(db_instance.keep_alive)
+		c['save_interval'] = int(db_instance.save_interval)
+		c['allowed_ips'] = list(db_instance.Server.allowed_ips)
+
+		json.dump( c, open(db_instance.Server.config_path, "w"), indent=4, sort_keys=True)
+		db_instance.Server.Logger.info(f"Successfull saved changed to config.file	")
+
+	except Exception as e:
+		res['error'] = str(e)
+		res['msg'] += ", but error while saving"
+		db_instance.Server.Logger.critical(f"Error while trying to save configs: {str(e)}")
+
 	return db_instance.response(status=200, body=json.dumps(res))
