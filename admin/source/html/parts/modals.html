@@ -154,7 +154,7 @@
   <div modal="export" class="modal">
     <div class="modal-content">
 
-      <form onsubmit="event.preventDefault();Store.export();" method="post">
+      <form onsubmit="Store.export();" method="post" action="/export">
         <div class="modal-header blue dark text-white">
           <div class="center-item-row">
             <h2>Export</h2>
@@ -168,7 +168,10 @@
         <div class="modal-body">
           <div class="center-item-row">
             <span>Container name:</span>
+            <input type="hidden" name="token" value="">
+            <input type="hidden" name="action" value="export">
             <input type="text" name="container" placeholder="Container name, or empty for all">
+            <input type="hidden" name="recursive" value="1">
           </div>
         </div>
 

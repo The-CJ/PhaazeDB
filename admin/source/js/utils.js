@@ -465,6 +465,8 @@ class Store {
   }
 
   export() {
+    _('[modal=export] [name=token]').value(_('#db_token').value())
+    return;
     let r = {
       "action": "export",
       "container": _('[modal=export] [name=container]').value(),
