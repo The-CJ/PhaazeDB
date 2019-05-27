@@ -1,5 +1,5 @@
 import json, os
-from utils.errors import CantAccessContainer
+from utils.errors import CantAccessContainer, SysLoadError, ContainerNotFound
 from functions.show import getContainer
 
 from aiohttp.web import StreamResponse
@@ -7,9 +7,10 @@ from aiohttp.web import StreamResponse
 class ExportRequest(object):
 	""" Contains informations for a valid export request,
 		does not mean the container exists """
-	def __init__(self, db_req):
+	def __init__(self, db_req, original):
 		self.container:str = None
 		self.recursive:bool = False
+		self.request:"Request" = original
 
 		self.getRecursive(db_req)
 		self.getContainter(db_req)
@@ -34,10 +35,10 @@ async def storeExport(self, request):
 
 	# prepare request for a valid search
 	try:
-		store_export_request = ExportRequest(request.db_request)
+		store_export_request = ExportRequest(request.db_request, request)
 		return await performStoreExport(self, store_export_request)
 
-	except (CantAccessContainer) as e:
+	except (CantAccessContainer, SysLoadError, ContainerNotFound) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -80,21 +81,29 @@ def splitTree(root, before=""):
 async def performExportDataGather(db_instance, store_export_request, export_list):
 	return_file = StreamResponse()
 	return_file.content_type = "application/octet-stream"
-	return_file.headers["CONTENT-DISPOSITION"] = f"attachment; filename={store_export_request.container}.pdb"
+	return_file.headers["CONTENT-DISPOSITION"] = f"attachment; filename={store_export_request.container if store_export_request.container else "Database"}.pdb"
+	return_file.set_status(200, reason="OK")
+	await return_file.prepare(store_export_request.request)
 
 	for container in export_list:
 		container = await db_instance.load(container)
 
+		await return_file.write( bytes("CONTAINER:"+json.dumps(container.name)+";\n", "UTF-8") )
 
+		if container.status == "sys_error": raise SysLoadError(store_export_request.container)
+		elif container.status == "not_found": raise ContainerNotFound(store_export_request.container)
+		elif container.status == "success":	container = container.content
 
-		print(container.content)
+		await return_file.write( bytes("DEFAULT:"+json.dumps(container.get("default", {}))+";\n", "UTF-8") )
 
+		for entry_id in container["data"]:
+			entry = container['data'][entry_id]
+			entry['id'] = entry_id
 
+			await return_file.write( bytes("ENTRY:"+json.dumps(entry)+";\n", "UTF-8") )
 
-
-
-
-
+	await return_file.write_eof()
+	return return_file
 
 
 
