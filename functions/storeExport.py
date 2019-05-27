@@ -1,4 +1,6 @@
-import json
+import json, os
+from utils.errors import CantAccessContainer
+from functions.show import getContainer
 
 class ExportRequest(object):
 	""" Contains informations for a valid export request,
@@ -33,7 +35,7 @@ async def storeExport(self, request):
 		store_export_request = ExportRequest(request.db_request)
 		return await performStoreExport(self, store_export_request)
 
-	except () as e:
+	except (CantAccessContainer) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -44,5 +46,34 @@ async def storeExport(self, request):
 	except Exception as ex:
 		return await self.criticalError(ex)
 
-async def performStoreExport(self, store_export_request):
-	pass
+async def performStoreExport(db_instance, store_export_request):
+	check_location = f"{db_instance.container_root}{store_export_request.container}"
+
+	root = {'supercontainer': {},'container': [], 'unusable': []}
+	tree = await getContainer(root, check_location, recursive=store_export_request.recursive)
+
+	print(tree)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
