@@ -492,8 +492,6 @@ class Store {
     })
   }
 
-
-
 }
 Store = new Store();
 

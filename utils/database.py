@@ -27,7 +27,8 @@ class Database(object):
 	from functions.show import show as show
 	from functions.describe import describe
 	from functions.default import default
-	# TODO: add functions.config : to edit configs on the fly without restart
+	from functions.storeImport import storeImport
+	from functions.storeExport import storeExport
 
 	# website
 	from admin.interface import webInterface as webInterface
@@ -224,6 +225,12 @@ class Database(object):
 
 		elif action == "option":
 			return await self.option(request)
+
+		elif action == "import":
+			return await self.storeImport(request)
+
+		elif action == "export":
+			return await self.storeExport(request)
 
 		else:
 			return await self.unknownFunction()
