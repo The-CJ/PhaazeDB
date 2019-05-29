@@ -13,7 +13,7 @@ async def store(self, container_name, container_content, create=False, ignore_sa
 
 	container.actions_since_save += 1
 
-	if not container.actions_since_save > self.save_interval and not ignore_save_limit:
+	if (not container.actions_since_save > self.save_interval and not ignore_save_limit) and not create:
 		# continue without saving
 		return True
 
