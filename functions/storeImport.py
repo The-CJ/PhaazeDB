@@ -1,14 +1,21 @@
 import json
+import sys
 
 async def storeImport(self, request):
-	""" Used to update entry fields in a existing container """
+	"""
+		Used to import data from file. file extention should be .phzdb
+		but can be every type in therory
+	"""
+	content = await request.post()
+	db_file = content.get("phzdb", None)
+	print(db_file)
 
 	# prepare request for a valid search
 	try:
-		update_request = UpdateRequest(request.db_request)
-		return await performUpdate(self, update_request)
+		# update_request = UpdateRequest(request.db_request)
+		return await performImport(self, None)
 
-	except (MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, SysStoreError, ContainerNotFound, InvalidUpdateExec) as e:
+	except () as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -18,3 +25,6 @@ async def storeImport(self, request):
 
 	except Exception as ex:
 		return await self.criticalError(ex)
+
+async def performImport(db_instance, request):
+	pass

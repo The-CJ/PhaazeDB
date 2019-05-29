@@ -461,30 +461,12 @@ class Store {
   }
 
   import() {
-    alert("TODO: import");
+    _('[modal=import] [name=token]').value(_('#db_token').value())
   }
 
   export() {
     _('[modal=export] [name=token]').value(_('#db_token').value())
     return;
-    let r = {
-      "action": "export",
-      "container": _('[modal=export] [name=container]').value(),
-      "recursive": true,
-      "token": _('#db_token').value(),
-    };
-    _.post("/", JSON.stringify(r))
-    .done(function (data) {
-      return Display.message( {content:data.msg, color:Display.color_success} );
-    })
-    .fail(function (data) {
-      if (data.msg == "unauthorised") {
-        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
-      }
-      else {
-        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
-      }
-    })
   }
 
   execute(request) {
