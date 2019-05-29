@@ -2,7 +2,7 @@ import json, os
 from utils.errors import CantAccessContainer, SysLoadError, ContainerNotFound
 from functions.show import getContainer
 
-from aiohttp.web import StreamResponse
+from aiohttp.web import StreamResponse, Request
 
 class ExportRequest(object):
 	""" Contains informations for a valid export request,
@@ -10,7 +10,7 @@ class ExportRequest(object):
 	def __init__(self, db_req, original):
 		self.container:str = None
 		self.recursive:bool = False
-		self.request:"Request" = original
+		self.request:Request = original
 
 		self.getRecursive(db_req)
 		self.getContainter(db_req)
@@ -66,7 +66,7 @@ async def performStoreExport(db_instance, store_export_request):
 	root = {'supercontainer': {},'container': [], 'unusable': []}
 	tree = await getContainer(root, check_location, recursive=store_export_request.recursive)
 
-	container_list = splitTree(tree)
+	container_list = splitTree(tree, before=f"{store_export_request.container}/")
 
 	return await performExportDataGather(db_instance, store_export_request, container_list)
 
