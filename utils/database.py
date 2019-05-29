@@ -122,6 +122,9 @@ class Database(object):
 
 	@web.middleware
 	async def mainHandler(self, request, handler):
+		if request.match_info.get("x", "") == "import":
+			# import files can be giants
+			request._client_max_size = -1
 
 		# db is about to shutdown
 		if not self.active:

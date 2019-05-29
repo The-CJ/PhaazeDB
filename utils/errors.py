@@ -70,6 +70,14 @@ class MissingUpdateContent(Exception):
 		else:
 			return "missing 'content' field as valid json-object or exec() string"
 
+class MissingImportFile(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg):
+		return "missing content file as key 'phzdb' in post"
+
 class ContainerAlreadyExists(Exception):
 	def __init__(self, *arg):
 		self.container = arg[0] if arg else None
