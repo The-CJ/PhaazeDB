@@ -82,7 +82,7 @@ async def performExportDataGather(db_instance, store_export_request, export_list
 	return_file = StreamResponse()
 	return_file.content_type = "application/octet-stream"
 	name = store_export_request.container if store_export_request.container else "Database"
-	return_file.headers["CONTENT-DISPOSITION"] = f"attachment; filename={name}.pdb"
+	return_file.headers["CONTENT-DISPOSITION"] = f"attachment; filename={name}.phzdb"
 	return_file.set_status(200, reason="OK")
 	await return_file.prepare(store_export_request.request)
 
