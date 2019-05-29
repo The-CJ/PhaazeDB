@@ -133,7 +133,7 @@ class Database(object):
 				return self.response(status=400, body=json.dumps(dict( code=400, status="rejected",	msg="ip not allowed" )))
 
 		# get process method, default is json
-		request.db_method = request.headers.get("X-DB-Method", "json").lower()
+		request.db_method = await self.getMethod(request)
 
 		try:
 			response = await handler(request)
@@ -149,7 +149,19 @@ class Database(object):
 			self.Server.Logger.error(str(e))
 			return self.response(status=500)
 
+	async def getMethod(self, request):
+		# change process method, default is json
+		# method type must be in a non body part
+		method = request.headers.get("X-DB-Method", "").lower()
+		if method: return method
+
+		method = request.query.get("X-DB-Method", "").lower()
+		if method: return method
+
+		return 'json'
+
 	async def getContent(self, request):
+		print(request.db_method)
 		# get usable content from Method
 		if request.db_method == "json":
 			return await self.jsonContent(request)
