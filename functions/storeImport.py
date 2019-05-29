@@ -15,6 +15,11 @@ class ImportRequest(object):
 		self.overwrite_entrys = False
 		self.ignore_errors = False
 
+		# for processing
+		self.return_code = 102
+		self.current_container = None
+		self.errors = []
+
 		self.getFile(db_req)
 		self.getOverrides(db_req)
 		self.getIgnore(db_req)
@@ -22,7 +27,6 @@ class ImportRequest(object):
 	def getFile(self, db_req):
 		self.fileObject = db_req.get("phzdb", None)
 		if not self.fileObject: raise MissingImportFile()
-		print( type(self.fileObject) )
 
 	def getOverrides(self, db_req):
 		self.overwrite_container = db_req.get("overwrite_container", None)
@@ -62,9 +66,8 @@ async def storeImport(self, request):
 	"""
 	# prepare request for a valid search
 	try:
-		import_import_request = ImportRequest(request.db_request)
-		await import_import_request.extractPost()
-		return await performImport(self, import_import_request)
+		store_import_request = ImportRequest(request.db_request)
+		return await performImport(self, store_import_request)
 
 	except (MissingImportFile) as e:
 		res = dict(
@@ -77,6 +80,17 @@ async def storeImport(self, request):
 	except Exception as ex:
 		return await self.criticalError(ex)
 
-async def performImport(db_instance, import_import_request):
-	for line in import_import_request.fileObject.file:
-		await import_import_request.processLine(line)
+async def performImport(db_instance, store_import_request):
+	for line in store_import_request.fileObject.file:
+		await store_import_request.processLine(line)
+
+	res = dict(
+		code=store_import_request.return_code,
+		status="imported",
+		errors=store_import_request.errors,
+		overwrite_container=store_import_request.overwrite_container,
+		overwrite_entrys=store_import_request.overwrite_entrys
+	)
+
+	db_instance.Server.Logger.info(f"todo")
+	return db_instance.response(status=store_import_request.return_code, body=json.dumps(res))
