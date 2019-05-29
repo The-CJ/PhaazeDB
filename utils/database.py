@@ -44,7 +44,7 @@ class Database(object):
 	from utils.store import store
 
 	# content load method load-parser
-	from utils.loader import jsonContent
+	from utils.loader import jsonContent, postContent
 
 	def setRoot(self, root):
 		if root == None:
@@ -161,10 +161,12 @@ class Database(object):
 		return 'json'
 
 	async def getContent(self, request):
-		print(request.db_method)
 		# get usable content from Method
 		if request.db_method == "json":
 			return await self.jsonContent(request)
+
+		if request.db_method == "post":
+			return await self.postContent(request)
 
 		else:
 			return None

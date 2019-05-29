@@ -104,18 +104,5 @@ async def performExportDataGather(db_instance, store_export_request, export_list
 			await return_file.write( bytes("ENTRY:"+json.dumps(entry)+";\n", "UTF-8") )
 
 	await return_file.write_eof()
+	db_instance.Server.Logger.info(f"exported database: path={store_export_request.container}, recursive={str(store_export_request.recursive)}")
 	return return_file
-
-
-
-
-
-
-
-
-
-
-
-
-
-#

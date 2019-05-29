@@ -25,3 +25,14 @@ async def jsonContent(self, request):
 	except Exception as e:
 		db_content.error_msg = str(e)
 		return db_content
+
+async def postContent(self, request):
+	db_content = DBContent()
+
+	try:
+		db_content.setContent(await request.post())
+		db_content.success = True
+		return db_content
+	except Exception as e:
+		db_content.error_msg = str(e)
+		return db_content
