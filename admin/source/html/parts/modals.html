@@ -151,6 +151,129 @@
     </div>
   </div>
 
+  <div modal="export" class="modal">
+    <div class="modal-content">
+
+      <form onsubmit="Store.export();" method="post" action="/export?X-DB-Method=post" target="_blank">
+        <div class="modal-header blue dark text-white">
+          <div class="center-item-row">
+            <h2>Export</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
+              <i class="material-icons text-white">close</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>Container name:</span>
+            <input type="hidden" name="token" value="">
+            <input type="hidden" name="action" value="export">
+            <input type="text" name="container" placeholder="Container name, or empty for all">
+            <input type="hidden" name="recursive" value="1">
+          </div>
+        </div>
+
+        <div class="modal-footer blue dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block blue text-white">Download Database</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div modal="import" class="modal">
+    <div class="modal-content">
+
+      <form onsubmit="Store.import();" method="post", target="_blank" action="/import?X-DB-Method=post" enctype="multipart/form-data">
+        <div class="modal-header blue text-white">
+          <div class="center-item-row">
+            <h2>Import</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
+              <i class="material-icons text-white">close</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>Database file:</span>
+            <input type="hidden" name="token" value="">
+            <input type="hidden" name="action" value="import">
+            <input type="file" name="phzdb">
+          </div>
+          <hr>
+          <div class="center-item-row">
+            <div class="col"></div>
+            <label>
+              <input type="checkbox" name="overwrite_container" value="1">Overwrite Container</input>
+            </label>
+            <div class="col"></div>
+            <label>
+              <input type="checkbox" name="overwrite_entrys" value="1">Overwrite Entrys</input>
+            </label>
+            <div class="col"></div>
+            <label>
+              <input type="checkbox" name="ignore_errors" value="1">Ignore Errors</input>
+            </label>
+            <div class="col"></div>
+          </div>
+        </div>
+
+        <div class="modal-footer blue">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block blue dark text-white">Upload Database</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div modal="password" class="modal">
+    <div class="modal-content">
+
+      <form onsubmit="event.preventDefault();Option.optionPassword();" method="post">
+        <div class="modal-header green dark text-white">
+          <div class="center-item-row">
+            <h2>DB Token</h2>
+            <span style="width: 100%"></span>
+            <button type="button" class="btn btn-hidden" onclick="Display.closeModal()">
+              <i class="material-icons text-white">close</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="center-item-row">
+            <span>New DB Token:</span>
+            <input type="text" name="token" placeholder="New DB Token (after setting this, no old token will work)">
+          </div>
+        </div>
+
+        <div class="modal-footer green dark">
+          <div class="center-item-col" style="width: 100%">
+            <button type="submit" class="btn btn-block green text-white">Submit new token</button>
+          </div>
+        </div>
+
+        <div class="message-space"></div>
+
+      </form>
+
+    </div>
+  </div>
+
 
   <!-- // -->
 
@@ -364,5 +487,80 @@
   </div>
 
   <div modal-close class="modal-closer" onclick="Display.closeModal()"></div>
+
+</div>
+
+<div id="overlay" class="grey dark center-item-col text-center">
+
+  <div class="center-item-row">
+    <div class="col"></div>
+    <h1 class="text-white">DB Settings</h1>
+    <div class="col"></div>
+    <button type="button" class="btn red" onclick="Edit.stopSettings()">
+      <div class="center-item-row"><i class="material-icons text-white">close</i></div>
+    </button>
+  </div>
+
+  <hr>
+
+  <div class="row text-white">
+    <div class="col center-item-col full-width-item">
+      <h3>Operations</h3>
+      <button type="button" class="btn btn-block orange text-black" onclick="Display.showModal('store')">Manual Store container</button>
+      <button type="button" class="btn btn-block blue dark text-white" onclick="Display.showModal('export')">Export Database</button>
+      <button type="button" class="btn btn-block blue text-white" onclick="Display.showModal('import')">Import Database</button>
+      <button type="button" class="btn btn-block green dark text-white" onclick="Display.showModal('password')">Set new DB-Passtoken</button>
+      <hr>
+      <button type="button" class="btn btn-block red text-white" onclick="Option.optionShutdown()">Shutdown</button>
+    </div>
+
+    <div class="col center-item-col full-width-item">
+      <h3>Config</h3>
+      <div class="center-item-row setting-field">
+        <span class="text-white">Address</span>
+        <input type="text" class="text-white" config="address" placeholder="Database addess, mostly 0.0.0.0" readonly>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Port</span>
+        <input type="text" class="text-white" config="port" placeholder="Database port" readonly>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Database dir root</span>
+        <input type="text" class="text-white" config="root" placeholder="Database root in filesystem" readonly>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Keep in RAM</span>
+        <input type="text" class="text-white" config="keep_alive" placeholder="Time a container is hold in ram, for faster results (in sec)">
+        <button type="button" class="btn blue dark center-item-col" onclick="Edit.saveSetting('keep_alive')">
+          <div class="center-item-row"><i class="material-icons text-white">save</i></div>
+        </button>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Save interval</span>
+        <input type="text" class="text-white" config="save_interval" placeholder="Save container to disk all X operations, increase result speed">
+        <button type="button" class="btn blue dark center-item-col" onclick="Edit.saveSetting('save_interval')">
+          <div class="center-item-row"><i class="material-icons text-white">save</i></div>
+        </button>
+      </div>
+
+      <div class="center-item-row setting-field">
+        <span class="text-white">Allowed IP's</span>
+        <input type="text" class="text-white" config="allowed_ips" placeholder="List of IP addresses that are allowed to request, sepperated by ,">
+        <button type="button" class="btn blue dark center-item-col" onclick="Edit.saveSetting('allowed_ips')">
+          <div class="center-item-row"><i class="material-icons text-white">save</i></div>
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-block blue text-white" onclick="Option.optionLogging()">Toggle logging</button>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="message-space"></div>
 
 </div>

@@ -24,6 +24,17 @@ class Option {
     if (confirm("Shut down PhaazeDB?")) { this.execute("shutdown"); }
   }
 
+  optionPassword() {
+    let token = _("[modal=password] [name=token]").value();
+    if (isEmpty(token)) {
+      alert("You can not leave the token empty");
+      return;
+    }
+
+    this.execute("password", token);
+
+  }
+
   execute(name, value) {
     if (name == null) { name = "" }
     if (value == null) { value = "" }

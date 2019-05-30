@@ -18,8 +18,11 @@ class PhaazeDBServer(object):
 		self.Database = None
 		self.Logger = None
 		self.config = None
+		self.config_path = None
 
-		self.adress = "0.0.0.0"
+		self.token = None
+
+		self.address = "0.0.0.0"
 		self.port = 2000
 		self.action_logging = False
 		self.allowed_ips = []
@@ -43,32 +46,46 @@ class PhaazeDBServer(object):
 			self.Logger.addHandler(SH)
 
 	def loadConfig(self):
-		config_file = CliArgs.get("config", "config.json")
+		self.config_path = CliArgs.get("config", "config.json")
 		try:
-			configs = open(config_file, "rb").read()
+			configs = open(self.config_path, "rb").read()
 			c = json.loads(configs.decode("UTF-8"))
 		except FileNotFoundError:
-			self.Logger.info(f"file '{config_file}' could not be found")
+			self.Logger.critical(f"file '{self.config_path}' could not be found")
 			c = dict()
 		except json.decoder.JSONDecodeError:
-			self.Logger.info(f"file '{config_file}' could not be loaded as a config file")
+			self.Logger.critical(f"file '{self.config_path}' could not be loaded as a config file")
 			c = dict()
 		except:
-			self.Logger.info(f"unexpected error while loading '{config_file}' as config file")
+			self.Logger.critical(f"unexpected error while loading '{self.config_path}' as config file")
 			c = dict()
 		finally:
 			self.config = c
 
-			self.adress = c.get("adress", "0.0.0.0")
+			self.address = c.get("address", "0.0.0.0")
 			self.port = c.get("port", 2000)
 			self.action_logging = c.get("logging", False)
 			self.allowed_ips = c.get("allowed_ips", [])
+
+	def loadToken(self):
+		# token is saved in database root
+		try:
+			token_file_path = f"{self.Database.container_root}DBTOKEN"
+			self.token = open(token_file_path, "r").read()
+			self.Logger.info("Loaded db token")
+
+		except Exception as e:
+			self.Logger.critical(f"critical error while loading database token: {str(e)}")
+			self.Logger.critical(f"running without token, set on as soon as possible")
+			self.Logger.critical("make DB call: {action:'option', option:'password', value:'[your_new_password]'}")
+			self.token = None
 
 	def loadDatabase(self):
 		self.Database = Database(self)
 		self.Database.setRoot(self.config.get("root", None))
 		self.Database.setAliveTime(self.config.get("keep_alive", None))
 		self.Database.setSaveInterval(self.config.get("save_interval", None))
+		self.loadToken()
 
 	def loadServer(self):
 		self.Server = web.Application()
@@ -85,7 +102,7 @@ class PhaazeDBServer(object):
 		if self.allowed_ips: self.Logger.info(f"Allowed IP's: {self.allowed_ips}")
 		self.Logger.info(f"Action Logging: {self.action_logging}")
 
-		web.run_app(self.Server, port=self.port, print=False)
+		web.run_app(self.Server, host=self.address, port=self.port, print=False)
 
 	async def stop(self):
 		self.Logger.info(f"Shutdown started...")

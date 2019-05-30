@@ -1,6 +1,3 @@
-// global vars
-var last_selected_container = "";
-
 // global functions
 function isEmpty(o) {
   // null
@@ -46,6 +43,7 @@ class DynamicURL {
     this.values['offset'] = this.get('offset');
     this.values['modal'] = this.get('modal');
     this.values['fields'] = this.get('fields');
+    this.values['settings'] = this.get('settings');
   }
 
   set(key, value, update=true) {
@@ -92,6 +90,11 @@ class DynamicURL {
     // reopen modals
     if ( !isEmpty(this.values.modal) ) {
       Display.showModal(this.values.modal);
+    }
+
+    // reopen settings
+    if ( !isEmpty(this.values.settings) ) {
+      Edit.startSettings();
     }
 
     // set last viewed container
@@ -350,6 +353,27 @@ class Edit {
     return Update.execute(request);
   }
 
+  saveSetting(option) {
+    let r = {
+      "action": "option",
+      "option": option,
+      "token": _('#db_token').value(),
+    };
+    r["value"] = _("[config="+option+"]").value();
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      return Display.message( {content:data.msg + ": " + data.changed + " = " + data.new_value, color:Display.color_success} );
+    })
+    .fail(function (data) {
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
+      }
+    })
+  }
+
   changeCol(type) {
     if (type == null) { type = "string" }
     let field = _('#result_space .selected');
@@ -379,6 +403,7 @@ class Edit {
 
   selectCol(entry_col) {
     let c = _(entry_col);
+    if (c.result[0].getAttribute("field-type") == "id") {return;}
     _('#result_space .selected').removeClass("selected");
     c.addClass("selected");
     _('#col_edit_menu').collapse('show');
@@ -387,6 +412,36 @@ class Edit {
   stopEdit() {
     _('#result_space .selected').removeClass("selected");
     _('#col_edit_menu').collapse('hide');
+  }
+
+  startSettings() {
+    DynamicURL.set("settings", "1");
+    _("#overlay").addClass("show");
+    let r = {
+      "action": "option",
+      "option": "config",
+      "token": _('#db_token').value(),
+    };
+    _.post("/", JSON.stringify(r))
+    .done(function (data) {
+      for (var option in data.config) {
+        let field = _("[config="+option+"]");
+        field.value(data.config[option]);
+      }
+    })
+    .fail(function (data) {
+      if (data.msg == "unauthorised") {
+        return Display.message( {content:"Unauthorised, please check token", color:Display.color_warn} );
+      }
+      else {
+        return Display.message( {content:data.msg ? data.msg : "unknown server error", color:Display.color_fail} );
+      }
+    })
+  }
+
+  stopSettings() {
+    DynamicURL.set("settings", null);
+    _("#overlay").removeClass("show");
   }
 
 }
@@ -403,6 +458,15 @@ class Store {
     request["container"] = _("[modal='store'] [name=container]").value();
 
     return this.execute(request);
+  }
+
+  import() {
+    _('[modal=import] [name=token]').value(_('#db_token').value())
+  }
+
+  export() {
+    _('[modal=export] [name=token]').value(_('#db_token').value())
+    return;
   }
 
   execute(request) {
@@ -428,8 +492,6 @@ class Store {
       }
     })
   }
-
-
 
 }
 Store = new Store();

@@ -52,7 +52,7 @@ async def performShow(db_instance, show_request):
 		res = dict(
 			code=400,
 			status="error",
-			msg=f"no tree path found at '{check_location}'",
+			msg=f"no tree path found at '{show_request.path}'",
 		)
 		return db_instance.response(status=400, body=json.dumps(res))
 
@@ -62,13 +62,13 @@ async def performShow(db_instance, show_request):
 	res = dict(
 		code=200,
 		status="showed",
-		path=check_location,
+		path=show_request.path,
 		recursive=show_request.recursive,
 		tree=tree
 	)
 
 	if db_instance.Server.action_logging:
-		db_instance.Server.Logger.info(f"showed tree: path={check_location}, recursive={str(show_request.recursive)}")
+		db_instance.Server.Logger.info(f"showed tree: path={show_request.path}, recursive={str(show_request.recursive)}")
 	return db_instance.response(status=200, body=json.dumps(res))
 
 async def getContainer(tree, folder_path, recursive=False):

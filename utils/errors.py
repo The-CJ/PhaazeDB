@@ -70,6 +70,14 @@ class MissingUpdateContent(Exception):
 		else:
 			return "missing 'content' field as valid json-object or exec() string"
 
+class MissingImportFile(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg):
+		return "missing content file as key 'phzdb' in post"
+
 class ContainerAlreadyExists(Exception):
 	def __init__(self, *arg):
 		self.container = arg[0] if arg else None
@@ -91,6 +99,13 @@ class InvalidLimit(Exception):
 		self.status = "error"
 
 	def msg(self, *arg): return "invalid value for 'limit', number must be > 0"
+
+class InvalidValue(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return "invalid value for field 'value'"
 
 class InvalidContent(Exception):
 	def __init__(self, *arg):
@@ -161,4 +176,25 @@ class ContainerBroken(Exception):
 		self.status = "critical_error"
 
 	def msg(self, *arg): return f"DB container file: '{self.container}' seems broken"
+
+class ImportNoActiveContainer(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return f"import cant continue, no active container set"
+
+class ImportEntryExists(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return f"import cant continue, a entry already exists"
+
+class InvalidImportEntry(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return f"broken entry for import"
 

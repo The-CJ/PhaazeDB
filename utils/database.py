@@ -1,4 +1,5 @@
 import json, math
+from utils.security import password
 
 from aiohttp import web
 
@@ -26,7 +27,8 @@ class Database(object):
 	from functions.show import show as show
 	from functions.describe import describe
 	from functions.default import default
-	# TODO: add functions.config : to edit configs on the fly without restart
+	from functions.storeImport import storeImport
+	from functions.storeExport import storeExport
 
 	# website
 	from admin.interface import webInterface as webInterface
@@ -42,7 +44,7 @@ class Database(object):
 	from utils.store import store
 
 	# content load method load-parser
-	from utils.loader import jsonContent
+	from utils.loader import jsonContent, postContent
 
 	def setRoot(self, root):
 		if root == None:
@@ -120,19 +122,21 @@ class Database(object):
 
 	@web.middleware
 	async def mainHandler(self, request, handler):
+		if request.match_info.get("x", "") == "import":
+			# import files can be giants
+			request._client_max_size = -1
 
-		# db is about to shutdown
+		# db is about to shutdown or its currently importing
 		if not self.active:
 			return self.response(status=400, body=json.dumps(dict( code=400, status="rejected", msg="DB is marked as disabled")))
 
 		# is limited to certain ip's
-		if self.Server.config.get("allowed_ips", []) != []:
-			allowed_ips = self.Server.config.get("allowed_ips", [])
-			if request.remote not in allowed_ips:
+		if self.Server.allowed_ips != []:
+			if request.remote not in self.Server.allowed_ips:
 				return self.response(status=400, body=json.dumps(dict( code=400, status="rejected",	msg="ip not allowed" )))
 
 		# get process method, default is json
-		request.db_method = request.headers.get("X-DB-Method", "json").lower()
+		request.db_method = await self.getMethod(request)
 
 		try:
 			response = await handler(request)
@@ -148,17 +152,37 @@ class Database(object):
 			self.Server.Logger.error(str(e))
 			return self.response(status=500)
 
+	async def getMethod(self, request):
+		# change process method, default is json
+		# method type must be in a non body part
+		method = request.headers.get("X-DB-Method", "").lower()
+		if method: return method
+
+		method = request.query.get("X-DB-Method", "").lower()
+		if method: return method
+
+		return 'json'
+
 	async def getContent(self, request):
 		# get usable content from Method
 		if request.db_method == "json":
 			return await self.jsonContent(request)
+
+		if request.db_method == "post":
+			return await self.postContent(request)
 
 		else:
 			return None
 
 	async def authorise(self, request):
 		token = request.db_request.get("token", None)
-		if token != self.Server.config.get('auth_token', None):
+		if token:
+			token = password(token)
+
+		db_token = self.Server.token
+		if not db_token: return True
+
+		if token != db_token:
 			return False
 		else:
 			return True
@@ -218,6 +242,12 @@ class Database(object):
 
 		elif action == "option":
 			return await self.option(request)
+
+		elif action == "import":
+			return await self.storeImport(request)
+
+		elif action == "export":
+			return await self.storeExport(request)
 
 		else:
 			return await self.unknownFunction()

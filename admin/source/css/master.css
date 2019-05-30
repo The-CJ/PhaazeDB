@@ -66,6 +66,18 @@ footer {
 	position: fixed;
 	z-index: 50000;
 }
+#system_message *{
+	color: inherit;
+}
+#system_message {
+	padding: .5em;
+	white-space: normal!important;
+	max-width: 20vw;
+	display: none
+}
+#system_message.show {
+	display: flex;
+}
 
 /* menus */
 #main_menu {
@@ -83,4 +95,15 @@ footer {
 }
 #col_edit_menu button {
 	margin: 2px;
+}
+
+#overlay {
+	z-index: 900000;
+	position: fixed;
+	height: 100vh;
+	width: 100vw;
+	display: none;
+}
+#overlay.show {
+	display: block;
 }

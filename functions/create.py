@@ -72,4 +72,4 @@ async def makeNewContainer(db_instance, container_name):
 
 	created = await db_instance.store(container_name, new_container, create=True)
 
-	return created, new_container
+	return created
