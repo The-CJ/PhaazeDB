@@ -1,5 +1,6 @@
 import json, asyncio
-from utils.errors import MissingImportFile
+from utils.errors import MissingImportFile, ContainerAlreadyExists, SysCreateError
+from functions.create import makeNewContainer
 
 class ImportRequest(object):
 	"""
@@ -8,15 +9,15 @@ class ImportRequest(object):
 		also it's a bridge class for all incomming data object,
 		to be proccessed and inserted into the right db
 	"""
-	def __init__(self, db_req):
+	def __init__(self, db_req, db_instance):
 		self.fileObject:None = None
+		self.db_link:db_instance = db_instance
 
 		self.overwrite_container = False
 		self.overwrite_entrys = False
 		self.ignore_errors = False
 
 		# for processing
-		self.return_code = 102
 		self.current_container = None
 		self.errors = []
 
@@ -44,32 +45,49 @@ class ImportRequest(object):
 
 	# following are "bride" functions
 	async def processLine(self, line):
-		if line.startswith(b"ENTRY"): await self.proccessEntry(line)
-		elif line.startswith(b"DEFAULT"): await self.proccessDefault(line)
-		elif line.startswith(b"CONTAINER"): await self.proccessContainer(line)
-		else:
-			pass
+		try:
+			if line.startswith(b"ENTRY:"): await self.proccessEntry(line)
+			elif line.startswith(b"DEFAULT:"): await self.proccessDefault(line)
+			elif line.startswith(b"CONTAINER:"): await self.proccessContainer(line)
+			else: pass
+		except json.decoder.JSONDecodeError as e:
+			print(e)
 
 	async def proccessEntry(self, line):
+		return
 		print(line)
 
 	async def proccessDefault(self, line):
+		return
 		print(line)
 
 	async def proccessContainer(self, line):
-		print(line)
+		container = await self.db_link.load(json.loads(line[10:][:-2]))
+		if container.status != "not_found" and not self.overwrite_container:
+			if self.ignore_errors:
+				self.errors.append(f"container already exists: {container.name}")
+				return False
+			else:
+				raise ContainerAlreadyExists(container.name)
+
+		created = await makeNewContainer(self.db_link, container.name)
+		if not created:
+			self.db_link.Server.Logger.critical(f"create container '{container.name}' failed")
+			raise SysCreateError(container.name)
+
+		print(created)
 
 async def storeImport(self, request):
 	"""
 		Used to import data from file. file extention should be .phzdb
 		but can be every type in therory
 	"""
-	# prepare request for a valid search
+	# prepare request for a valid import
 	try:
-		store_import_request = ImportRequest(request.db_request)
+		store_import_request = ImportRequest(request.db_request, self)
 		return await performImport(self, store_import_request)
 
-	except (MissingImportFile) as e:
+	except (MissingImportFile, ContainerAlreadyExists) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -85,12 +103,13 @@ async def performImport(db_instance, store_import_request):
 		await store_import_request.processLine(line)
 
 	res = dict(
-		code=store_import_request.return_code,
+		code=200,
 		status="imported",
 		errors=store_import_request.errors,
+		ignore_errors=store_import_request.ignore_errors,
 		overwrite_container=store_import_request.overwrite_container,
 		overwrite_entrys=store_import_request.overwrite_entrys
 	)
 
 	db_instance.Server.Logger.info(f"todo")
-	return db_instance.response(status=store_import_request.return_code, body=json.dumps(res))
+	return db_instance.response(status=200, body=json.dumps(res))
