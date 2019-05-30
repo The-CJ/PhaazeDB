@@ -1,5 +1,5 @@
 import json, asyncio
-from utils.errors import MissingImportFile, ContainerAlreadyExists, SysCreateError
+from utils.errors import MissingImportFile, ContainerAlreadyExists, SysCreateError, SysLoadError, ContainerNotFound, ImportNoActiveContainer
 from functions.create import makeNewContainer
 
 class ImportRequest(object):
@@ -58,14 +58,30 @@ class ImportRequest(object):
 		print(line)
 
 	async def proccessDefault(self, line):
-		return
-		print(line)
+		if not self.current_container:
+			if self.ignore_errors:
+				self.errors.append(f"can't set default, not active container -> skipping")
+				return False
+			else:
+				raise ImportNoActiveContainer()
+
+		default = json.loads(line[8:][:-2])
+		container = await self.db_link.load(self.current_container)
+
+		if container.status == "sys_error": raise SysLoadError(self.current_container)
+		elif container.status == "not_found": raise ContainerNotFound(self.current_container)
+		elif container.status == "success":	container = container.content
+
+		container['default'] = default
+
+		return True
 
 	async def proccessContainer(self, line):
 		container = await self.db_link.load(json.loads(line[10:][:-2]))
 		if container.status != "not_found" and not self.overwrite_container:
 			if self.ignore_errors:
-				self.errors.append(f"container already exists: {container.name}")
+				self.errors.append(f"container already exists: '{container.name}' -> set active anyway")
+				self.current_container = container.name
 				return False
 			else:
 				raise ContainerAlreadyExists(container.name)
@@ -75,7 +91,8 @@ class ImportRequest(object):
 			self.db_link.Server.Logger.critical(f"create container '{container.name}' failed")
 			raise SysCreateError(container.name)
 
-		print(created)
+		self.current_container = container.name
+		return True
 
 async def storeImport(self, request):
 	"""
@@ -87,7 +104,7 @@ async def storeImport(self, request):
 		store_import_request = ImportRequest(request.db_request, self)
 		return await performImport(self, store_import_request)
 
-	except (MissingImportFile, ContainerAlreadyExists) as e:
+	except (MissingImportFile, ContainerAlreadyExists, SysCreateError, SysLoadError, ContainerNotFound, ImportNoActiveContainer) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -101,6 +118,8 @@ async def storeImport(self, request):
 async def performImport(db_instance, store_import_request):
 	for line in store_import_request.fileObject.file:
 		await store_import_request.processLine(line)
+
+	await db_instance.storeAllContainer()
 
 	res = dict(
 		code=200,

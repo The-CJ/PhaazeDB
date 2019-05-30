@@ -176,3 +176,10 @@ class ContainerBroken(Exception):
 		self.status = "critical_error"
 
 	def msg(self, *arg): return f"DB container file: '{self.container}' seems broken"
+
+class ImportNoActiveContainer(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return f"import cant continue, no active container set"
