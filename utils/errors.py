@@ -183,3 +183,18 @@ class ImportNoActiveContainer(Exception):
 		self.status = "error"
 
 	def msg(self, *arg): return f"import cant continue, no active container set"
+
+class ImportEntryExists(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return f"import cant continue, a entry already exists"
+
+class InvalidImportEntry(Exception):
+	def __init__(self, *arg):
+		self.code = 400
+		self.status = "error"
+
+	def msg(self, *arg): return f"broken entry for import"
+

@@ -126,7 +126,7 @@ class Database(object):
 			# import files can be giants
 			request._client_max_size = -1
 
-		# db is about to shutdown
+		# db is about to shutdown or its currently importing
 		if not self.active:
 			return self.response(status=400, body=json.dumps(dict( code=400, status="rejected", msg="DB is marked as disabled")))
 

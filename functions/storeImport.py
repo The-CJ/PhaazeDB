@@ -1,5 +1,5 @@
-import json, asyncio
-from utils.errors import MissingImportFile, ContainerAlreadyExists, SysCreateError, SysLoadError, ContainerNotFound, ImportNoActiveContainer
+import json, math
+from utils.errors import MissingImportFile, ContainerAlreadyExists, SysCreateError, SysLoadError, ContainerNotFound, ImportNoActiveContainer, InvalidImportEntry, ImportEntryExists
 from functions.create import makeNewContainer
 
 class ImportRequest(object):
@@ -54,13 +54,49 @@ class ImportRequest(object):
 			print(e)
 
 	async def proccessEntry(self, line):
-		return
-		print(line)
+		if not self.current_container:
+			if self.ignore_errors:
+				self.errors.append(f"can't insert entry, no active container -> skipping")
+				return False
+			else:
+				raise ImportNoActiveContainer()
+
+		entry = json.loads(line[6:][:-2])
+		container = await self.db_link.load(self.current_container)
+
+		if container.status == "sys_error": raise SysLoadError(self.current_container)
+		elif container.status == "not_found": raise ContainerNotFound(self.current_container)
+		elif container.status == "success":	container = container.content
+
+		# other than normal inserts, id's must me strict set back to previous value and not incremental
+		entry_id = entry.get("id", None)
+		if not entry_id or not type(entry_id) == int:
+			if self.ignore_errors:
+				self.errors.append(f"broken entry -> skipping")
+				return False
+			else:
+				raise InvalidImportEntry()
+
+		# test if entry exist
+		if container["data"].get(entry_id, None) and not self.overwrite_entrys:
+			if self.ignore_errors:
+				self.errors.append(f"entry id: {entry_id} already exists -> skipping")
+				return False
+			else:
+				raise ImportEntryExists()
+
+		del entry["id"]
+		container["data"][entry_id] = entry
+
+		if entry_id >= container.get("current_id", 0):
+			container["current_id"] = entry_id + 1
+
+		return True
 
 	async def proccessDefault(self, line):
 		if not self.current_container:
 			if self.ignore_errors:
-				self.errors.append(f"can't set default, not active container -> skipping")
+				self.errors.append(f"can't set default, no active container -> skipping")
 				return False
 			else:
 				raise ImportNoActiveContainer()
@@ -87,6 +123,9 @@ class ImportRequest(object):
 				raise ContainerAlreadyExists(container.name)
 
 		created = await makeNewContainer(self.db_link, container.name)
+		if container.content:
+			if container.content["data"]:
+				container.content["data"] = dict()
 		if not created:
 			self.db_link.Server.Logger.critical(f"create container '{container.name}' failed")
 			raise SysCreateError(container.name)
@@ -99,12 +138,26 @@ async def storeImport(self, request):
 		Used to import data from file. file extention should be .phzdb
 		but can be every type in therory
 	"""
-	# prepare request for a valid import
+	# during import remove save intervals and disable other actions
+	self.Server.Logger.info(f"Import from file started -> closing db for other actions")
+	set_intervat_time = self.save_interval
+	self.save_interval = math.inf
+	self.active = False
+
+	result = await storeImportHandler(self, request)
+
+	self.save_interval = set_intervat_time
+	self.active = True
+	self.Server.Logger.info(f"Import from file complete -> reactivating")
+	return result
+
+async def storeImportHandler(self, request):
 	try:
+		# prepare request for a valid import
 		store_import_request = ImportRequest(request.db_request, self)
 		return await performImport(self, store_import_request)
 
-	except (MissingImportFile, ContainerAlreadyExists, SysCreateError, SysLoadError, ContainerNotFound, ImportNoActiveContainer) as e:
+	except (MissingImportFile, ContainerAlreadyExists, SysCreateError, SysLoadError, ContainerNotFound, ImportNoActiveContainer, InvalidImportEntry, ImportEntryExists) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -130,5 +183,4 @@ async def performImport(db_instance, store_import_request):
 		overwrite_entrys=store_import_request.overwrite_entrys
 	)
 
-	db_instance.Server.Logger.info(f"todo")
 	return db_instance.response(status=200, body=json.dumps(res))
