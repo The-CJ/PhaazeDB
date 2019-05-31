@@ -13,14 +13,15 @@ async def store(self, container_name, container_content, create=False, ignore_sa
 
 	container.actions_since_save += 1
 
-	if (not container.actions_since_save > self.save_interval and not ignore_save_limit) and not create:
-		# continue without saving
+	# one condtion = save
+	if (container.actions_since_save > self.save_interval and self.save_interval > -1) or ignore_save_limit or create:
+		success = await performStore(self, container_name, container_content, create)
+		# save successfull, reset save counter
+		if success: container.actions_since_save = 0
+		return success
+	else:
 		return True
 
-	success = await performStore(self, container_name, container_content, create)
-	# save successfull, reset save counter
-	if success: container.actions_since_save = 0
-	return success
 
 async def performStore(db_instance, container_name, container_content, create):
 

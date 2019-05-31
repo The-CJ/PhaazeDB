@@ -1,4 +1,4 @@
-import json, math
+import json
 from utils.security import password
 
 from aiohttp import web
@@ -83,9 +83,6 @@ class Database(object):
 
 		else:
 			return False
-
-		if self.save_interval < 0:
-			self.save_interval = math.inf
 
 		self.Server.Logger.info(f"[Settings] Save interval set to: {self.save_interval}")
 		return True

@@ -1,4 +1,4 @@
-import asyncio, json
+import asyncio, json, math
 from utils.errors import MissingOptionField, SysStoreError, SysLoadError, ContainerNotFound, InvalidValue
 from utils.security import password
 from utils.cli import CliArgs
@@ -100,6 +100,8 @@ async def performShutdown(db_instance, option_request):
 async def performStore(db_instance, option_request):
 
 	if option_request.value:
+		if type(option_request.value) == str:
+			option_request.value = option_request.value.strip("/")
 		selected_container = await db_instance.load(option_request.value)
 		if selected_container.status == "sys_error": raise SysLoadError(option_request.value)
 		elif selected_container.status == "not_found": raise ContainerNotFound(option_request.value)
