@@ -1,10 +1,19 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from utils.database import Database as PhaazeDatabase
+
 import json, math, copy
 from utils.errors import MissingOfField, MissingStoreInJoin, ContainerNotFound, SysLoadError, InvalidJoin, InvalidLimit
+from utils.loader import DBRequest
+from utils.container import Container
+from aiohttp.web import Request, Response
 
 class SelectRequest(object):
-	""" Contains informations for a valid select request,
-		does not mean the container exists or where statement has right syntax """
-	def __init__(self, db_req, is_join=False):
+	"""
+		Contains informations for a valid select request,
+		does not mean the container exists or where statement has right syntax
+	"""
+	def __init__(self, db_req:DBRequest, is_join:bool=False):
 		self.container:str = None
 		self.where:str = ""
 		self.fields:list = []
@@ -24,7 +33,7 @@ class SelectRequest(object):
 		self.getJoin(db_req)
 		self.getInclude(db_req)
 
-	def getContainter(self, db_req):
+	def getContainter(self, db_req) -> None:
 		self.container = db_req.get("of", "")
 		if type(self.container) is not str:
 			self.container = str(self.container)
@@ -34,17 +43,17 @@ class SelectRequest(object):
 
 		if not self.container: raise MissingOfField()
 
-	def getWhere(self, db_req):
+	def getWhere(self, db_req) -> None:
 		self.where = db_req.get("where", "")
 
-	def getFields(self, db_req):
+	def getFields(self, db_req) -> None:
 		self.fields = db_req.get("fields", None)
 		if type(self.fields) is str:
 			self.fields = self.fields.split(",")
 		if type(self.fields) is not list:
 			self.fields = []
 
-	def getOffset(self, db_req):
+	def getOffset(self, db_req) -> None:
 		self.offset = db_req.get("offset", -1)
 		if type(self.offset) is str:
 			if self.offset.isdigit():
@@ -53,7 +62,7 @@ class SelectRequest(object):
 		if type(self.offset) is not int:
 			self.offset = -1
 
-	def getLimit(self, db_req):
+	def getLimit(self, db_req) -> None:
 		self.limit = db_req.get("limit", math.inf)
 		if type(self.limit) is str:
 			if self.limit.isdigit():
@@ -65,7 +74,7 @@ class SelectRequest(object):
 		if self.limit <= 0:
 			raise InvalidLimit()
 
-	def getStore(self, db_req):
+	def getStore(self, db_req) -> None:
 		self.store = db_req.get("store", None)
 		if type(self.store) is not str:
 			self.store = None
@@ -73,7 +82,7 @@ class SelectRequest(object):
 		if not self.store and self.is_join:
 			raise MissingStoreInJoin()
 
-	def getJoin(self, db_req):
+	def getJoin(self, db_req) -> None:
 		self.join = db_req.get("join", None)
 		if type(self.join) is str:
 			try:
@@ -82,86 +91,86 @@ class SelectRequest(object):
 				raise InvalidJoin()
 		if type(self.join) != list: self.join = [self.join]
 
-	def getInclude(self, db_req):
+	def getInclude(self, db_req) -> None:
 		self.include = bool(db_req.get("include", False))
 
-async def select(self, request):
-	""" Used to select data from ad DB container and give it back, may also include joins to other tables """
-
+async def select(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest):
+	"""
+		Used to select data from ad DB container and give it back, may also include joins to other tables
+	"""
 	# prepare request for a valid search
 	try:
-		select_request = SelectRequest(request.db_request)
-		return await performSelect(self, select_request)
+		DBSelectRequest:SelectRequest = SelectRequest(DBReq)
+		return await performSelect(cls, DBSelectRequest)
 
-	except MissingStoreInJoin:
-		res = dict(
-			code=400,
-			status="error",
-			msg="missing 'store' field in join"
-		)
-		return self.response(status=400, body=json.dumps(res))
-
-	except (ContainerNotFound, MissingOfField, SysLoadError, InvalidLimit) as e:
+	except (ContainerNotFound, MissingOfField, SysLoadError, InvalidLimit, MissingStoreInJoin) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
 			msg = e.msg()
 		)
-		return self.response(status=e.code, body=json.dumps(res))
+		return cls.response(status=e.code, body=json.dumps(res))
 
 	except Exception as ex:
-		return await self.criticalError(ex)
+		return await cls.criticalError(ex)
 
-async def performSelect(db_instance, select_request:SelectRequest):
+async def performSelect(cls:"PhaazeDatabase", DBSelectRequest:SelectRequest):
 
-	result, hits, hits_field, total = await getDataFromContainer(db_instance, select_request)
+	result:dict = await getDataFromContainer(cls, DBSelectRequest)
 
-	for join in select_request.join:
+	for join in DBSelectRequest.join:
 		if join == None: continue
-		select_join_request = SelectRequest(join, is_join=True)
-		result = await performJoin(db_instance, result, select_join_request, parent_name=select_request.store)
+		DBSelectJoinRequest:SelectRequest = SelectRequest(join, is_join=True)
+		result["entry_list"] = await performJoin(cls, result["entry_list"], DBSelectJoinRequest, parent_name=DBSelectRequest.store)
 
-	res = dict(
+	res:dict = dict(
 		code=200,
 		status="selected",
 
-		hits=hits,
-		hits_field=hits_field,
-		total=total,
-		data=result
+		hits=result["hits"],
+		hits_field=result["hits_field"],
+		total=result["total"],
+		data=result["entry_list"]
 	)
-	if db_instance.Server.action_logging:
-		db_instance.Server.Logger.info(f"selected {str(hits)} entry(s) from '{select_request.container}'")
-	return db_instance.response(status=200, body=json.dumps(res))
+	if cls.PhaazeDBS.action_logging:
+		cls.PhaazeDBS.Logger.info(f"selected {str(result['hits'])} entry(s) from '{DBSelectRequest.container}'")
+	return cls.response(status=200, body=json.dumps(res))
 
-async def getDataFromContainer(db_instance, select_request:SelectRequest, parent_name:str=None, parent_entry:dict=None):
-	if select_request.container in [None, ""]: return [], 0, 0, 0
+async def getDataFromContainer(cls:"PhaazeDatabase", DBSelectRequest:SelectRequest, parent_name:str=None, parent_entry:dict=None) -> dict:
+	if DBSelectRequest.container in [None, ""]:
+		return dict(
+			entry_list = [],
+			hits = 0,
+			hits_field = 0,
+			total = 0
+		)
 
-	container = await db_instance.load(select_request.container)
+	DBContainer:Container = await cls.load(DBSelectRequest.container)
 
-	if container.status == "sys_error": raise SysLoadError(select_request.container)
-	elif container.status == "not_found": raise ContainerNotFound(select_request.container)
-	elif container.status == "success":	container = container.content
+	if DBContainer.status == "sys_error": raise SysLoadError(DBSelectRequest.container)
+	elif DBContainer.status == "not_found": raise ContainerNotFound(DBSelectRequest.container)
+	elif DBContainer.status == "success":
+		pass
 
 	# return values
-	result = []
-	hits = 0
-	hits_field = 0
+	result:list = []
+	hits:int = 0
+	hits_field:int = 0
+
+	found:int = 0
+	default_set:dict = DBContainer.default
 
 	#go through all entrys
-	found = 0
-	default_set = container.get("default", {})
-
-	for entry_id in container.get('data', []):
-		entry = container['data'][entry_id]
+	for entry_id in DBContainer.data:
+		entry = DBContainer.data[entry_id]
 		entry['id'] = entry_id
 
 		# where dont hit entry, means skip, we dont need it
-		if not await checkWhere(where=select_request.where, parent_name=parent_name, parent_entry=parent_entry, check_entry=entry, check_name=select_request.store):
+		if not await checkWhere(where=DBSelectRequest.where, parent_name=parent_name, parent_entry=parent_entry, check_entry=entry, check_name=DBSelectRequest.store):
 			continue
 
 		found += 1
-		if select_request.offset >= found:
+		if DBSelectRequest.offset >= found:
 			continue
 
 		# copy entry before further actions, so the entry in the db itself does not get the default set added to permanent memory
@@ -173,19 +182,24 @@ async def getDataFromContainer(db_instance, select_request:SelectRequest, parent
 				entry[default_key] = container["default"][default_key]
 
 		# only gather what the user wants
-		requested_fields = await getFields(entry, select_request.fields)
+		requested_fields:list = await getFields(entry, DBSelectRequest.fields)
 
 		hits += 1
 		hits_field += len(requested_fields)
 
 		result.append( requested_fields )
 
-		if hits >= select_request.limit:
+		if hits >= DBSelectRequest.limit:
 			break
 
-	return result, hits, hits_field, len(container.get('data', []) )
+	return dict(
+		entry_list = result,
+		hits = hits,
+		hits_field = hits_field,
+		total = len(DBContainer.data)
+	)
 
-async def checkWhere(where="", parent_entry:dict=None, parent_name:str=None, check_entry:dict=None, check_name:str=None):
+async def checkWhere(where="", parent_entry:dict=None, parent_name:str=None, check_entry:dict=None, check_name:str=None) -> bool:
 
 	if not where:
 		return True
@@ -206,38 +220,39 @@ async def checkWhere(where="", parent_entry:dict=None, parent_name:str=None, che
 	except:
 		return False
 
-async def getFields(data, fields):
+async def getFields(data:dict, fields:list) -> dict:
 	if not fields: return data
 
-	requested_fields = dict()
+	requested_fields:dict = dict()
 	for field in fields:
 		requested_fields[field] = data.get(field, None)
 
 	return requested_fields
 
-async def performJoin(db_instance, last_result:list, join_request:SelectRequest, parent_name:str=None):
+async def performJoin(cls:"PhaazeDatabase", last_result:list, DBSelectJoinRequest:SelectRequest, parent_name:str=None) -> list:
 
-	container = await db_instance.load(join_request.container)
+	DBContainer:Container = await cls.load(DBSelectJoinRequest.container)
 
-	if container.status == "sys_error": raise SysLoadError(join_request.container)
-	elif container.status == "not_found": raise ContainerNotFound(join_request.container)
-	elif container.status == "success":	container = container.content
+	if DBContainer.status == "sys_error": raise SysLoadError(DBSelectJoinRequest.container)
+	elif DBContainer.status == "not_found": raise ContainerNotFound(DBSelectJoinRequest.container)
+	elif DBContainer.status == "success":
+		pass
 
 	# for every already selected entry, take the data and go in the next container
 	for already_selected in last_result:
 
-		join_result, *x = await getDataFromContainer(db_instance, join_request, parent_name=parent_name, parent_entry=already_selected)
-		for join in join_request.join:
+		result:dict = await getDataFromContainer(cls, DBSelectJoinRequest, parent_name=parent_name, parent_entry=already_selected)
+		for join in DBSelectJoinRequest.join:
 			if join == None: continue
-			select_join_request = SelectRequest(join, is_join=True)
-			join_result = await performJoin(db_instance, join_result, select_join_request, parent_name=join_request.store)
+			DBSelectAnotherJoinRequest:SelectRequest = SelectRequest(join, is_join=True)
+			result["entry_list"] = await performJoin(cls, result["entry_list"], DBSelectAnotherJoinRequest, parent_name=DBSelectJoinRequest.store)
 
-		if join_request.include and len(join_result) >= 1:
-			for field_of_join in join_result[0]:
+		if DBSelectJoinRequest.include and len(result["entry_list"]) >= 1:
+			for field_of_join in result["entry_list"][0]:
 				if field_of_join == "id": continue
-				already_selected[field_of_join] = join_result[0][field_of_join]
+				already_selected[field_of_join] = result["entry_list"][0][field_of_join]
 		else:
-			already_selected[join_request.store] = join_result
+			already_selected[DBSelectJoinRequest.store] = result["entry_list"]
 
 	return last_result
 

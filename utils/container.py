@@ -9,15 +9,23 @@ class Container(object):
 		Represents a containter from the db, actuall data is in self.content
 		all other functions are for internal managment
 	"""
-	def __init__(self, Database:"PhaazeDatabase", name:str, status:str="sys_error", content=None, keep_alive:int=0):
+	def __init__(self, Database:"PhaazeDatabase", name:str, status:str="sys_error", content=dict(), keep_alive:int=0):
 		self.Database:"PhaazeDatabase" = Database
 		self.name:str = name
 		self.status:str = status
-		self.content = content
+		self.content:dict = content
 
 		self.keep_alive_time_left:int = keep_alive
 		self.actions_since_save:int = 0
 		self.removed:bool = False
+
+	@property
+	def default(self) -> dict:
+		return self.content.get("default", dict())
+
+	@property
+	def data(self) -> list:
+		return self.content.get("data", list())
 
 	async def countDown(self) -> bool:
 		"""
