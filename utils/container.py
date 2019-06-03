@@ -1,46 +1,65 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from utils.database import Database as PhaazeDatabase
+
 import asyncio
 
 class Container(object):
-	""" Represents a containter from the db, actuall data is in self.content
-		all other functions are for internal managment """
-	def __init__(self, db_instance, name, status="sys_error", content=None, keep_alive=0):
-		self.db_instance = db_instance
-		self.name = name
-		self.status = status
+	"""
+		Represents a containter from the db, actuall data is in self.content
+		all other functions are for internal managment
+	"""
+	def __init__(self, Database:"PhaazeDatabase", name:str, status:str="sys_error", content=None, keep_alive:int=0):
+		self.Database:"PhaazeDatabase" = Database
+		self.name:str = name
+		self.status:str = status
 		self.content = content
 
-		self.keep_alive_time_left = keep_alive
-		self.actions_since_save = 0
-		self.removed = False
+		self.keep_alive_time_left:int = keep_alive
+		self.actions_since_save:int = 0
+		self.removed:bool = False
 
-	async def countDown(self):
-		""" counts down the keep alive counter, if end -> save to file, unload from ram
-			must be start called from outside, most likly DB.load() """
+	async def countDown(self) -> bool:
+		"""
+			counts down the keep alive counter, if end -> save to file, unload from ram
+			must be start called from outside, most likly Database.load()
+		"""
 		while self.keep_alive_time_left > 0:
 			self.keep_alive_time_left -= 1
 			await asyncio.sleep(1)
 
 		return await self.remove()
 
-	async def remove(self, remove_from_ram=True, store=True):
+	async def remove(self, remove_from_ram:bool=True, store:bool=True) -> bool:
+		"""
+			Removes a container from RAM and saves it to file system
+			get called by self.countDown automaticly or from manual store or else.
+		"""
 		if self.removed:
 			return True
 		self.removed = True
 		self.keep_alive_time_left = 0
 
 		# save content
-		success = await self.db_instance.store(self.name, self.content, ignore_save_limit=True) if store else True
+		success:bool = await self.Database.store(self.name, self.content, ignore_save_limit=True) if store else True
 		if not success:
-			self.db_instance.Server.Logger.critical(f"Could not store: '{self.name}' before unloading")
+			self.Database.Server.Logger.critical(f"Could not store: '{self.name}' before unloading")
 			return False
 
 		# delete from ram
-		if remove_from_ram: del self.db_instance.db[self.name]
+		if remove_from_ram: del self.Database.db[self.name]
 		return True
 
-	async def save(self):
+	async def save(self) -> bool:
+		"""
+			Short for: self.remove(remove_from_ram=False)
+			Does not remove a container from RAM but saves it to file system.
+		"""
 		return await self.remove(remove_from_ram=False)
 
-	async def delete(self):
+	async def delete(self) -> bool:
+		"""
+			Short for: self.remove(remove_from_ram=True, store=False)
+			Removes a container from RAM and does NOT saves it to file system.
+		"""
 		return await self.remove(remove_from_ram=True, store=False)
-
