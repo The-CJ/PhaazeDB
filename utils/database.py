@@ -214,7 +214,7 @@ class Database(object):
 			return await self.missingFunction()
 
 		elif action == "select":
-			return await self.select(WebRequest)
+			return await self.select(WebRequest, DBReq)
 
 		elif action == "update":
 			return await self.update(WebRequest)
