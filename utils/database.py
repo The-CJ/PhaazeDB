@@ -4,7 +4,7 @@ if TYPE_CHECKING:
 
 import json
 from utils.security import password
-from aiohttp.web import Application, middleware, Request, Response, HTTPException
+from aiohttp.web import Application, middleware, Request, StreamResponse, Response, HTTPException
 from utils.loader import DBRequest
 
 class Database(object):
@@ -100,8 +100,8 @@ class Database(object):
 
 		return Response(**kwargs)
 
-	async def storeAllContainer(self, remove_from_ram=True):
-		all_success = True
+	async def storeAllContainer(self, remove_from_ram:bool=True) -> bool:
+		all_success:bool = True
 		for container_name in list(self.db):
 			if remove_from_ram:
 				saved = await self.db[container_name].remove()
@@ -113,7 +113,7 @@ class Database(object):
 
 		return all_success
 
-	async def stop(self):
+	async def stop(self) -> None:
 		# stop all incomming requests
 		self.active = False
 
@@ -121,7 +121,7 @@ class Database(object):
 		await self.storeAllContainer()
 
 	@middleware
-	async def mainHandler(self, WebRequest:Request, handler:Callable) -> Response:
+	async def mainHandler(self, WebRequest:Request, handler:Callable) -> Response or StreamResponse:
 		if WebRequest.match_info.get("x", "") == "import":
 			# import files can be giants
 			WebRequest._client_max_size = -1
@@ -188,11 +188,11 @@ class Database(object):
 			return True
 
 	#accessable via web - /admin
-	async def interface(self, request):
-		return await self.webInterface(request)
+	async def interface(self, WebRequest:Request) -> Response:
+		return await self.webInterface(WebRequest)
 
 	#main entry call point
-	async def process(self, WebRequest:Request):
+	async def process(self, WebRequest:Request) -> Response or StreamResponse:
 
 		DBReq:DBRequest = await self.getContent(WebRequest)
 
@@ -201,7 +201,7 @@ class Database(object):
 			return self.response( body=json.dumps(dict(msg="unsupported 'X-DB-Method'", status=405)),	status=405 )
 
 		if DBReq.success == False:
-			return self.response( body=json.dumps(dict(msg=WebRequest.DBReq.error_msg, status=400)),	status=400 )
+			return self.response( body=json.dumps(dict(msg=DBReq.error_msg, status=400)),	status=400 )
 
 		if not await self.authorise(DBReq):
 			return await self.unauthorised()
