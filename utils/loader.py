@@ -1,14 +1,19 @@
-class DBContent(object):
-	"""Main Object with all arguments and values for one request """
-	def __init__(self):
-		self.success = False
-		self.error_msg = ""
-		self.content = dict()
+from typing import Any
 
-	def setContent(self, content):
+class DBRequest(object):
+	"""
+		Main Object with all arguments and values for a request
+		contains the content based on a extraction method (JSON, POST, GET. etc...)
+	"""
+	def __init__(self):
+		self.success:bool = False
+		self.error_msg:str = ""
+		self.content:dict = dict()
+
+	def setContent(self, content) -> None:
 		self.content = content
 
-	def get(self, *arg):
+	def get(self, *arg) -> Any:
 		if len(arg) == 0:
 			raise AttributeError("Missing key for get")
 		else:
@@ -16,7 +21,7 @@ class DBContent(object):
 			else: return self.content.get(arg[0])
 
 async def jsonContent(self, request):
-	db_content = DBContent()
+	db_content = DBRequest()
 
 	try:
 		db_content.setContent(await request.json())
@@ -27,7 +32,7 @@ async def jsonContent(self, request):
 		return db_content
 
 async def postContent(self, request):
-	db_content = DBContent()
+	db_content = DBRequest()
 
 	try:
 		db_content.setContent(await request.post())

@@ -1,10 +1,9 @@
 import json, traceback
 
-async def criticalError(self, Ex):
-	content = dict(code=500, status="critical_error", msg="unknown error")
-	exception = traceback.format_exc()
-	self.Server.Logger.critical(f"Unknown error: {str(exception)}")
-	return self.response(status=500, body=json.dumps(content))
+async def criticalError(cls, Ex):
+	content:dict = dict(code=500, status="critical_error", msg="unknown error")
+	cls.PhaazeDBS.Logger.critical(f"Unknown error: {str(traceback.format_exc())}")
+	return cls.response(status=500, body=json.dumps(content))
 
 async def unauthorised(self):
 	content = dict(code=401, status="error", msg="unauthorised")
@@ -197,4 +196,3 @@ class InvalidImportEntry(Exception):
 		self.status = "error"
 
 	def msg(self, *arg): return f"broken entry for import"
-
