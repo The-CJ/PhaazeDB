@@ -34,12 +34,12 @@ class ShowRequest(object):
 
 		if not self.path: self.path = ""
 
-async def show(cls:"PhaazeDatabase", WebRequest:Request) -> Response:
+async def show(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> Response:
 	"""
 		Shows container hierarchy from 'name' or all if not defined
 	"""
 	try:
-		DBShowRequest:Request = ShowRequest(WebRequest.DBReq)
+		DBShowRequest:ShowRequest = ShowRequest(DBReq)
 		return await performShow(cls, DBShowRequest)
 
 	except (CantAccessContainer) as e:
@@ -61,12 +61,12 @@ async def performShow(cls:"PhaazeDatabase", DBShowRequest:ShowRequest) -> Respon
 		res = dict(
 			code=400,
 			status="error",
-			msg=f"no tree path found at '{show_request.path}'",
+			msg=f"no tree path found at '{DBShowRequest.path}'",
 		)
 		return cls.response(status=400, body=json.dumps(res))
 
 	root:dict = {'supercontainer': {},'container': [], 'unusable': []}
-	tree:dict = await getContainer(root, check_location, recursive=show_request.recursive)
+	tree:dict = await getContainer(root, check_location, recursive=DBShowRequest.recursive)
 
 	res:dict = dict(
 		code=200,
@@ -76,13 +76,13 @@ async def performShow(cls:"PhaazeDatabase", DBShowRequest:ShowRequest) -> Respon
 		tree=tree
 	)
 
-	if cls.Server.action_logging:
-		cls.Server.Logger.info(f"showed tree: path={show_request.path}, recursive={str(show_request.recursive)}")
+	if cls.PhaazeDBS.action_logging:
+		cls.PhaazeDBS.Logger.info(f"showed tree: path={DBShowRequest.path}, recursive={str(DBShowRequest.recursive)}")
 	return cls.response(status=200, body=json.dumps(res))
 
-async def getContainer(tree, folder_path, recursive=False):
+async def getContainer(tree:dict, folder_path:str, recursive:bool=False) -> dict:
 	try:
-		container_list = os.listdir(folder_path)
+		container_list:list = os.listdir(folder_path)
 	except PermissionError:
 		raise CantAccessContainer(folder_path,"supercontainer")
 

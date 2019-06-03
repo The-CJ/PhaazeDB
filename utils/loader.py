@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any
-from utils.database import Database as PhaazeDatabase
+if TYPE_CHECKING:
+	from utils.database import Database as PhaazeDatabase
+
 from aiohttp.web import Request
 
 class DBRequest(object):

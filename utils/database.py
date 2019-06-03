@@ -5,6 +5,7 @@ if TYPE_CHECKING:
 import json
 from utils.security import password
 from aiohttp.web import Application, middleware, Request, Response, HTTPException
+from utils.loader import DBRequest
 
 class Database(object):
 	"""Main instance for processing of all database requests"""
@@ -154,15 +155,15 @@ class Database(object):
 	async def getMethod(self, WebRequest:Request) -> str:
 		# change process method, default is json
 		# method type must be in a non body part
-		method:str = request.headers.get("X-DB-Method", "").lower()
+		method:str = WebRequest.headers.get("X-DB-Method", "").lower()
 		if method: return method
 
-		method = request.query.get("X-DB-Method", "").lower()
+		method = WebRequest.query.get("X-DB-Method", "").lower()
 		if method: return method
 
 		return 'json'
 
-	async def getContent(self, WebRequest:Request):
+	async def getContent(self, WebRequest:Request) -> DBRequest:
 		# get usable content from Method
 		if WebRequest.db_method == "json":
 			return await self.jsonContent(WebRequest)
@@ -173,12 +174,12 @@ class Database(object):
 		else:
 			return None
 
-	async def authorise(self, request):
-		token = request.db_request.get("token", None)
+	async def authorise(self, DBReq:DBRequest) -> bool:
+		token:str = DBReq.get("token", None)
 		if token:
 			token = password(token)
 
-		db_token = self.PhaazeDBS.token
+		db_token:str = self.PhaazeDBS.token
 		if not db_token: return True
 
 		if token != db_token:
@@ -191,21 +192,21 @@ class Database(object):
 		return await self.webInterface(request)
 
 	#main entry call point
-	async def process(self, request):
+	async def process(self, WebRequest:Request):
 
-		request.db_request = await self.getContent(request)
+		DBReq:DBRequest = await self.getContent(WebRequest)
 
 		# none supported
-		if request.db_request == None:
+		if DBReq == None:
 			return self.response( body=json.dumps(dict(msg="unsupported 'X-DB-Method'", status=405)),	status=405 )
 
-		if request.db_request.success == False:
-			return self.response( body=json.dumps(dict(msg=request.db_request.error_msg, status=400)),	status=400 )
+		if DBReq.success == False:
+			return self.response( body=json.dumps(dict(msg=WebRequest.DBReq.error_msg, status=400)),	status=400 )
 
-		if not await self.authorise(request):
+		if not await self.authorise(DBReq):
 			return await self.unauthorised()
 
-		action = request.db_request.get("action", None)
+		action:str = DBReq.get("action", None)
 
 		# # #
 
@@ -213,40 +214,40 @@ class Database(object):
 			return await self.missingFunction()
 
 		elif action == "select":
-			return await self.select(request)
+			return await self.select(WebRequest)
 
 		elif action == "update":
-			return await self.update(request)
+			return await self.update(WebRequest)
 
 		elif action == "insert":
-			return await self.insert(request)
+			return await self.insert(WebRequest)
 
 		elif action == "delete":
-			return await self.delete(request)
+			return await self.delete(WebRequest)
 
 		elif action == "create":
-			return await self.create(request)
+			return await self.create(WebRequest)
 
 		elif action == "drop":
-			return await self.drop(request)
+			return await self.drop(WebRequest)
 
 		elif action == "show":
-			return await self.show(request)
+			return await self.show(WebRequest, DBReq)
 
 		elif action == "default":
-			return await self.default(request)
+			return await self.default(WebRequest)
 
 		elif action == "describe":
-			return await self.describe(request)
+			return await self.describe(WebRequest)
 
 		elif action == "option":
-			return await self.option(request)
+			return await self.option(WebRequest)
 
 		elif action == "import":
-			return await self.storeImport(request)
+			return await self.storeImport(WebRequest)
 
 		elif action == "export":
-			return await self.storeExport(request)
+			return await self.storeExport(WebRequest)
 
 		else:
 			return await self.unknownFunction()
