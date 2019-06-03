@@ -1,8 +1,10 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
+from utils.database import Database as PhaazeDatabase
+from aiohttp.web import Request
 
 class DBRequest(object):
 	"""
-		Main Object with all arguments and values for a request
+		Main Object with all arguments and values for a WebRequest:Request
 		contains the content based on a extraction method (JSON, POST, GET. etc...)
 	"""
 	def __init__(self):
@@ -20,24 +22,24 @@ class DBRequest(object):
 			if len(arg) > 1: return self.content.get(arg[0], arg[1])
 			else: return self.content.get(arg[0])
 
-async def jsonContent(self, request):
-	db_content = DBRequest()
+async def jsonContent(cls:"PhaazeDatabase", WebRequest:Request):
+	DBReq = DBRequest()
 
 	try:
-		db_content.setContent(await request.json())
-		db_content.success = True
-		return db_content
+		DBReq.setContent(await WebRequest.json())
+		DBReq.success = True
+		return DBReq
 	except Exception as e:
-		db_content.error_msg = str(e)
-		return db_content
+		DBReq.error_msg = str(e)
+		return DBReq
 
-async def postContent(self, request):
-	db_content = DBRequest()
+async def postContent(cls:"PhaazeDatabase", WebRequest:Request):
+	DBReq = DBRequest()
 
 	try:
-		db_content.setContent(await request.post())
-		db_content.success = True
-		return db_content
+		DBReq.setContent(await WebRequest.post())
+		DBReq.success = True
+		return DBReq
 	except Exception as e:
-		db_content.error_msg = str(e)
-		return db_content
+		DBReq.error_msg = str(e)
+		return DBReq
