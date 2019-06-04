@@ -1,21 +1,26 @@
-import json, traceback
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from phaazedb import PhaazeDBServer
 
-async def criticalError(cls, Ex):
+import json, traceback
+from aiohttp.web import Response
+
+async def criticalError(cls:"PhaazeDBServer", Ex:Exception) -> Response:
 	content:dict = dict(code=500, status="critical_error", msg="unknown error")
 	cls.PhaazeDBS.Logger.critical(f"Unknown error: {str(traceback.format_exc())}")
 	return cls.response(status=500, body=json.dumps(content))
 
-async def unauthorised(self):
+async def unauthorised(cls:"PhaazeDBServer") -> Response:
 	content = dict(code=401, status="error", msg="unauthorised")
-	return self.response(status=401, body=json.dumps(content))
+	return cls.response(status=401, body=json.dumps(content))
 
-async def missingFunction(self):
+async def missingFunction(cls:"PhaazeDBServer") -> Response:
 	content = dict(code=400, status="error", msg="missing 'action' field")
-	return self.response(status=400, body=json.dumps(content))
+	return cls.response(status=400, body=json.dumps(content))
 
-async def unknownFunction(self):
+async def unknownFunction(cls:"PhaazeDBServer") -> Response:
 	content = dict(code=400, status="error", msg="unknown value for 'action'")
-	return self.response(status=400, body=json.dumps(content))
+	return cls.response(status=400, body=json.dumps(content))
 
 class MissingOfField(Exception):
 	def __init__(self, *arg):

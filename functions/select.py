@@ -174,6 +174,7 @@ async def getDataFromContainer(cls:"PhaazeDatabase", DBSelectRequest:SelectReque
 			continue
 
 		# copy entry before further actions, so the entry in the db itself does not get the default set added to permanent memory
+		# TODO: add own custom object to make better where statements
 		entry = copy.deepcopy(entry)
 
 		# complete entry

@@ -49,7 +49,7 @@ class Database(object):
 	# content load method load-parser
 	from utils.loader import jsonContent, postContent
 
-	def setRoot(self, root):
+	def setRoot(self, root:str) -> bool:
 		if root == None:
 			self.container_root = "DATABASE/"
 
@@ -65,7 +65,7 @@ class Database(object):
 		self.PhaazeDBS.Logger.info(f"[Settings] DB root set to: {self.container_root}")
 		return True
 
-	def setAliveTime(self, time):
+	def setAliveTime(self, time:int) -> bool:
 		if type(time) is str:
 			if time.isdigit():
 				self.keep_alive = int(time)
@@ -77,7 +77,7 @@ class Database(object):
 		self.PhaazeDBS.Logger.info(f"[Settings] DB alive time set to: {self.keep_alive}")
 		return True
 
-	def setSaveInterval(self, time):
+	def setSaveInterval(self, time:int) -> bool:
 		if type(time) is str:
 			if time.isdigit():
 				self.save_interval = int(time)
@@ -251,5 +251,3 @@ class Database(object):
 
 		else:
 			return await self.unknownFunction()
-
-		# # #
