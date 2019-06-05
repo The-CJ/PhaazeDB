@@ -1,25 +1,26 @@
 import json
 from utils.errors import MissingIntoField, InvalidContent, SysLoadError, SysStoreError, ContainerNotFound, ContainerBroken
+from utils.loader import DBRequest
 
 class InsertRequest(object):
 	""" Contains informations for a valid insert request,
 		does not mean the container exists """
-	def __init__(self, db_req):
+	def __init__(self, DBReq:DBRequest):
 		self.container:str = None
 		self.content:dict = dict()
 
-		self.getContainter(db_req)
-		self.getContent(db_req)
+		self.getContainter(DBReq)
+		self.getContent(DBReq)
 
-	def getContainter(self, db_req):
-		self.container = db_req.get("into", "")
+	def getContainter(self, DBReq:DBRequest) -> None:
+		self.container = DBReq.get("into", "")
 		self.container = self.container.replace('..', '')
 		self.container = self.container.strip('/')
 
 		if not self.container: raise MissingIntoField()
 
-	def getContent(self, db_req):
-		self.content = db_req.get("content", None)
+	def getContent(self, DBReq:DBRequest) -> None:
+		self.content = DBReq.get("content", None)
 
 		if type(self.content) is str:
 			try:

@@ -13,7 +13,7 @@ class SelectRequest(object):
 		Contains informations for a valid select request,
 		does not mean the container exists or where statement has right syntax
 	"""
-	def __init__(self, db_req:DBRequest, is_join:bool=False):
+	def __init__(self, DBReq:DBRequest, is_join:bool=False):
 		self.container:str = None
 		self.where:str = ""
 		self.fields:list = []
@@ -24,17 +24,17 @@ class SelectRequest(object):
 		self.is_join:bool = is_join
 		self.include:bool = False
 
-		self.getContainter(db_req)
-		self.getWhere(db_req)
-		self.getFields(db_req)
-		self.getOffset(db_req)
-		self.getLimit(db_req)
-		self.getStore(db_req)
-		self.getJoin(db_req)
-		self.getInclude(db_req)
+		self.getContainter(DBReq)
+		self.getWhere(DBReq)
+		self.getFields(DBReq)
+		self.getOffset(DBReq)
+		self.getLimit(DBReq)
+		self.getStore(DBReq)
+		self.getJoin(DBReq)
+		self.getInclude(DBReq)
 
-	def getContainter(self, db_req) -> None:
-		self.container = db_req.get("of", "")
+	def getContainter(self, DBReq) -> None:
+		self.container = DBReq.get("of", "")
 		if type(self.container) is not str:
 			self.container = str(self.container)
 
@@ -43,18 +43,18 @@ class SelectRequest(object):
 
 		if not self.container: raise MissingOfField()
 
-	def getWhere(self, db_req) -> None:
-		self.where = db_req.get("where", "")
+	def getWhere(self, DBReq) -> None:
+		self.where = DBReq.get("where", "")
 
-	def getFields(self, db_req) -> None:
-		self.fields = db_req.get("fields", None)
+	def getFields(self, DBReq) -> None:
+		self.fields = DBReq.get("fields", None)
 		if type(self.fields) is str:
 			self.fields = self.fields.split(",")
 		if type(self.fields) is not list:
 			self.fields = []
 
-	def getOffset(self, db_req) -> None:
-		self.offset = db_req.get("offset", -1)
+	def getOffset(self, DBReq) -> None:
+		self.offset = DBReq.get("offset", -1)
 		if type(self.offset) is str:
 			if self.offset.isdigit():
 				self.offset = int(self.offset)
@@ -62,8 +62,8 @@ class SelectRequest(object):
 		if type(self.offset) is not int:
 			self.offset = -1
 
-	def getLimit(self, db_req) -> None:
-		self.limit = db_req.get("limit", math.inf)
+	def getLimit(self, DBReq) -> None:
+		self.limit = DBReq.get("limit", math.inf)
 		if type(self.limit) is str:
 			if self.limit.isdigit():
 				self.limit = int(self.limit)
@@ -74,16 +74,16 @@ class SelectRequest(object):
 		if self.limit <= 0:
 			raise InvalidLimit()
 
-	def getStore(self, db_req) -> None:
-		self.store = db_req.get("store", None)
+	def getStore(self, DBReq) -> None:
+		self.store = DBReq.get("store", None)
 		if type(self.store) is not str:
 			self.store = None
 
 		if not self.store and self.is_join:
 			raise MissingStoreInJoin()
 
-	def getJoin(self, db_req) -> None:
-		self.join = db_req.get("join", None)
+	def getJoin(self, DBReq) -> None:
+		self.join = DBReq.get("join", None)
 		if type(self.join) is str:
 			try:
 				self.join = json.loads(self.join)
@@ -91,8 +91,8 @@ class SelectRequest(object):
 				raise InvalidJoin()
 		if type(self.join) != list: self.join = [self.join]
 
-	def getInclude(self, db_req) -> None:
-		self.include = bool(db_req.get("include", False))
+	def getInclude(self, DBReq) -> None:
+		self.include = bool(DBReq.get("include", False))
 
 async def select(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest):
 	"""
