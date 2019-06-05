@@ -1,5 +1,10 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from utils.database import Database as PhaazeDatabase
+
 import json
 from utils.errors import MissingIntoField, InvalidContent, SysLoadError, SysStoreError, ContainerNotFound, ContainerBroken
+from utils.container import Container
 from utils.loader import DBRequest
 
 class InsertRequest(object):
@@ -31,13 +36,13 @@ class InsertRequest(object):
 		if type(self.content) is not dict:
 			raise InvalidContent()
 
-async def insert(self, request):
+async def insert(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> Response:
 	""" Used to insert a new entry into a existing container """
 
 	# prepare request for a valid insert
 	try:
-		insert_request = InsertRequest(request.db_request)
-		return await performInsert(self, insert_request)
+		DBInsertRequest:InsertRequest = InsertRequest(DBRequest)
+		return await performInsert(cls, DBInsertRequest)
 
 	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError) as e:
 		res = dict(
@@ -45,28 +50,32 @@ async def insert(self, request):
 			status = e.status,
 			msg = e.msg()
 		)
-		return self.response(status=e.code, body=json.dumps(res))
+		return cls.response(status=e.code, body=json.dumps(res))
 
 	except Exception as ex:
-		return await self.criticalError(ex)
+		return await cls.criticalError(ex)
 
-async def performInsert(db_instance, insert_request):
+async def performInsert(cls:"PhaazeDatabase", DBInsertRequest:InsertRequest) -> Response:
 
 	#unnamed key
-	if insert_request.content.get('', EmptyObject) != EmptyObject:
+	if DBInsertRequest.content.get('', EmptyObject) != EmptyObject:
 		raise InvalidContent(True)
 
 	#get current container from db
-	container = await db_instance.load(insert_request.container)
+	DBContainer:Container = await cls.load(DBInsertRequest.container)
 
 	#error handling
-	if container.status == "sys_error": raise SysLoadError(insert_request.container)
-	elif container.status == "not_found": raise ContainerNotFound(insert_request.container)
-	elif container.status == "success":	container = container.content
+	if DBContainer.status == "sys_error": raise SysLoadError(DBInsertRequest.container)
+	elif DBContainer.status == "not_found": raise ContainerNotFound(DBInsertRequest.container)
+	elif container.status == "success":
+		pass
 
 	#get current_id
-	current_id_index = container.get('current_id',  None)
-	if current_id_index == None: raise ContainerBroken(insert_request.container)
+	current_id_index:int = DBContainer.currentid
+	if not current_id_index:
+		raise ContainerBroken(DBInsertRequest.container)
+
+	# TODO: REEEE
 
 	#add entry
 	insert_request.content['id'] = current_id_index

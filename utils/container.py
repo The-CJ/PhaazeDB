@@ -27,6 +27,10 @@ class Container(object):
 	def data(self) -> list:
 		return self.content.get("data", list())
 
+	@property
+	def currentid(self) -> int:
+		return self.content.get("current_id", 0)
+
 	async def countDown(self) -> bool:
 		"""
 			counts down the keep alive counter, if end -> save to file, unload from ram

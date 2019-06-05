@@ -220,7 +220,7 @@ class Database(object):
 			return await self.update(WebRequest)
 
 		elif action == "insert":
-			return await self.insert(WebRequest)
+			return await self.insert(WebRequest, DBReq)
 
 		elif action == "delete":
 			return await self.delete(WebRequest)
