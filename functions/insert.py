@@ -93,11 +93,11 @@ async def performInsert(cls:"PhaazeDatabase", DBInsertRequest:InsertRequest) -> 
 		code=201,
 		status="inserted",
 		msg=f"successfully inserted into container '{DBInsertRequest.container}'",
-		data={**DBInsertRequest.content, **{"id":current_id_index}}
+		data={ **DBInsertRequest.content, "id":current_id_index }
 	)
 
 	if cls.PhaazeDBS.action_logging:
-		cls.PhaazeDBS.Logger.info(f"insert entry into '{DBInsertRequest.container}': {str(DBInsertRequest.content)}")
+		cls.PhaazeDBS.Logger.info(f"insert entry into '{DBInsertRequest.container}': ID: {current_id_index} - {str(DBInsertRequest.content)}")
 	return cls.response(status=201, body=json.dumps(res))
 
 class EmptyObject(object): pass
