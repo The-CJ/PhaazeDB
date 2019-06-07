@@ -57,9 +57,9 @@ class Container(object):
 		self.keep_alive_time_left = 0
 
 		# save content
-		success:bool = await self.Database.store(self.name, self.content, ignore_save_limit=True) if store else True
+		success:bool = await self.Database.store(self, ignore_save_limit=True) if store else True
 		if not success:
-			self.Database.Server.Logger.critical(f"Could not store: '{self.name}' before unloading")
+			self.PhaazeDBS.Logger.critical(f"Could not store: '{self.name}' before unloading")
 			return False
 
 		# delete from ram

@@ -45,7 +45,7 @@ async def insert(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> R
 		DBInsertRequest:InsertRequest = InsertRequest(DBReq)
 		return await performInsert(cls, DBInsertRequest)
 
-	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError) as e:
+	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError, SysStoreError) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
@@ -77,29 +77,27 @@ async def performInsert(cls:"PhaazeDatabase", DBInsertRequest:InsertRequest) -> 
 		raise ContainerBroken(DBInsertRequest.container)
 
 	#add entry
-	# DBInsertRequestcontent['id'] = current_id_index
 	DBContainer.data[current_id_index] = DBInsertRequest.content
-	# Container.content[current_id_index] = DBInsertRequest.content
 
 	#increase id
 	DBContainer.increaseId()
 
 	#save everything
-	success = await cls.store(DBInsertRequest.container, DBContainer)
+	success = await cls.store(DBContainer)
 
 	if not success:
-		db_instance.Server.Logger.critical(f"inserting data into container '{insert_request.container}' failed")
-		raise SysStoreError(insert_request.container)
+		cls.PhaazeDBS.Logger.critical(f"inserting data into container '{DBInsertRequest.container}' failed")
+		raise SysStoreError(DBInsertRequest.container)
 
 	res = dict(
 		code=201,
 		status="inserted",
-		msg=f"successfully inserted into container '{insert_request.container}'",
-		data=insert_request.content
+		msg=f"successfully inserted into container '{DBInsertRequest.container}'",
+		data={**DBInsertRequest.content, **{"id":current_id_index}}
 	)
 
-	if db_instance.Server.action_logging:
-		db_instance.Server.Logger.info(f"insert entry into '{insert_request.container}': {str(insert_request.content)}")
-	return db_instance.response(status=201, body=json.dumps(res))
+	if cls.PhaazeDBS.action_logging:
+		cls.PhaazeDBS.Logger.info(f"insert entry into '{DBInsertRequest.container}': {str(DBInsertRequest.content)}")
+	return cls.response(status=201, body=json.dumps(res))
 
 class EmptyObject(object): pass
