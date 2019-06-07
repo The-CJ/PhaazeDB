@@ -6,6 +6,7 @@ import json
 from utils.errors import MissingIntoField, InvalidContent, SysLoadError, SysStoreError, ContainerNotFound, ContainerBroken
 from utils.container import Container
 from utils.loader import DBRequest
+from aiohttp.web import Request, Response
 
 class InsertRequest(object):
 	""" Contains informations for a valid insert request,
@@ -41,7 +42,7 @@ async def insert(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> R
 
 	# prepare request for a valid insert
 	try:
-		DBInsertRequest:InsertRequest = InsertRequest(DBRequest)
+		DBInsertRequest:InsertRequest = InsertRequest(DBReq)
 		return await performInsert(cls, DBInsertRequest)
 
 	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError) as e:
@@ -57,35 +58,34 @@ async def insert(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> R
 
 async def performInsert(cls:"PhaazeDatabase", DBInsertRequest:InsertRequest) -> Response:
 
-	#unnamed key
+	# unnamed key
 	if DBInsertRequest.content.get('', EmptyObject) != EmptyObject:
 		raise InvalidContent(True)
 
-	#get current container from db
+	# get current container from db
 	DBContainer:Container = await cls.load(DBInsertRequest.container)
 
-	#error handling
+	# error handling
 	if DBContainer.status == "sys_error": raise SysLoadError(DBInsertRequest.container)
 	elif DBContainer.status == "not_found": raise ContainerNotFound(DBInsertRequest.container)
-	elif container.status == "success":
+	elif DBContainer.status == "success":
 		pass
 
-	#get current_id
+	# get current_id
 	current_id_index:int = DBContainer.currentid
 	if not current_id_index:
 		raise ContainerBroken(DBInsertRequest.container)
 
-	# TODO: REEEE
-
 	#add entry
-	insert_request.content['id'] = current_id_index
-	container['data'][current_id_index] = insert_request.content
+	# DBInsertRequestcontent['id'] = current_id_index
+	DBContainer.data[current_id_index] = DBInsertRequest.content
+	# Container.content[current_id_index] = DBInsertRequest.content
 
 	#increase id
-	container['current_id'] = current_id_index + 1
+	DBContainer.increaseId()
 
 	#save everything
-	success = await db_instance.store(insert_request.container, container)
+	success = await cls.store(DBInsertRequest.container, DBContainer)
 
 	if not success:
 		db_instance.Server.Logger.critical(f"inserting data into container '{insert_request.container}' failed")

@@ -31,6 +31,10 @@ class Container(object):
 	def currentid(self) -> int:
 		return self.content.get("current_id", 0)
 
+	def increaseId(self, i:int = 1) -> int:
+		self.content["current_id"] = int( self.content.get("current_id", 0)+i )
+		return self.currentid
+
 	async def countDown(self) -> bool:
 		"""
 			counts down the keep alive counter, if end -> save to file, unload from ram

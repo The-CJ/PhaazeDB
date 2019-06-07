@@ -9,12 +9,14 @@ class DBRequest(object):
 		Main Object with all arguments and values for a WebRequest:Request
 		contains the content based on a extraction method (JSON, POST, GET. etc...)
 	"""
-	def __init__(self):
+	def __init__(self, method:str):
+		self.method = method
 		self.success:bool = False
 		self.error_msg:str = ""
 		self.content:dict = dict()
 
-	def setContent(self, content) -> None:
+	def setContent(self, content:dict) -> None:
+		if type(content) is not dict: return
 		self.content = content
 
 	def get(self, *arg) -> Any:
@@ -25,7 +27,7 @@ class DBRequest(object):
 			else: return self.content.get(arg[0])
 
 async def jsonContent(cls:"PhaazeDatabase", WebRequest:Request):
-	DBReq = DBRequest()
+	DBReq = DBRequest("JSON")
 
 	try:
 		DBReq.setContent(await WebRequest.json())
@@ -36,7 +38,7 @@ async def jsonContent(cls:"PhaazeDatabase", WebRequest:Request):
 		return DBReq
 
 async def postContent(cls:"PhaazeDatabase", WebRequest:Request):
-	DBReq = DBRequest()
+	DBReq = DBRequest("POST")
 
 	try:
 		DBReq.setContent(await WebRequest.post())
