@@ -217,7 +217,7 @@ class Database(object):
 			return await self.select(WebRequest, DBReq)
 
 		elif action == "update":
-			return await self.update(WebRequest)
+			return await self.update(WebRequest, DBReq)
 
 		elif action == "insert":
 			return await self.insert(WebRequest, DBReq)
