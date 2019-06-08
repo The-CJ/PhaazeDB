@@ -162,7 +162,7 @@ async def getDataFromContainer(cls:"PhaazeDatabase", DBSelectRequest:SelectReque
 
 	#go through all entrys
 	for entry_id in DBContainer.data:
-		entry = DBContainer.data[entry_id]
+		entry:dict = DBContainer.data[entry_id]
 		entry['id'] = entry_id
 
 		# where dont hit entry, means skip, we dont need it
@@ -180,7 +180,7 @@ async def getDataFromContainer(cls:"PhaazeDatabase", DBSelectRequest:SelectReque
 		# complete entry
 		for default_key in default_set:
 			if entry.get(default_key, EmptyObject) == EmptyObject:
-				entry[default_key] = container["default"][default_key]
+				entry[default_key] = DBContainer.default[default_key]
 
 		# only gather what the user wants
 		requested_fields:list = await getFields(entry, DBSelectRequest.fields)
