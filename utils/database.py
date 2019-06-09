@@ -235,7 +235,7 @@ class Database(object):
 			return await self.show(WebRequest, DBReq)
 
 		elif action == "default":
-			return await self.default(WebRequest)
+			return await self.default(WebRequest, DBReq)
 
 		elif action == "describe":
 			return await self.describe(WebRequest, DBReq)
