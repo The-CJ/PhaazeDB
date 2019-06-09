@@ -226,7 +226,7 @@ class Database(object):
 			return await self.delete(WebRequest, DBReq)
 
 		elif action == "create":
-			return await self.create(WebRequest)
+			return await self.create(WebRequest, DBReq)
 
 		elif action == "drop":
 			return await self.drop(WebRequest)

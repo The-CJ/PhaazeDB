@@ -1,32 +1,39 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from utils.database import Database as PhaazeDatabase
+
 import os, json
 from datetime import datetime
 from utils.errors import MissingNameField, ContainerAlreadyExists, SysCreateError
+from aiohttp.web import Request, Response
+from utils.loader import DBRequest
+from utils.container import Container
 
 class CreateRequest(object):
 	""" Contains informations for a valid create request,
 		does not mean the container may not already be existing or other errors are impossible """
-	def __init__(self, db_req):
-		self.container_name:str = None
+	def __init__(self, DBReq:DBRequest):
+		self.container:str = None
 
-		self.getContainterName(db_req)
+		self.getContainterName(DBReq)
 
-	def getContainterName(self, db_req):
-		self.container_name = db_req.get("name", "")
-		if type(self.container_name) is not str:
-			self.container_name = str(self.container_name)
+	def getContainterName(self, DBReq:DBRequest):
+		self.container = DBReq.get("name", "")
+		if type(self.container) is not str:
+			self.container = str(self.container)
 
-		self.container_name = self.container_name.replace('..', '')
-		self.container_name = self.container_name.strip('/')
+		self.container = self.container.replace('..', '')
+		self.container = self.container.strip('/')
 
-		if not self.container_name: raise MissingNameField()
+		if not self.container: raise MissingNameField()
 
-async def create(self, request):
+async def create(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> Response:
 	""" Used to create new container in the database (automaticly creates supercontainer if necessary) """
 
 	# prepare request for a valid search
 	try:
-		create_request = CreateRequest(request.db_request)
-		return await performCreate(self, create_request)
+		DBCreateRequest:CreateRequest = CreateRequest(DBReq)
+		return await performCreate(cls, DBCreateRequest)
 
 	except (MissingNameField, ContainerAlreadyExists, SysCreateError) as e:
 		res = dict(
@@ -34,42 +41,43 @@ async def create(self, request):
 			status = e.status,
 			msg = e.msg()
 		)
-		return self.response(status=e.code, body=json.dumps(res))
+		return cls.response(status=e.code, body=json.dumps(res))
 
 	except Exception as ex:
-		return await self.criticalError(ex)
+		return await cls.criticalError(ex)
 
-async def performCreate(db_instance, create_request):
-	container_location = f"{db_instance.container_root}{create_request.container_name}.phaazedb"
+async def performCreate(cls:"PhaazeDatabase", DBCreateRequest:CreateRequest) -> Response:
+	container_location = f"{cls.container_root}{DBCreateRequest.container}.phaazedb"
 
 	#already exist
 	if os.path.isfile(container_location):
-		raise ContainerAlreadyExists(create_request.container_name)
+		raise ContainerAlreadyExists(DBCreateRequest.container)
 
-	success = await makeNewContainer(db_instance, create_request.container_name)
+	success = await makeNewContainer(cls, DBCreateRequest.container)
 
 	if not success:
-		db_instance.Server.Logger.critical(f"create container '{create_request.container_name}' failed")
-		raise SysCreateError(create_request.container_name)
+		cls.PhaazeDBS.Logger.critical(f"create container '{DBCreateRequest.container}' failed")
+		raise SysCreateError(DBCreateRequest.container)
 
 	res = dict(
 		code=201,
 		status="created",
 
-		msg=f"created container '{create_request.container_name}'"
+		msg=f"created container '{DBCreateRequest.container}'"
 	)
-	if db_instance.Server.action_logging:
-		db_instance.Server.Logger.info(f"created container '{create_request.container_name}'")
-	return db_instance.response(status=201, body=json.dumps(res))
+	if cls.PhaazeDBS.action_logging:
+		cls.PhaazeDBS.Logger.info(f"created container '{DBCreateRequest.container}'")
+	return cls.response(status=201, body=json.dumps(res))
 
-async def makeNewContainer(db_instance, container_name):
-	new_container = dict (
+async def makeNewContainer(cls, container_name:str) -> bool:
+	new_content:dict = dict (
 		current_id = 1,
 		data = dict(),
 		default = dict(),
 		creation_date = str(datetime.now())
 	)
 
-	created = await db_instance.store(container_name, new_container, create=True)
+	NewContainer:Container = Container(cls, container_name, status="new", content=new_content)
+	created = await cls.store(NewContainer, create=True)
 
 	return created
