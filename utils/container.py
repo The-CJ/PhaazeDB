@@ -53,7 +53,7 @@ class Container(object):
 		"""
 		if self.removed:
 			return True
-		self.removed = True
+		if remove_from_ram: self.removed = True
 		self.keep_alive_time_left = 0
 
 		# save content
