@@ -18,6 +18,7 @@ class DBRequest(object):
 	def setContent(self, content:dict) -> None:
 		if type(content) is not dict: return
 		self.content = content
+		print(self.content)
 
 	def get(self, *arg) -> Any:
 		if len(arg) == 0:
@@ -26,7 +27,7 @@ class DBRequest(object):
 			if len(arg) > 1: return self.content.get(arg[0], arg[1])
 			else: return self.content.get(arg[0])
 
-async def jsonContent(cls:"PhaazeDatabase", WebRequest:Request):
+async def jsonContent(cls:"PhaazeDatabase", WebRequest:Request) -> DBRequest:
 	DBReq = DBRequest("JSON")
 
 	try:
@@ -37,7 +38,7 @@ async def jsonContent(cls:"PhaazeDatabase", WebRequest:Request):
 		DBReq.error_msg = str(e)
 		return DBReq
 
-async def postContent(cls:"PhaazeDatabase", WebRequest:Request):
+async def postContent(cls:"PhaazeDatabase", WebRequest:Request) -> DBRequest:
 	DBReq = DBRequest("POST")
 
 	try:

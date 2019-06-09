@@ -104,9 +104,9 @@ class Database(object):
 		all_success:bool = True
 		for container_name in list(self.db):
 			if remove_from_ram:
-				saved = await self.db[container_name].remove()
+				saved:bool = await self.db[container_name].remove()
 			else:
-				saved = await self.db[container_name].save()
+				saved:bool = await self.db[container_name].save()
 			if not saved:
 				all_success = False
 				self.PhaazeDBS.Logger.critical(f"[Save-All] Could not save container: {container_name}")
@@ -247,7 +247,7 @@ class Database(object):
 			return await self.storeImport(WebRequest)
 
 		elif action == "export":
-			return await self.storeExport(WebRequest)
+			return await self.storeExport(WebRequest, DBReq)
 
 		else:
 			return await self.unknownFunction()
