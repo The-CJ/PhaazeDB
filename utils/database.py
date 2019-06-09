@@ -4,7 +4,7 @@ if TYPE_CHECKING:
 
 import json
 from utils.security import password
-from aiohttp.web import Application, middleware, Request, StreamResponse, Response, HTTPException
+from aiohttp.web import middleware, Request, StreamResponse, Response, HTTPException
 from utils.loader import DBRequest
 
 class Database(object):
@@ -238,7 +238,7 @@ class Database(object):
 			return await self.default(WebRequest)
 
 		elif action == "describe":
-			return await self.describe(WebRequest)
+			return await self.describe(WebRequest, DBReq)
 
 		elif action == "option":
 			return await self.option(WebRequest)
