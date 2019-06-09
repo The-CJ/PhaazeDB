@@ -6,6 +6,7 @@ import json, math
 from utils.errors import MissingOfField, InvalidLimit, MissingUpdateContent, SysLoadError, ContainerNotFound, InvalidUpdateExec, SysStoreError
 from aiohttp.web import Request, Response
 from utils.loader import DBRequest
+from utils.container import Container
 
 class UpdateEntry(dict):
 	"""
@@ -14,7 +15,9 @@ class UpdateEntry(dict):
 	 	get's reverted to normal dict after update is finished
 	"""
 	def __setitem__(self, key, value):
-		super(UpdateEntry, self).__setitem__(str(key), value)
+		super().__setitem__(str(key), value)
+	def __getitem__(self, key):
+		return super().__getitem__(str(key))
 
 class UpdateRequest(object):
 	"""
@@ -105,7 +108,7 @@ async def update(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> R
 	except Exception as ex:
 		return await cls.criticalError(ex)
 
-async def performUpdate(cls:"PhaazeDatabase", DBUpdateRequest:UpdateRequest):
+async def performUpdate(cls:"PhaazeDatabase", DBUpdateRequest:UpdateRequest) -> Response:
 
 	result:dict = await updateDataInContainer(cls, DBUpdateRequest)
 
@@ -120,74 +123,78 @@ async def performUpdate(cls:"PhaazeDatabase", DBUpdateRequest:UpdateRequest):
 		cls.PhaazeDBS.Logger.info(f"updated {str(result['hits'])} entry(s) from '{DBUpdateRequest.container}'")
 	return cls.response(status=201, body=json.dumps(res))
 
-async def updateDataInContainer(db_instance, update_request):
+async def updateDataInContainer(cls:"PhaazeDatabase", DBUpdateRequest:UpdateRequest) -> dict:
 
 	#unnamed key
-	if update_request.method == "dict" and update_request.content.get("", EmptyObject) != EmptyObject:
+	if DBUpdateRequest.method == "dict" and DBUpdateRequest.content.get("", EmptyObject) != EmptyObject:
 		raise MissingUpdateContent(True)
 
 	#get current container from db
-	container = await db_instance.load(update_request.container)
+	DBContainer:Container = await cls.load(DBUpdateRequest.container)
 
 	#error handling
-	if container.status == "sys_error": raise SysLoadError(update_request.container)
-	elif container.status == "not_found": raise ContainerNotFound(update_request.container)
-	elif container.status == "success":	container = container.content
+	if DBContainer.status == "sys_error": raise SysLoadError(DBUpdateRequest.container)
+	elif DBContainer.status == "not_found": raise ContainerNotFound(DBUpdateRequest.container)
+	elif DBContainer.status == "success":
+		pass
 
 	#return values
-	hits = 0
+	hits:int = 0
 
 	#go through all entrys
-	found = 0
-	for entry_id in container.get('data', []):
-		entry = container['data'][entry_id]
+	found:int = 0
+	for entry_id in DBContainer.data:
+		entry:dict = DBContainer.data[entry_id]
 		entry['id'] = entry_id
 
-		# where dont hit entry, means skip, we dont need it
-		if not await checkWhere(where=update_request.where, check_entry=entry, check_name=update_request.store):
+		# where don't hit on entry, means skip, we dont need it
+		if not await checkWhere(where=DBUpdateRequest.where, check_name=DBUpdateRequest.store, check_entry=entry, ):
 			continue
 
 		found += 1
-		if update_request.offset >= found:
+		if DBUpdateRequest.offset >= found:
 			continue
 
 		# update the entry with new content
-		container['data'][entry_id] = await updateEntry(entry, update_request)
+		DBContainer.data[entry_id] = await updateEntry(entry, DBUpdateRequest)
 
 		hits += 1
 
-		if hits >= update_request.limit:
+		if hits >= DBUpdateRequest.limit:
 			break
 
 	#save everything
-	success = await db_instance.store(update_request.container, container)
+	success:bool = await cls.store(DBContainer)
 
 	if not success:
-		db_instance.Server.Logger.critical(f"updateing data in container '{update_request.container}' failed")
-		raise SysStoreError(update_request.container)
+		cls.PhaazeDBS.Logger.critical(f"updateing data in container '{DBUpdateRequest.container}' failed")
+		raise SysStoreError(DBUpdateRequest.container)
 
-	return hits, len(container.get('data', []) )
+	return dict(
+		hits = hits,
+		total = len(DBContainer.data)
+	)
 
-async def updateEntry(data, update_request):
-	if update_request.method == "dict":
-		for new_data_key in update_request.content:
-			data[str(new_data_key)] = update_request.content[new_data_key]
+async def updateEntry(data:dict, DBUpdateRequest:UpdateRequest) -> dict:
+	if DBUpdateRequest.method == "dict":
+		for new_data_key in DBUpdateRequest.content:
+			data[str(new_data_key)] = DBUpdateRequest.content[new_data_key]
 
-	elif update_request.method == "str":
+	elif DBUpdateRequest.method == "str":
 		# wrap db entry, to ensure dict keys are strings
 		data = UpdateEntry(data)
-		if update_request.store:
+		if DBUpdateRequest.store:
 			loc = locals()
-			loc[update_request.store] = data
+			loc[DBUpdateRequest.store] = data
 
 		try:
-			exec(update_request.content)
+			exec(DBUpdateRequest.content)
 		except Exception as e:
 			raise InvalidUpdateExec(str(e))
 
 	return dict(data)
 
-async def checkWhere(where="", check_entry=None, check_name=None):
+async def checkWhere(where:str="", check_name:str=None, check_entry:dict=None) -> bool:
 	if not where:
 		return True
 
