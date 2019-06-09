@@ -241,7 +241,7 @@ class Database(object):
 			return await self.describe(WebRequest, DBReq)
 
 		elif action == "option":
-			return await self.option(WebRequest)
+			return await self.option(WebRequest, DBReq)
 
 		elif action == "import":
 			return await self.storeImport(WebRequest)
