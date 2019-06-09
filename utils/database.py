@@ -229,7 +229,7 @@ class Database(object):
 			return await self.create(WebRequest, DBReq)
 
 		elif action == "drop":
-			return await self.drop(WebRequest)
+			return await self.drop(WebRequest, DBReq)
 
 		elif action == "show":
 			return await self.show(WebRequest, DBReq)

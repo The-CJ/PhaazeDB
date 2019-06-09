@@ -86,7 +86,7 @@ async def performDefault(cls:"PhaazeDatabase", DBDefaultRequest:DefaultRequest) 
 		cls.Server.Logger.critical(f"setting default set for container '{DBDefaultRequest.container}' failed")
 		raise SysStoreError(DBDefaultRequest.container)
 
-	res = dict(
+	res:dict = dict(
 		code=200,
 		status="default set",
 		container=DBDefaultRequest.container,
