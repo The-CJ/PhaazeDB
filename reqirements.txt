@@ -1,2 +1,3 @@
+cysystemd
 aiohttp
 logging

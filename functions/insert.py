@@ -1,25 +1,32 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from utils.database import Database as PhaazeDatabase
+
 import json
 from utils.errors import MissingIntoField, InvalidContent, SysLoadError, SysStoreError, ContainerNotFound, ContainerBroken
+from utils.container import Container
+from utils.loader import DBRequest
+from aiohttp.web import Request, Response
 
 class InsertRequest(object):
 	""" Contains informations for a valid insert request,
 		does not mean the container exists """
-	def __init__(self, db_req):
+	def __init__(self, DBReq:DBRequest):
 		self.container:str = None
 		self.content:dict = dict()
 
-		self.getContainter(db_req)
-		self.getContent(db_req)
+		self.getContainter(DBReq)
+		self.getContent(DBReq)
 
-	def getContainter(self, db_req):
-		self.container = db_req.get("into", "")
+	def getContainter(self, DBReq:DBRequest) -> None:
+		self.container = DBReq.get("into", "")
 		self.container = self.container.replace('..', '')
 		self.container = self.container.strip('/')
 
 		if not self.container: raise MissingIntoField()
 
-	def getContent(self, db_req):
-		self.content = db_req.get("content", None)
+	def getContent(self, DBReq:DBRequest) -> None:
+		self.content = DBReq.get("content", None)
 
 		if type(self.content) is str:
 			try:
@@ -30,66 +37,67 @@ class InsertRequest(object):
 		if type(self.content) is not dict:
 			raise InvalidContent()
 
-async def insert(self, request):
+async def insert(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> Response:
 	""" Used to insert a new entry into a existing container """
 
 	# prepare request for a valid insert
 	try:
-		insert_request = InsertRequest(request.db_request)
-		return await performInsert(self, insert_request)
+		DBInsertRequest:InsertRequest = InsertRequest(DBReq)
+		return await performInsert(cls, DBInsertRequest)
 
-	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError) as e:
+	except (MissingIntoField, InvalidContent, ContainerNotFound, ContainerBroken, SysLoadError, SysStoreError) as e:
 		res = dict(
 			code = e.code,
 			status = e.status,
 			msg = e.msg()
 		)
-		return self.response(status=e.code, body=json.dumps(res))
+		return cls.response(status=e.code, body=json.dumps(res))
 
 	except Exception as ex:
-		return await self.criticalError(ex)
+		return await cls.criticalError(ex)
 
-async def performInsert(db_instance, insert_request):
+async def performInsert(cls:"PhaazeDatabase", DBInsertRequest:InsertRequest) -> Response:
 
-	#unnamed key
-	if insert_request.content.get('', EmptyObject) != EmptyObject:
+	# unnamed key
+	if DBInsertRequest.content.get('', EmptyObject) != EmptyObject:
 		raise InvalidContent(True)
 
-	#get current container from db
-	container = await db_instance.load(insert_request.container)
+	# get current container from db
+	DBContainer:Container = await cls.load(DBInsertRequest.container)
 
-	#error handling
-	if container.status == "sys_error": raise SysLoadError(insert_request.container)
-	elif container.status == "not_found": raise ContainerNotFound(insert_request.container)
-	elif container.status == "success":	container = container.content
+	# error handling
+	if DBContainer.status == "sys_error": raise SysLoadError(DBInsertRequest.container)
+	elif DBContainer.status == "not_found": raise ContainerNotFound(DBInsertRequest.container)
+	elif DBContainer.status == "success":
+		pass
 
-	#get current_id
-	current_id_index = container.get('current_id',  None)
-	if current_id_index == None: raise ContainerBroken(insert_request.container)
+	# get current_id
+	current_id_index:int = DBContainer.currentid
+	if not current_id_index:
+		raise ContainerBroken(DBInsertRequest.container)
 
 	#add entry
-	insert_request.content['id'] = current_id_index
-	container['data'][current_id_index] = insert_request.content
+	DBContainer.data[current_id_index] = DBInsertRequest.content
 
 	#increase id
-	container['current_id'] = current_id_index + 1
+	DBContainer.increaseId()
 
 	#save everything
-	success = await db_instance.store(insert_request.container, container)
+	success = await cls.store(DBContainer)
 
 	if not success:
-		db_instance.Server.Logger.critical(f"inserting data into container '{insert_request.container}' failed")
-		raise SysStoreError(insert_request.container)
+		cls.PhaazeDBS.Logger.critical(f"inserting data into container '{DBInsertRequest.container}' failed")
+		raise SysStoreError(DBInsertRequest.container)
 
 	res = dict(
 		code=201,
 		status="inserted",
-		msg=f"successfully inserted into container '{insert_request.container}'",
-		data=insert_request.content
+		msg=f"successfully inserted into container '{DBInsertRequest.container}'",
+		data={ **DBInsertRequest.content, "id":current_id_index }
 	)
 
-	if db_instance.Server.action_logging:
-		db_instance.Server.Logger.info(f"insert entry into '{insert_request.container}': {str(insert_request.content)}")
-	return db_instance.response(status=201, body=json.dumps(res))
+	if cls.PhaazeDBS.action_logging:
+		cls.PhaazeDBS.Logger.info(f"insert entry into '{DBInsertRequest.container}': ID: {current_id_index} - {str(DBInsertRequest.content)}")
+	return cls.response(status=201, body=json.dumps(res))
 
 class EmptyObject(object): pass

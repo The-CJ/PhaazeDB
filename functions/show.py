@@ -1,23 +1,31 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+	from utils.database import Database as PhaazeDatabase
+
 import json, os
 from utils.errors import CantAccessContainer
+from aiohttp.web import Request, Response
+from utils.loader import DBRequest
 
 class ShowRequest(object):
-	""" Contains informations for a valid show request,
-		does not mean if can be executed without errors """
-	def __init__(self, db_req):
+	"""
+		Contains informations for a valid show request,
+		does not mean if can be executed without errors
+	"""
+	def __init__(self, DBReq:DBRequest):
 		self.recursive:bool = False
 		self.path:str = None
 
-		self.getRecursive(db_req)
-		self.getPath(db_req)
+		self.getRecursive(DBReq)
+		self.getPath(DBReq)
 
-	def getRecursive(self, db_req):
-		self.recursive = db_req.get("recursive",None)
+	def getRecursive(self, DBReq:DBRequest) -> None:
+		self.recursive = DBReq.get("recursive",None)
 		if type(self.recursive) is not bool:
 			self.recursive = bool(self.recursive)
 
-	def getPath(self, db_req):
-		self.path = db_req.get("path", "")
+	def getPath(self, DBReq:DBRequest) -> None:
+		self.path = DBReq.get("path", "")
 		if type(self.path) is not str:
 			self.path = str(self.path)
 
@@ -26,12 +34,13 @@ class ShowRequest(object):
 
 		if not self.path: self.path = ""
 
-async def show(self, request):
-	""" Shows container hierarchy from 'name' or all if not defined """
-
+async def show(cls:"PhaazeDatabase", WebRequest:Request, DBReq:DBRequest) -> Response:
+	"""
+		Shows container hierarchy from 'name' or all if not defined
+	"""
 	try:
-		show_request = ShowRequest(request.db_request)
-		return await performShow(self, show_request)
+		DBShowRequest:ShowRequest = ShowRequest(DBReq)
+		return await performShow(cls, DBShowRequest)
 
 	except (CantAccessContainer) as e:
 		res = dict(
@@ -39,41 +48,41 @@ async def show(self, request):
 			status = e.status,
 			msg = e.msg()
 		)
-		return self.response(status=e.code, body=json.dumps(res))
+		return cls.response(status=e.code, body=json.dumps(res))
 
 	except Exception as ex:
-		return await self.criticalError(ex)
+		return await cls.criticalError(ex)
 
-async def performShow(db_instance, show_request):
+async def performShow(cls:"PhaazeDatabase", DBShowRequest:ShowRequest) -> Response:
 
-	check_location = f"{db_instance.container_root}{show_request.path}"
+	check_location:str = f"{cls.container_root}{DBShowRequest.path}"
 
 	if not os.path.exists(check_location):
 		res = dict(
 			code=400,
 			status="error",
-			msg=f"no tree path found at '{show_request.path}'",
+			msg=f"no tree path found at '{DBShowRequest.path}'",
 		)
-		return db_instance.response(status=400, body=json.dumps(res))
+		return cls.response(status=400, body=json.dumps(res))
 
-	root = {'supercontainer': {},'container': [], 'unusable': []}
-	tree = await getContainer(root, check_location, recursive=show_request.recursive)
+	root:dict = {'supercontainer': {},'container': [], 'unusable': []}
+	tree:dict = await getContainer(root, check_location, recursive=DBShowRequest.recursive)
 
-	res = dict(
+	res:dict = dict(
 		code=200,
 		status="showed",
-		path=show_request.path,
-		recursive=show_request.recursive,
+		path=DBShowRequest.path,
+		recursive=DBShowRequest.recursive,
 		tree=tree
 	)
 
-	if db_instance.Server.action_logging:
-		db_instance.Server.Logger.info(f"showed tree: path={show_request.path}, recursive={str(show_request.recursive)}")
-	return db_instance.response(status=200, body=json.dumps(res))
+	if cls.PhaazeDBS.action_logging:
+		cls.PhaazeDBS.Logger.info(f"showed tree: path={DBShowRequest.path}, recursive={str(DBShowRequest.recursive)}")
+	return cls.response(status=200, body=json.dumps(res))
 
-async def getContainer(tree, folder_path, recursive=False):
+async def getContainer(tree:dict, folder_path:str, recursive:bool=False) -> dict:
 	try:
-		container_list = os.listdir(folder_path)
+		container_list:list = os.listdir(folder_path)
 	except PermissionError:
 		raise CantAccessContainer(folder_path,"supercontainer")
 
