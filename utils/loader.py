@@ -3,6 +3,7 @@ if TYPE_CHECKING:
 	from utils.database import Database as PhaazeDatabase
 
 from aiohttp.web import Request
+from aiohttp.formdata import MultiDictProxy
 
 class DBRequest(object):
 	"""
@@ -16,9 +17,8 @@ class DBRequest(object):
 		self.content:dict = dict()
 
 	def setContent(self, content:dict) -> None:
-		if type(content) is not dict: return
+		if type(content) not in [dict, MultiDictProxy]: raise AttributeError("need a dict type")
 		self.content = content
-		print(self.content)
 
 	def get(self, *arg) -> Any:
 		if len(arg) == 0:

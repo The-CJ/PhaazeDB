@@ -20,12 +20,12 @@ class ExportRequest(object):
 		self.getRecursive(DBReq)
 		self.getContainter(DBReq)
 
-	def getRecursive(self, DBReq:DBRequest):
+	def getRecursive(self, DBReq:DBRequest) -> None:
 		self.recursive = DBReq.get("recursive",None)
 		if type(self.recursive) is not bool:
 			self.recursive = bool(self.recursive)
 
-	def getContainter(self, DBReq:DBRequest):
+	def getContainter(self, DBReq:DBRequest) -> None:
 		self.container = DBReq.get("container", "")
 		if type(self.container) is not str:
 			self.container = str(self.container)
