@@ -95,8 +95,7 @@ class ImportRequest(object):
 				raise ImportEntryExists()
 
 		del entry["id"]
-		DBContainer.data
-		[entry_id] = entry
+		DBContainer.data[entry_id] = entry
 
 		if entry_id >= DBContainer.content.get("current_id", 0):
 			DBContainer.content["current_id"] = entry_id + 1
@@ -184,7 +183,6 @@ async def storeImportHandler(cls:"PhaazeDatabase", DBReq:DBRequest) -> Response:
 		return await cls.criticalError(ex)
 
 async def performImport(cls:"PhaazeDatabase", DBImportRequest:ImportRequest):
-	print(type(DBImportRequest.fileObject))
 	for line in DBImportRequest.fileObject.file:
 		await DBImportRequest.processLine(line)
 
